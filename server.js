@@ -3,36 +3,11 @@ var path=require("path");
 var fs=require("fs");
 var url=require("url");
 var querystring=require("querystring");
-var bunyan = require('bunyan');
+
+var logger=require("./logger")("server");
 
 require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var goPath=µ.getModule("goPath");
-
-var errorSerializer=function(error)
-{
-	if(error instanceof Error)
-		return {
-			name:error.name,
-			message:error.message,
-			stack:error.stack
-		};
-	return error
-};
-var logger=bunyan.createLogger({
-	name:"server",
-	streams:[
-		{stream: process.stdout},
-		{
-			type: "rotating-file",
-			path:path.resolve(__dirname,"server.log"),
-			period:"1d",
-			count:7
-		}
-	],
-	serializers: {
-		error: errorSerializer
-	}
-})
 
 var config=require("./config");
 logger.info("starting server",config);
@@ -54,7 +29,7 @@ var server=http.createServer(function(request,response)
 			}
 			catch (e)
 			{
-				logger.error("could not load rest service %s",restPath[0],request.url);
+				logger.error({error:e},"could not load rest service %s",restPath[0],request.url);
 				return fillResponse(response,500,e);
 			}
 		}

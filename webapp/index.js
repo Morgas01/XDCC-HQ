@@ -1,48 +1,42 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
 	var SC=SC({
-		req:"request"
+		req:"request",
+		gIn:"getInputValues",
+		sIn:"setInputValues"
 	});
 	//TODO set µ.logger.out
 	
+	//config
 	var updateConfig=function()
 	{
-		var dom=document.getElementById("config");
 		return SC.req.json("rest/config").then(function(config)
 		{
-			var html='<table>';
-			for(var i in config)
-			{
-				html+='<tr><td>'+i+'</td><td>';
-
-				switch(typeof config[i])
-				{
-					case "number":
-						html+='<input type="number" min="0" value="'+config[i]+'">';
-						break;
-					case "boolean":
-						html+='<input type="checkbox" checked="'+config[i]+'">';
-						break;
-					default:
-						html+='<input type="text" value="'+config[i]+'">';
-				}
-				html+='</td></tr>'
-			}
-			html+='</table>';
-			dom.innerHTML=html;
-			
+			SC.sIn(document.querySelectorAll("#config input"),config);
 			return config;
 		},errorlogger);
 	}
 	
+	
+	
+	//search
+	document.getElementById("searchForm").addEventListener("submit",function(e)
+	{
+		e.preventDefault();
+		if(this.checkValidity())SC.req.json({url:"rest/search",data:this.search.value}).then(function(results)
+		{
+			µ.logger.info(results);
+		},errorlogger);
+		return false;
+	});
+	
+	//utils
 	var errorlogger=function(e)
 	{
 		µ.logger.error(e);
 		throw e;
 	}
 	
-	
-	
-	
-	updateConfig()
+	//execute
+	updateConfig();
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

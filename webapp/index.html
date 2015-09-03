@@ -8,10 +8,27 @@
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.function.rescope.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.Promise.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.Request.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.goPath.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.inputValues.js"></script>
 		
 		<script type="text/javascript" defer="defer" src="index.js"></script>
 	</head>
 	<body>
-		<div id="config"></div>
+		<div id="config">
+			<table>
+				<tr><td>serverPort</td><td><input name="serverPort" required min="0" type="number"></td></tr>
+				<tr><td>downloadDir</td><td><input name="downloadDir" required type="text"><input name="resolvedDownloadDir" type="text" disabled></td></tr>
+				<tr><td>maxDownloads</td><td><input name="maxDownloads" required min="0" type="number"></td></tr>
+				<tr><td>maxNetworkDownloads</td><td><input name="maxNetworkDownloads" required min="0" type="number"></td></tr>
+				<tr><td>maxBotDownloads</td><td><input name="maxBotDownloads" required min="0" type="number"></td></tr>
+				<tr><td>cleanNames</td><td><input name="cleanNames" type="checkbox"></td></tr>
+				<tr><td>checkCRC</td><td><input name="checkCRC" type="checkbox"></td></tr>
+			</table>
+		</div>
+		<div id="search">
+			<form id="searchForm">
+				<input name="search" required autofocus placeholder="search"><button type="submit">search</button>
+			</form>
+		</div>
 	</body>
 </html>
