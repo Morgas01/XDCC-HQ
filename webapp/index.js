@@ -3,7 +3,8 @@
 	var SC=SC({
 		req:"request",
 		gIn:"getInputValues",
-		sIn:"setInputValues"
+		sIn:"setInputValues",
+		sr:"SearchResult"
 	});
 	//TODO set µ.logger.out
 	
@@ -25,7 +26,7 @@
 		e.preventDefault();
 		if(this.checkValidity())SC.req.json({url:"rest/search",data:this.search.value}).then(function(results)
 		{
-			µ.logger.info(results);
+			document.getElementById("search").appendChild(new SC.sr(results).domElement);
 		},errorlogger);
 		return false;
 	});

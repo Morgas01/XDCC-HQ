@@ -1,0 +1,24 @@
+.searchResult {
+	border:thick outset;
+	border-radius: 5px;
+	padding:5px;
+}
+.searchResult table {
+	border-collapse: collapse;
+	width: 100%;
+}
+.searchResult th {
+	padding: 0 5px;
+	background-color: #FFA;
+	border: 1px solid gray;
+}
+.searchResult td {
+	padding: 0 5px;
+	border: 1px solid gray;
+}
+.searchResult tr:nth-Child(even) {
+	background-color: #EECCFF;
+}
+.searchResult tr.selected {
+	background-color: #AAAAFF;
+}

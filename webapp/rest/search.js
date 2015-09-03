@@ -34,18 +34,20 @@ var doSearch=function(subOffice,search)
 {
 	return new Promise(function (resolve)
 	{
+		logger.info({search:search},"start hunting in subOffice %s",subOffice);
 		var hunter=fork(path.join(__dirname,"..","..","hunter"),[subOffice,search]);
 		hunter.on("message",function(data)
 		{
+			logger.info({search:search},"hunted in subOffice %s %d packs",subOffice,data.length);
 			resolve(JSON.parse(data));
 		});
 		hunter.on("error",function(err){
-			logger.error({error:err},"hunter has trown an error for subOffice %s",subOffice);
+			logger.error({search:search,error:err},"hunter has trown an error for subOffice %s",subOffice);
 			resolve();
 		})
 		hunter.on("exit",function()
 		{
-			logger.info("hunt ended in subOffice %s",subOffice);
+			logger.info({search:search},"hunt ended in subOffice %s",subOffice);
 			resolve();
 		});
 	});

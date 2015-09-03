@@ -19,7 +19,6 @@ exports.parse=function(data)
 			packnumber:match[2],
 			size:match[3]
 		});
-		console.log(rtn[rtn.length-1]);
 	}
 	return rtn;
 }
