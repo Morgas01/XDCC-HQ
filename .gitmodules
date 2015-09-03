@@ -1,0 +1,3 @@
+[submodule "webapp/Morgas"]
+	path = webapp/Morgas
+	url = https://github.com/Morgas01/Morgas.js
