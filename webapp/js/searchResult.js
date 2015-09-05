@@ -1,5 +1,6 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 	
+	var Tab=GMOD("Tab");
 	var goPath=GMOD("goPath");
 	
 	SC=SC({
@@ -17,9 +18,10 @@
 		packnumber:goPath.guide("packnumber"),
 		size:goPath.guide("size")
 	};
-	var SR=µ.Class({
-		init:function(results)
+	var SR=µ.Class(Tab,{
+		init:function(header,results)
 		{
+			this.mega(header);
 			SC.rs.all(this,["_onFilter","_onSelect","_onSort"])
 			this.org=new SC.org(results);
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
@@ -29,9 +31,8 @@
 			
 			this.sort="name";
 			this.desc=false;
-			this.domElement=document.createElement("div");
-			this.domElement.classList.add("searchResult");
-			this.domElement.innerHTML=""+
+			this.content.classList.add("searchResult");
+			this.content.innerHTML=""+
 			'<form><input type="text name="filter" placeholder="filter"><button type="submit">filter</button></form>'+
 			'<table>'+
 				'<thead>'+
@@ -46,10 +47,10 @@
 				'</thead>'+
 				'<tbody></tbody>'+
 			'</table>';
-			this.domElement.childNodes[0].addEventListener("submit",this._onFilter);
+			this.content.childNodes[0].addEventListener("submit",this._onFilter);
 			
 
-			var thead=this.domElement.querySelector("thead");
+			var thead=this.content.querySelector("thead");
 			thead.addEventListener("click",this._onSort)
 			
 			var itemsHtml=results.map((r,i)=>'<tr data-index="'+i+'">'+
@@ -60,7 +61,7 @@
 				'<td>'+r.packnumber+'</td>'+
 				'<td>'+r.size+'</td>'+
 			'</tr>').join("\n");
-			var tbody=this.domElement.querySelector("tbody");
+			var tbody=this.content.querySelector("tbody");
 			tbody.innerHTML=itemsHtml;
 			tbody.addEventListener("click",this._onSelect)
 		},
@@ -82,7 +83,7 @@
 			{
 				if(!e.ctrlKey)
 				{
-					var selected=this.domElement.querySelectorAll(".selected");
+					var selected=this.content.querySelectorAll(".selected");
 					for(var i=0;i<selected.length;i++)selected[i].classList.remove("selected");
 				}
 				tr.classList.toggle("selected");

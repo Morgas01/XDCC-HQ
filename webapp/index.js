@@ -4,7 +4,8 @@
 		req:"request",
 		gIn:"getInputValues",
 		sIn:"setInputValues",
-		sr:"SearchResult"
+		tc:"TabContainer",
+		sr:"SearchResult",
 	});
 	//TODO set µ.logger.out
 	
@@ -21,12 +22,19 @@
 	
 	
 	//search
+	var tabContainer=null;
 	document.getElementById("searchForm").addEventListener("submit",function(e)
 	{
 		e.preventDefault();
-		if(this.checkValidity())SC.req.json({url:"rest/search",data:this.search.value}).then(function(results)
+		var search=this.search.value;
+		if(this.checkValidity())SC.req.json({url:"rest/search",data:search}).then(function(results)
 		{
-			document.getElementById("search").appendChild(new SC.sr(results).domElement);
+			if(!tabContainer)
+			{
+				tabContainer=new SC.tc();
+				document.getElementById("search").appendChild(tabContainer.domElement);
+			}
+			tabContainer.add(new SC.sr(search,results));
 		},errorlogger);
 		return false;
 	});
