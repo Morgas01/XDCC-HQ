@@ -27,7 +27,7 @@
 	{
 		e.preventDefault();
 		var search=this.search.value;
-		if(this.checkValidity())SC.req.json({url:"rest/search",data:search}).then(function(results)
+		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:search}).then(function(results)
 		{
 			if(!tabContainer)
 			{

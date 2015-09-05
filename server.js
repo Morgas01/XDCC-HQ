@@ -4,11 +4,9 @@ var fs=require("fs");
 var url=require("url");
 var querystring=require("querystring");
 
-var logger=require("./logger")("server");
-
 require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
+var logger=require("./logger")("server");
 var goPath=µ.getModule("goPath");
-
 var config=require("./config");
 logger.info("starting server",config);
 

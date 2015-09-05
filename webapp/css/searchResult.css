@@ -3,6 +3,9 @@
 	border-radius: 5px;
 	padding:5px;
 }
+.searchResult form,.searchResult .actions {
+    display: inline;
+}
 .searchResult table {
 	border-collapse: collapse;
 	width: 100%;
@@ -15,10 +18,33 @@
 .searchResult td {
 	padding: 0 5px;
 	border: 1px solid gray;
+	cursor: pointer;
 }
 .searchResult tr:nth-Child(even) {
 	background-color: #EECCFF;
 }
 .searchResult tr.selected {
 	background-color: #AAAAFF;
+}
+
+.dialog {
+    position: fixed;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding:5px;
+    border: 1px solid;
+    border-radius: 10px;
+    background-color: white;
+    z-index: 1;
+}
+.dialog::before {
+    position: absolute;
+    top:-1000px;
+    right: -1000px;
+    bottom:-1000px;
+    left: -1000px;
+    background-color: RGBA(0,0,0,0.5);
+    content: "";
+    z-index: -1;
 }
