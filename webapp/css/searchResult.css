@@ -6,25 +6,44 @@
 .searchResult form,.searchResult .actions {
     display: inline;
 }
-.searchResult table {
-	border-collapse: collapse;
-	width: 100%;
+.searchResult .resultList {
+	display:flex;
+	flex-direction:column;
 }
-.searchResult th {
-	padding: 0 5px;
-	background-color: #FFA;
-	border: 1px solid gray;
-}
-.searchResult td {
-	padding: 0 5px;
-	border: 1px solid gray;
+.searchResult .resultList > * {
+	display:flex;
+	flex-direction:row;
 	cursor: pointer;
 }
-.searchResult tr:nth-Child(even) {
+.searchResult .resultList > header {
+	background-color: #FFA;
+}
+.searchResult .resultList div:nth-Child(even) {
 	background-color: #EECCFF;
 }
-.searchResult tr.selected {
+.searchResult .resultList div.selected {
 	background-color: #AAAAFF;
+}
+.searchResult .resultList span {
+	border: 1px solid gray;
+	padding: 5px;
+	width:0%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.searchResult .resultList .col-bot {
+	flex-basis:10%;
+}
+.searchResult .resultList .col-channel,
+.searchResult .resultList .col-packnumber,
+.searchResult .resultList .col-size {
+	flex-basis:5%;
+}
+.searchResult .resultList .col-network {
+	flex-basis:10%
+}
+.searchResult .resultList .col-name {
+	flex-grow:1;
 }
 
 .dialog {

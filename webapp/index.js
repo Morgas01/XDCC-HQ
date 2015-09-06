@@ -48,4 +48,6 @@
 	
 	//execute
 	updateConfig();
+	
+	document.querySelector("#searchForm [name=search]").select();
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

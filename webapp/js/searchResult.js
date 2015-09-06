@@ -15,14 +15,14 @@
 		channel:goPath.guide("channel"),
 		bot:goPath.guide("bot"),
 		name:goPath.guide("name"),
-		packnumber:goPath.guide("packnumber"),
-		size:goPath.guide("size")
+		packnumber:p=>parseInt(p.packnumber,10)||p.packnumber,
+		size:p=>parseFloat(p.size.replace(/K$/i,"e-3").replace(/G$/i,"e+3"))||p.size
 	};
 	var SR=µ.Class(Tab,{
 		init:function(header,results)
 		{
 			this.mega(header);
-			SC.rs.all(this,["_onFilter","_onSelect","_onSort","_onAction"]);
+			SC.rs.all(this,["_onFilter","_onListClick","_onAction"]);
 			
 			this.org=new SC.org(results);
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
@@ -30,7 +30,7 @@
 			this.org.group("network",guides.network);
 			this.org.group("bot",guides.bot);
 			
-			this.sort="name";
+			this.sortColumn=null;
 			this.desc=false;
 			this.content.classList.add("searchResult");
 			var contentHTML='\
@@ -40,39 +40,33 @@
 		<button data-action="showSelected">show selected</button>\
 	</div>\
 </div>\
-<table class="resultList">\
-	<thead>\
-		<tr>\
-			<th>network</th>\
-			<th>channel</th>\
-			<th>bot</th>\
-			<th>name</th>\
-			<th>packnumber</th>\
-			<th>size</th>\
-		</tr>\
-	</thead>\
-	<tbody></tbody>\
-</table>\
+<div class="resultList">\
+	<header style="order:-1;">\
+		<span class="col-network">network</span>\
+		<span class="col-channel">channel</span>\
+		<span class="col-bot">bot</span>\
+		<span class="col-name">name</span>\
+		<span class="col-packnumber">packnumber</span>\
+		<span class="col-size">size</span>\
+	</header>\n'+
+	results.map((r,i)=>'<div data-index="'+i+'">'+
+		'<span class="col-network" title="'+r.network+'">'+r.network+'</span>'+
+		'<span class="col-channel" title="'+r.channel+'">'+r.channel+'</span>'+
+		'<span class="col-bot" title="'+r.bot+'">'+r.bot+'</span>'+
+		'<span class="col-name" title="'+r.name+'">'+r.name+'</span>'+
+		'<span class="col-packnumber" title="'+r.packnumber+'">'+r.packnumber+'</span>'+
+		'<span class="col-size" title="'+r.size+'">'+r.size+'</span>'+
+	'</div>').join("\n")+'\
+</div>\
 <div class="filters"></div>';
+
 			this.content.innerHTML=contentHTML;
 			this.content.querySelector("form").addEventListener("submit",this._onFilter);
 			this.content.querySelector(".actions").addEventListener("click",this._onAction);
+			this.resultList=this.content.querySelector(".resultList");
+			this.resultList.addEventListener("click",this._onListClick);
 			
-
-			var thead=this.content.querySelector("thead");
-			thead.addEventListener("click",this._onSort)
-			
-			var itemsHtml=results.map((r,i)=>'<tr data-index="'+i+'">'+
-				'<td>'+r.network+'</td>'+
-				'<td>'+r.channel+'</td>'+
-				'<td>'+r.bot+'</td>'+
-				'<td>'+r.name+'</td>'+
-				'<td>'+r.packnumber+'</td>'+
-				'<td>'+r.size+'</td>'+
-			'</tr>').join("\n");
-			var tbody=this.content.querySelector("tbody");
-			tbody.innerHTML=itemsHtml;
-			tbody.addEventListener("click",this._onSelect)
+			this.sort("name",false);
 		},
 		_onFilter:function(e)
 		{
@@ -84,29 +78,40 @@
 		{
 			//TODO
 		},
-		_onSelect:function(e)
+		_onListClick:function(e)
 		{
-			var tr=e.target;
-			while(tr&&tr.tagName!=="TR")tr=tr.parentNode;
-			if(tr)
+			var row=e.target;
+			while(row.parentNode&&row.parentNode!=this.resultList)row=row.parentNode;
+			if(row.parentNode)
 			{
-				if(!e.ctrlKey)
+				if(row.tagName==="HEADER")
 				{
-					var selected=this.content.querySelectorAll(".selected");
-					for(var i=0;i<selected.length;i++)selected[i].classList.remove("selected");
+					this.sort(e.target.textContent);
 				}
-				tr.classList.toggle("selected");
-				e.preventDefault();
-				return false;
+				else
+				{
+					if(!e.ctrlKey)
+					{
+						var selected=this.resultList.querySelectorAll(".selected");
+						for(var i=0;i<selected.length;i++)selected[i].classList.remove("selected");
+					}
+					row.classList.toggle("selected");
+				}
 			}
+			e.preventDefault();
+			return false;
 		},
-		_onSort:function(e)
+		sort:function(column,desc)
 		{
-			if(e.target.tagName==="TH")this.sort(e.target.textContent)
-		},
-		sort:function(column)
-		{
-			//TODO
+			if(this.sortColumn==column&&arguments.length==1) desc=!this.desc;
+			this.sortColumn=column;
+			this.desc=desc;
+			var order=this.org.getIndexSort(this.sortColumn);
+			if(this.desc)order.reverse();
+			for(var i=0;i<order.length;i++)
+			{
+				this.resultList.children[order[i]+1].style.order=i;
+			}
 		},
 		getSelected:function()
 		{

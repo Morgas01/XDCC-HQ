@@ -1,22 +1,22 @@
 .tabContainer {
-	display:inline-flex;
+	display:flex;
 	flex-wrap:wrap;
 }
-.tabContainer header {
+.tabContainer > header {
 	border:3px outset;
 	border-bottom-width:0;
 	border-radius: 5px 5px 0 0px;
 	line-height: 200%;
 	padding-left: 5px;
 }
-.tabContainer header.active {
+.tabContainer > header.active {
 	border-style:inset;
 	position:relative;
 }
-.tabContainer header:nth-child(n+2) {
+.tabContainer > header:nth-child(n+2) {
 	margin-left:1px;
 }
-.tabContainer header + * {
+.tabContainer > header + * {
 	order:2;
 	width:0;
 	flex-basis:100%;
@@ -24,10 +24,10 @@
 	border:3px inset;
 	border-radius: 0 5px 5px 5px;
 }
-.tabContainer header.active + * {
+.tabContainer > header.active + * {
 	display:block;
 }
-.tabContainer header button {
+.tabContainer > header button {
 	padding:0;
 	vertical-align: top;
 	font-size: 50%;
