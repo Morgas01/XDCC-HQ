@@ -16,26 +16,35 @@
 		bot:goPath.guide("bot"),
 		name:goPath.guide("name"),
 		packnumber:p=>parseInt(p.packnumber,10)||p.packnumber,
-		size:p=>parseFloat(p.size.replace(/K$/i,"e-3").replace(/G$/i,"e+3"))||p.size
+		size:p=>parseFloat(p.size.replace(/K$/i,"e-3").replace(/G$/i,"e+3"))||p.size,
+		subber:p=>
+		{
+			var m=p.name.match(/^\[([^\]]+)/);
+			if(m)return m[1];
+			return "no subber found";
+		}
 	};
+	
 	var SR=µ.Class(Tab,{
 		init:function(header,results)
 		{
 			this.mega(header);
-			SC.rs.all(this,["_onFilter","_onListClick","_onAction"]);
+			SC.rs.all(this,["_onFilter","_onListClick","_onAction","updateFilters"]);
 			
 			this.org=new SC.org(results);
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
-			
-			this.org.group("network",guides.network);
-			this.org.group("bot",guides.bot);
+
+			var groups=["subber","bot","network"];
+			for(var g of groups) this.org.group(g,guides[g]);
 			
 			this.sortColumn=null;
 			this.desc=false;
+			this.filterExp=null;
+			
 			this.content.classList.add("searchResult");
 			var contentHTML='\
-<div>\
-	<form><input type="text name="filter" placeholder="filter"><button type="submit">filter</button></form>\
+<div class="control">\
+	<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
 	<div class="actions">\
 		<button data-action="showSelected">show selected</button>\
 	</div>\
@@ -58,11 +67,20 @@
 		'<span class="col-size" title="'+r.size+'">'+r.size+'</span>'+
 	'</div>').join("\n")+'\
 </div>\
-<div class="filters"></div>';
+<div class="filters">\n';
+	for(var g of groups)
+	{
+		var parts=Object.keys(this.org.getGroup(g));
+		contentHTML+='<fieldset><legend>'+g+'</legend><select data-group="'+g+'" multiple="true">'+
+			parts.map(p=>'<option value="'+p+'">'+p+'</option>').join("\n")+
+		'</select></fieldset>';
+	}
++'</div>';
 
 			this.content.innerHTML=contentHTML;
 			this.content.querySelector("form").addEventListener("submit",this._onFilter);
 			this.content.querySelector(".actions").addEventListener("click",this._onAction);
+			this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
 			this.resultList=this.content.querySelector(".resultList");
 			this.resultList.addEventListener("click",this._onListClick);
 			
@@ -71,12 +89,22 @@
 		_onFilter:function(e)
 		{
 			e.preventDefault();
-			this.filter(e.filter.value);
+			this.filter(e.target.filter.value);
 			return false;
 		},
 		filter:function(filter)
 		{
-			//TODO
+			if(filter)
+			{
+				this.filterExp=filter;
+				if(!this.org.hasFilter(filter))
+				{
+					var exp=new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"g");
+					this.org.filter(filter,a=>exp.test(a.name));
+				}
+			}
+			else this.filterExp=null;
+			this.updateFilters();
 		},
 		_onListClick:function(e)
 		{
@@ -157,6 +185,24 @@
 			dialog.appendChild(closeBtn);
 			
 			document.body.appendChild(dialog);
+			textArea.select();
+		},
+		updateFilters:function()
+		{
+			var c=this.org.combine(false,this.sortColumn);
+			if(this.filterExp)c.filter(this.filterExp);
+			Array.forEach(this.content.querySelectorAll(".filters select"),s=>
+			{
+				var options=s.querySelectorAll(":checked");
+				if(options.length>0)
+				{
+					var sc=this.org.combine(true);
+					Array.forEach(options,e=>sc.group(s.dataset.group,e.value));
+					c.combine(sc);
+				}
+			});
+			Array.forEach(c.getIndexes(false),index=>this.resultList.children[index+1].classList.remove("hidden"));
+			Array.forEach(c.getIndexes(true),index=>this.resultList.children[index+1].classList.add("hidden"));
 		}
 	});
 	
