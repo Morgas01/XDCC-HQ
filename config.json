@@ -1,7 +1,8 @@
 {
 	"serverPort":8080,
-	"downloadDir":"./downloads",
-	"maxDownloads":8,
+	"ircNick":"YouDontKnowJack",
+	"downloadDir":"C:\\XDCC",
+	"maxDownloads":1,
 	"maxNetworkDownloads":4,
 	"maxBotDownloads":2,
 	"cleanNames":true,

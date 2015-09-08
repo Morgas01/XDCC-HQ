@@ -1,11 +1,14 @@
 {
   "name": "XDCC_HQ",
   "version": "0.0.1",
+  "main":"server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Morgas01/XDCC-HQ.git"
   },
   "dependencies": {
-    "bunyan": "^1.4.0"
+    "axdcc": "^0.2.23",
+    "bunyan": "^1.4.0",
+    "irc": "^0.3.12"
   }
 }

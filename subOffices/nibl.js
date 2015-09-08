@@ -12,8 +12,8 @@ exports.parse=function(data)
 	while(match=parseRegEx.exec(data))
 	{
 		rtn.push({
-			network:"irc://irc.rizon.net",
-			channel:"nibl",
+			network:"irc.rizon.net",
+			channel:"#nibl",
 			bot:match[1],
 			name:match[4],
 			packnumber:match[2],

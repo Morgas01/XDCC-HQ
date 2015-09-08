@@ -5,7 +5,8 @@
 	
 	SC=SC({
 		org:"Organizer",
-		rs:"rescope"
+		rs:"rescope",
+		rq:"request"
 	});
 	
 	//TODO var fields=[]
@@ -47,6 +48,7 @@
 	<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
 	<div class="actions">\
 		<button data-action="showSelected">show selected</button>\
+		<button data-action="download">download</button>\
 	</div>\
 </div>\
 <div class="resultList">\
@@ -145,6 +147,23 @@
 		{
 			return Array.map(this.content.querySelectorAll(".selected"),e=>this.org.values[e.dataset.index]);
 		},
+		updateFilters:function()
+		{
+			var c=this.org.combine(false,this.sortColumn);
+			if(this.filterExp)c.filter(this.filterExp);
+			Array.forEach(this.content.querySelectorAll(".filters select"),s=>
+			{
+				var options=s.querySelectorAll(":checked");
+				if(options.length>0)
+				{
+					var sc=this.org.combine(true);
+					Array.forEach(options,e=>sc.group(s.dataset.group,e.value));
+					c.combine(sc);
+				}
+			});
+			Array.forEach(c.getIndexes(false),index=>this.resultList.children[index+1].classList.remove("hidden"));
+			Array.forEach(c.getIndexes(true),index=>this.resultList.children[index+1].classList.add("hidden"));
+		},
 		_onAction:function(e)
 		{
 			if(e.target.dataset.action)
@@ -187,22 +206,29 @@
 			document.body.appendChild(dialog);
 			textArea.select();
 		},
-		updateFilters:function()
+		download:function()
 		{
-			var c=this.org.combine(false,this.sortColumn);
-			if(this.filterExp)c.filter(this.filterExp);
-			Array.forEach(this.content.querySelectorAll(".filters select"),s=>
+			SC.rq({
+				urls:["rest/download/add"],
+				contentType:"application/json",
+				data:JSON.stringify(this.getSelected()),
+				scope:this
+			}).then(function()
 			{
-				var options=s.querySelectorAll(":checked");
-				if(options.length>0)
+				var dialog=document.createElement("div");
+				dialog.classList.add("dialog");
+				dialog.textContent="successfully added packaged to download queue";
+				
+				var closeBtn=document.createElement("button");
+				closeBtn.textContent="close";
+				closeBtn.addEventListener("click",function()
 				{
-					var sc=this.org.combine(true);
-					Array.forEach(options,e=>sc.group(s.dataset.group,e.value));
-					c.combine(sc);
-				}
-			});
-			Array.forEach(c.getIndexes(false),index=>this.resultList.children[index+1].classList.remove("hidden"));
-			Array.forEach(c.getIndexes(true),index=>this.resultList.children[index+1].classList.add("hidden"));
+					dialog.remove();
+				});
+				dialog.appendChild(closeBtn);
+				
+				document.body.appendChild(dialog);
+			})
 		}
 	});
 	
