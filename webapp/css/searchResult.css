@@ -3,7 +3,7 @@
 	border-radius: 5px;
 	padding:5px;
 }
-div.tabContainer div.searchResult {
+.tabContainer > header.active + .searchResult {
 	/*override tab*/
 	display:flex;
 	flex-wrap:wrap;

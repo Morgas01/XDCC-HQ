@@ -45,13 +45,18 @@
 		download.dom.element.title=download.dom.element.dataset.state=download.state;
 		if(download.lastUpdateTime)
 		{
+			console.log(JSON.stringify(download));
 			var averageSpeed=download.progress[0]/(download.updateTime-download.startTime);
+			console.log("avs",averageSpeed);
 			var lastSpeed=(download.progress[0]-download.dom.progress.value)/(download.updateTime-download.lastUpdateTime);
+			console.log("ls",lastSpeed);
 			download.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s ( "+lastSpeed.toFixed(0)+" kb/s )";
 			
 			var averageRemaining=(download.progress[1]-download.progress[0])/averageSpeed;
 			var lastRemaining=(download.progress[1]-download.progress[0])/lastSpeed;
-			download.dom.remaining.textContent=new Date(averageRemaining).toLocaleTimeString()+" ( "+new Date(lastRemaining).toLocaleTimeString()+" )"
+			console.log("avr",averageRemaining);
+			console.log("lr",lastRemaining);
+			download.dom.remaining.textContent=new Date(averageRemaining-3600000).toLocaleTimeString()+" ( "+new Date(lastRemaining-3600000).toLocaleTimeString()+" )"
 		}
 		download.dom.progress.value       = download.progress[0];
 		download.dom.progress.max         = download.progress[1];
