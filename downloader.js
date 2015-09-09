@@ -18,7 +18,7 @@ var getClient=function(network)
 		{
 			client.on(type,function(msg)
 			{
-				logger.debug({args:arguments},newtwork,type);
+				logger.debug({args:arguments},network,type);
 			})
 		});
 		client.once("registered",function()
@@ -58,19 +58,39 @@ process.on("message",function(download)
 		    "resume"            : false, //TODO restart download when resume is not supported
 		    "progressInterval"  : 1
 		});
-		//TODO request.on('connect',function(pack){check filename}); 
+		request.on('connect',function(pack)
+		{
+			//TODO check filename
+			if(pack.filename==download.name||pack.filename.replace(/_/g," ")==download.name)
+				download.msg.text="connected";
+			else
+				download.msg={type:"warning",text:"wrong filename: "+pack.filename};
+			download.startTime=Date.now();
+			download.location=pack.location;
+			childLogger.debug({pack:pack,download:download},"connect");
+			process.send(JSON.stringify(download));
+		}); 
+		request.on('dlerror',function()
+		{
+			download.state="fail";			
+			download.msg={type:"error",text:"download error"};
+			childLogger.error({args:arguments},"download error");
+			process.send(JSON.stringify(download));
+		}); 
 		request.on('progress',function(pack,loaded)
 		{
 			download.progress=[loaded,pack.filesize];
-			process.send(JSON.stringify(download))
-			childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
+			download.updateTime=Date.now();
+			childLogger.info({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
+			process.send(JSON.stringify(download));
 		});
 		request.once('complete',function(pack)
 		{
 			download.progress=[pack.filesize,pack.filesize];
 			download.state="done";
-			process.send(JSON.stringify(download));
+			download.msg={type:"info",text:"complete "+pack.location+"/"+pack.filename};
 			childLogger.info({pack:pack,download:download},"complete");
+			process.send(JSON.stringify(download));
 			request.emit('kill');
 		});
 		request.emit("start");

@@ -98,10 +98,10 @@
 		{
 			if(filter)
 			{
-				this.filterExp=filter;
-				if(!this.org.hasFilter(filter))
+				this.filterExp=filter.toUpperCase();
+				if(!this.org.hasFilter(this.filterExp))
 				{
-					var exp=new RegExp(filter.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"g");
+					var exp=new RegExp(this.filterExp.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
 					this.org.filter(filter,a=>exp.test(a.name));
 				}
 			}
@@ -177,10 +177,13 @@
 		{
 			var dialog=document.createElement("div");
 			dialog.classList.add("dialog");
+			var content=document.createElement("div");
+			content.classList.add("content");
+			dialog.appendChild(content);
 			var textArea=document.createElement("textarea");
 			textArea.cols=100;
 			textArea.rows=10;
-			dialog.appendChild(textArea);
+			content.appendChild(textArea);
 			
 			var o=new SC.org(this.getSelected()).group("network",guides.network,function(child){child.group("bot",guides.bot)});
 			var networks=o.getGroup("network");
@@ -201,7 +204,7 @@
 			{
 				dialog.remove();
 			});
-			dialog.appendChild(closeBtn);
+			content.appendChild(closeBtn);
 			
 			document.body.appendChild(dialog);
 			textArea.select();
@@ -217,7 +220,10 @@
 			{
 				var dialog=document.createElement("div");
 				dialog.classList.add("dialog");
-				dialog.textContent="successfully added packaged to download queue";
+				var content=document.createElement("div");
+				content.classList.add("content");
+				dialog.appendChild(content);
+				content.innerHTML="<div>successfully added packaged to download queue</div>";
 				
 				var closeBtn=document.createElement("button");
 				closeBtn.textContent="close";
@@ -225,7 +231,7 @@
 				{
 					dialog.remove();
 				});
-				dialog.appendChild(closeBtn);
+				content.appendChild(closeBtn);
 				
 				document.body.appendChild(dialog);
 			})

@@ -41,9 +41,9 @@ var server=http.createServer(function(request,response)
 		{
 			try
 			{
-				var result=service(request,querystring.parse(parsedUrl.query));
+				var result=service(request,querystring.parse(parsedUrl.query),response);
 				if(result instanceof Promise) result.then(fillResponse.bind(null,response,200),fillResponse.bind(null,response,500)); 
-				else fillResponse(response,200,result);
+				else if(result!=undefined) fillResponse(response,200,result);
 			}
 			catch(e)
 			{

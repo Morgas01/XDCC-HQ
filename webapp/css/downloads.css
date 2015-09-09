@@ -1,0 +1,23 @@
+.download > div {
+	display: flex;
+}
+.download progress {
+	flex-grow:1;
+}
+.download span {
+	display:inline-block;
+	padding: 5px;
+}
+
+.download[data-state=pending],.download[data-state=pending] legend {
+	background-color: lightgray;
+}
+.download[data-state=running],.download[data-state=running] legend {
+	background-color: lightgreen;
+}
+.download[data-state=error],.download[data-state=error] legend {
+	background-color: red;
+}
+.download[data-state=done],.download[data-state=done] legend {
+	background-color: grey;
+}
