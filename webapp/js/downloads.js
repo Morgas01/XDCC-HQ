@@ -10,7 +10,7 @@
 	{
 		download.dom={element:document.createElement("fieldset")};
 		download.dom.element.classList.add("download")
-		download.dom.element.dataset.state=download.state
+		download.dom.element.title=download.dom.element.dataset.state=download.state
 		download.dom.element.innerHTML=
 '\
 <legend>'+download.name+'</legend>\
@@ -23,16 +23,26 @@
 <span class="message"></span>\
 ';
 		download.dom.progress  = download.dom.element.querySelector("progress");
+		if(download.progress)
+		{
+			download.dom.progress.value       = download.progress[0];
+			download.dom.progress.max         = download.progress[1];
+		}
 		download.dom.speed     = download.dom.element.querySelector(".speed");
 		download.dom.remaining = download.dom.element.querySelector(".remaining");
 		download.dom.location  = download.dom.element.querySelector(".location");
+		if(download.location) download.dom.location.textContent = download.location;
 		download.dom.message   = download.dom.element.querySelector(".message");
-		
+		if(download.msg)
+		{
+			download.dom.message.dataset.type = download.msg.type;
+			download.dom.message.textContent  = download.msg.text;
+		}
 		return download.dom.element;
 	}
 	var updateDownloadDom=function(download)
 	{
-		download.dom.element.dataset.state=download.state;
+		download.dom.element.title=download.dom.element.dataset.state=download.state;
 		if(download.lastUpdateTime)
 		{
 			var averageSpeed=download.progress[0]/(download.updateTime-download.startTime);
@@ -47,6 +57,7 @@
 		download.dom.progress.max         = download.progress[1];
 		download.dom.message.dataset.type = download.msg.type;
 		download.dom.location.textContent = download.location;
+		download.dom.message.dataset.type = download.msg.type;
 		download.dom.message.textContent  = download.msg.text;
 	}
 	

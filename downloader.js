@@ -81,14 +81,14 @@ process.on("message",function(download)
 		{
 			download.progress=[loaded,pack.filesize];
 			download.updateTime=Date.now();
-			childLogger.info({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
+			childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
 			process.send(JSON.stringify(download));
 		});
 		request.once('complete',function(pack)
 		{
 			download.progress=[pack.filesize,pack.filesize];
 			download.state="done";
-			download.msg={type:"info",text:"complete "+pack.location+"/"+pack.filename};
+			download.msg={type:"info",text:"complete"};
 			childLogger.info({pack:pack,download:download},"complete");
 			process.send(JSON.stringify(download));
 			request.emit('kill');

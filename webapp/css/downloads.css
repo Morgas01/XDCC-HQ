@@ -19,5 +19,5 @@
 	background-color: red;
 }
 .download[data-state=done],.download[data-state=done] legend {
-	background-color: grey;
+	background-color: lightblue;
 }
