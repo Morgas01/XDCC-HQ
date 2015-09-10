@@ -1,3 +1,8 @@
+#control {
+	display: flex;
+	justify-content: space-around;
+}
+
 .download {
 	margin: 5px;
 }
@@ -28,6 +33,6 @@
 .download .message[data-type="warning"] {
 	background-color: yellow;
 }
-.downlaod .message[data-type="error"] {
+.download .message[data-type="error"] {
 	background-color: red;
 }

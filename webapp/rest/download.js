@@ -6,6 +6,7 @@ var downloader=fork(path.join(__dirname,"..","..","downloader"));
 var config=require("../../config");
 var uuid=0;
 var downloads=[];
+var pause=!config.autoStartDownloads;
 var active={_count:0};
 var eventSources=[];
 
@@ -28,6 +29,23 @@ var notifyEventSources=function(eventType,download)
 	var data=JSON.stringify(download);
 	for(var es of eventSources)es.write("event: "+eventType+"\ndata: "+data+"\n\n");
 }
+exports.pause=function(request,queryParam)
+{
+	if("action" in queryParam)
+	{
+		switch(queryParam.action.toUpperCase())
+		{
+			case "PAUSE":
+				pause=true;
+				break;
+			case "CONTINUE":
+				pause=false;
+				startDownloads();
+		}
+		for(var es of eventSources)es.write("event: pause\ndata: "+pause+"\n\n");
+	}
+	return pause;
+};
 exports.add=function(request)
 {
 	if(request.method!=="POST")return "post packages in json array";
@@ -62,41 +80,44 @@ exports.add=function(request)
 
 var startDownloads=function()
 {
-	for(var d of downloads)
+	if(!pause)
 	{
-		if(d.state=="pending")
+		for(var d of downloads)
 		{
-			if(active._count<config.maxDownloads)
+			if(d.state=="pending")
 			{
-				if(!active[d.network])active[d.network]={_count:0};
-				var net=active[d.network];
-				if(net._count<config.maxNetworkDownloads)
+				if(active._count<config.maxDownloads)
 				{
-					if(!net[d.bot])net[d.bot]=0;
-					if(net[d.bot]<config.maxBotDownloads)
+					if(!active[d.network])active[d.network]={_count:0};
+					var net=active[d.network];
+					if(net._count<config.maxNetworkDownloads)
 					{
-						d.progress=[0,1];
-						d.state="running";
-						d.msg={type:"info",text:"starting"};
-						d.startTime=0;
-						d.updateTime=0;
-						d.location=0;
-						
-						net[d.bot]++;
-						net._count++;
-						active._count++;
-						
-						logger.info({download:d},"run");
-						logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
-
-			    		notifyEventSources("update",d);
-						downloader.send(JSON.stringify(d));
+						if(!net[d.bot])net[d.bot]=0;
+						if(net[d.bot]<config.maxBotDownloads)
+						{
+							d.progress=[0,1];
+							d.state="running";
+							d.msg={type:"info",text:"starting"};
+							d.startTime=0;
+							d.updateTime=0;
+							d.location=0;
+							
+							net[d.bot]++;
+							net._count++;
+							active._count++;
+							
+							logger.info({download:d},"run");
+							logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
+	
+				    		notifyEventSources("update",d);
+							downloader.send(JSON.stringify(d));
+						}
+						else d.msg="bot cap reached";
 					}
-					else d.msg="bot cap reached";
+					else d.msg="network download cap reached";
 				}
-				else d.msg="network download cap reached";
+				else d.msg="overall download cap reached";
 			}
-			else d.msg="overall download cap reached";
 		}
 	}
 };
@@ -115,12 +136,12 @@ downloader.on("message",function(download)
 			d.updateTime=download.updateTime;
 			d.location=download.location;
     		notifyEventSources("update",d);
-			if(d.state==="done")
+			if(d.state==="done"||d.state==="fail")
 			{
 				active._count--;
 				active[d.network]._count--;
 				active[d.network][d.bot]--;
-				logger.info({download:d},"done");
+				logger.info({download:d},"end");
 				logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,active[d.network]._count,d.bot,active[d.network][d.bot]);
 				startDownloads();
 			}

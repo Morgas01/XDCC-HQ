@@ -3,8 +3,27 @@
 	SC=SC({
 		adopt:"adopt",
 		gp:"goPath",
-		org:"Organizer"
+		org:"Organizer",
+		rq:"request"
 	});
+	
+	var pauseBtn=document.getElementById("pause");
+	var updatePuseBtn=function(pause)
+	{
+		if(pause) pauseBtn.textContent=pauseBtn.dataset.action="continue";
+		else pauseBtn.textContent=pauseBtn.dataset.action="pause";
+	};
+	pauseBtn.addEventListener("click",function()
+	{
+		SC.rq.json("rest/download/pause?action="+pauseBtn.dataset.action);
+	});
+	SC.rq.json("rest/download/pause").then(updatePuseBtn,µ.logger.error);
+	
+	var getTimeString=function(ms)
+	{
+		var time=new Date(ms);
+		return ("0"+time.getUTCHours()).slice(-2)+":"+("0"+time.getUTCMinutes()).slice(-2)+":"+("0"+time.getUTCSeconds()).slice(-2)
+	}
 	
 	var createDownloadDom=function(download)
 	{
@@ -45,18 +64,13 @@
 		download.dom.element.title=download.dom.element.dataset.state=download.state;
 		if(download.lastUpdateTime)
 		{
-			console.log(JSON.stringify(download));
 			var averageSpeed=download.progress[0]/(download.updateTime-download.startTime);
-			console.log("avs",averageSpeed);
 			var lastSpeed=(download.progress[0]-download.dom.progress.value)/(download.updateTime-download.lastUpdateTime);
-			console.log("ls",lastSpeed);
-			download.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s ( "+lastSpeed.toFixed(0)+" kb/s )";
+			download.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
 			
 			var averageRemaining=(download.progress[1]-download.progress[0])/averageSpeed;
 			var lastRemaining=(download.progress[1]-download.progress[0])/lastSpeed;
-			console.log("avr",averageRemaining);
-			console.log("lr",lastRemaining);
-			download.dom.remaining.textContent=new Date(averageRemaining-3600000).toLocaleTimeString()+" ( "+new Date(lastRemaining-3600000).toLocaleTimeString()+" )"
+			download.dom.remaining.textContent=getTimeString(averageRemaining)+" ( "+(isFinite(lastSpeed)?getTimeString(lastRemaining):"--:--:--")+" )"
 		}
 		download.dom.progress.value       = download.progress[0];
 		download.dom.progress.max         = download.progress[1];
@@ -115,13 +129,18 @@
 			var data=JSON.parse(removeEvent.data);
 			µ.logger.info("remove",data.id);
 			var original=org.getMap("id")[data.id];
-			if(!original)console.error("could not find original")
+			if(!original)µ.logger.error("could not find original")
 			else
 			{
 				org.remove([original])
 				original.dom.element.remove();
 			}
 		});
+		
+		es.addEventListener("pause",function(pauseEvent)
+		{
+			updatePuseBtn(JSON.parse(pauseEvent.data));
+		})
 	});
 
 	window.addEventListener("beforeunload",function(){es.close()})

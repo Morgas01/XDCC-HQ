@@ -5,6 +5,7 @@
 	"maxDownloads":1,
 	"maxNetworkDownloads":4,
 	"maxBotDownloads":2,
+	"config.autoStartDownloads":false,
 	"cleanNames":true,
 	"checkCRC":true
 }
