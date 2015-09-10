@@ -225,12 +225,22 @@
 				dialog.appendChild(content);
 				content.innerHTML="<div>successfully added packaged to download queue</div>";
 				
-				var closeBtn=document.createElement("button");
-				closeBtn.textContent="close";
-				closeBtn.addEventListener("click",function()
+				var gotoDownloads=document.createElement("a");
+				gotoDownloads.href="downloads.html";
+				gotoDownloads.target="_blank";
+				gotoDownloads.textContent="go to downloads";
+				gotoDownloads.addEventListener("click",function()
 				{
 					dialog.remove();
 				});
+				content.appendChild(gotoDownloads);
+				
+				var closeBtn=document.createElement("button");
+				closeBtn.textContent="close";
+				closeBtn.addEventListener("click",function()
+						{
+					dialog.remove();
+						});
 				content.appendChild(closeBtn);
 				
 				document.body.appendChild(dialog);
