@@ -22,62 +22,73 @@
 	var getTimeString=function(ms)
 	{
 		var time=new Date(ms);
-		return ("0"+time.getUTCHours()).slice(-2)+":"+("0"+time.getUTCMinutes()).slice(-2)+":"+("0"+time.getUTCSeconds()).slice(-2)
+		return ("0"+time.getUTCHours()).slice(-2)+":"+("0"+time.getUTCMinutes()).slice(-2)+":"+("0"+time.getUTCSeconds()).slice(-2);
 	}
 	
-	var createDownloadDom=function(download)
+	var updateDownloadDom=function(download)
 	{
-		download.dom={element:document.createElement("fieldset")};
-		download.dom.element.classList.add("download")
-		download.dom.element.title=download.dom.element.dataset.state=download.state
-		download.dom.element.innerHTML=
+		if(!download.dom)
+		{
+			download.dom={element:document.createElement("fieldset")};
+			download.dom.element.classList.add("download")
+			download.dom.element.title=download.dom.element.dataset.state=download.state
+			download.dom.element.innerHTML=
 '\
 <legend>'+download.name+'</legend>\
-	<div>\
-		<progress value="0" max="1"></progress>\
-		<span class="speed"></span>\
-		<span class="remaining"></span>\
-	</div>\
-<span class="location"></span>\
-<span class="message"></span>\
+<div>\
+	<progress value="0" max="1"></progress>\
+	<span class="location"></span>\
+	<span class="message"></span>\
+	<span class="time"></span>\
+	<span class="speed"></span>\
+	<span class="remaining"></span>\
+</div>\
 ';
-		download.dom.progress  = download.dom.element.querySelector("progress");
+			download.dom.progress  = download.dom.element.querySelector("progress");
+			download.dom.speed     = download.dom.element.querySelector(".speed");
+			download.dom.remaining = download.dom.element.querySelector(".remaining");
+			download.dom.location  = download.dom.element.querySelector(".location");
+			download.dom.message   = download.dom.element.querySelector(".message");
+			download.dom.time      = download.dom.element.querySelector(".time");
+		}
+
+		download.dom.element.title=download.dom.element.dataset.state=download.state;
+
+		if(download.updateTime)
+		{
+			var averageSpeed=download.progress[0]/(download.updateTime-download.startTime);
+			download.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s";
+			
+			var averageRemaining=(download.progress[1]-download.progress[0])/averageSpeed;
+			download.dom.remaining.textContent=getTimeString(averageRemaining);
+		
+			download.dom.time.textContent=getTimeString(download.updateTime-download.startTime);
+			
+			if(download.lastUpdateTime)
+			{
+				var lastSpeed=(download.progress[0]-download.dom.progress.value)/(download.updateTime-download.lastUpdateTime);
+				download.dom.speed.textContent+=" ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
+
+				var lastRemaining=(download.progress[1]-download.progress[0])/lastSpeed;	
+				download.dom.remaining.textContent+=" ( "+(isFinite(lastSpeed)?getTimeString(lastRemaining):"--:--:--")+" )";
+			}
+			
+		}
+		
 		if(download.progress)
 		{
 			download.dom.progress.value       = download.progress[0];
 			download.dom.progress.max         = download.progress[1];
 		}
-		download.dom.speed     = download.dom.element.querySelector(".speed");
-		download.dom.remaining = download.dom.element.querySelector(".remaining");
-		download.dom.location  = download.dom.element.querySelector(".location");
+		
 		if(download.location) download.dom.location.textContent = download.location;
-		download.dom.message   = download.dom.element.querySelector(".message");
+
 		if(download.msg)
 		{
 			download.dom.message.dataset.type = download.msg.type;
 			download.dom.message.textContent  = download.msg.text;
 		}
 		return download.dom.element;
-	}
-	var updateDownloadDom=function(download)
-	{
-		download.dom.element.title=download.dom.element.dataset.state=download.state;
-		if(download.lastUpdateTime)
-		{
-			var averageSpeed=download.progress[0]/(download.updateTime-download.startTime);
-			var lastSpeed=(download.progress[0]-download.dom.progress.value)/(download.updateTime-download.lastUpdateTime);
-			download.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
-			
-			var averageRemaining=(download.progress[1]-download.progress[0])/averageSpeed;
-			var lastRemaining=(download.progress[1]-download.progress[0])/lastSpeed;
-			download.dom.remaining.textContent=getTimeString(averageRemaining)+" ( "+(isFinite(lastSpeed)?getTimeString(lastRemaining):"--:--:--")+" )"
-		}
-		download.dom.progress.value       = download.progress[0];
-		download.dom.progress.max         = download.progress[1];
-		download.dom.message.dataset.type = download.msg.type;
-		download.dom.location.textContent = download.location;
-		download.dom.message.dataset.type = download.msg.type;
-		download.dom.message.textContent  = download.msg.text;
 	}
 	
 	var es=new EventSource("rest/download/get");
@@ -94,7 +105,7 @@
 		{
 			//TODO check for data.id in org
 			org.add([download]);
-			document.body.appendChild(createDownloadDom(download))
+			document.body.appendChild(updateDownloadDom(download))
 		};
 		
 		for(var d of JSON.parse(listEvent.data)) onAdd(d);
@@ -118,7 +129,8 @@
 			}
 			else
 			{
-				original.lastUpdateTime=original.updateTime;
+				if(data.state!="done")original.lastUpdateTime=original.updateTime;
+				else delete original.lastUpdateTime;
 				SC.adopt(original,data,true);
 			}
 			updateDownloadDom(original);

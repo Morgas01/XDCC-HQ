@@ -8,13 +8,17 @@
 }
 .download > div {
 	display: flex;
+	flex-wrap:wrap;
 }
 .download progress {
-	flex-grow:1;
+	flex-basis:100%;
+	height:30px;
 }
 .download span {
-	display:inline-block;
 	padding: 5px;
+}
+.download .message {
+	flex-grow:1;
 }
 
 .download[data-state=pending],.download[data-state=pending] legend {

@@ -16,7 +16,7 @@
 	width:100%;
 }
 .searchResult .filters {
-	height: 0px;
+	align-self:flex-start;
 	position: sticky;
 	top: 30px;
 }
