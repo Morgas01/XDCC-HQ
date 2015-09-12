@@ -102,7 +102,7 @@
 				if(!this.org.hasFilter(this.filterExp))
 				{
 					var exp=new RegExp(this.filterExp.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
-					this.org.filter(filter,a=>exp.test(a.name));
+					this.org.filter(this.filterExp,a=>exp.test(a.name));
 				}
 			}
 			else this.filterExp=null;

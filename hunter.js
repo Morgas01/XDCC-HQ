@@ -12,6 +12,10 @@ http.get(url,function(response)
 	{
 		data+=chunk;
 	});
+	response.on("error",function(e)
+	{
+		console.error("error response ",e)
+	})
 	response.on("end",function()
 	{
 		var results=subOffice.parse(data);
@@ -19,5 +23,5 @@ http.get(url,function(response)
 	})
 }).on("error",function(e)
 {
-	//TODO
+	console.error("error get ",e)
 })

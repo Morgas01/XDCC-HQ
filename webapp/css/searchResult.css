@@ -20,6 +20,9 @@
 	position: sticky;
 	top: 30px;
 }
+.searchResult .filters select {
+	width: 100%;
+}
 .searchResult form,.searchResult .actions {
     display: inline;
 }
