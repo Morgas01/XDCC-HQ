@@ -90,7 +90,7 @@ var fillResponse=function(response,status,param)
 	
 	response.writeHead(status, {
 		"Content-Type":type,
-		"Content-Length":data.length
+		"Content-Length":Buffer.byteLength(data, 'utf8')
 	});
 	response.end(data);
 };

@@ -7,19 +7,21 @@ exports.getUrl=function(search)
 {
 	return exports.url+"/search.php?t="+encodeURIComponent(search);
 }
+var parseRegEx=/b:"([^"]+).*n:(\d+).*s:(\d+).*f:"([^"]+)/g
 exports.parse=function(data)
 {
-	data=JSON.parse(("["+data.replace(/p\.k\[\d+\]\s=\s/g,"").replace(/;[\r\n]+/g,",").slice(0,-1).replace(/(\w+):/g,'"$1":')+"]"))
-	var rtn=data.map(function(d)
+	var rtn=[];
+	var match;
+	while(match=parseRegEx.exec(data))
 	{
-		return {
+		rtn.push({
 			network:exports.network,
 			channel:exports.channel,
-			bot:d.b,
-			name:d.f,
-			packnumber:d.n,
-			size:d.s+"M"
-		};
-	});
+			bot:match[1],
+			name:match[4],
+			packnumber:match[2],
+			size:match[3]+"M"
+		});
+	}
 	return rtn;
 }
