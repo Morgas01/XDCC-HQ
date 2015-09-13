@@ -1,0 +1,19 @@
+overall
+-	save/change config
+-	save downloads
+-	download request timeout
+-	resume support
+-	clean names, check crc
+-	config subOffice type FILE expiration time
+-	config subOffice type FILE expire now (forced new)
+
+index.html
+-	autofocus close button in dialogs
+-	append downloads in selection order
+-	simplify downloading from different bots
+
+downloads.html
+-	show network,channel and bot
+-	popup/dialog msg command for pack(s)
+-	abort/retry downloads
+-	manually add download
