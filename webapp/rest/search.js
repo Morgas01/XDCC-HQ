@@ -57,6 +57,6 @@ var doSearch=function(subOffice,search)
 var filterResults=function(results)
 {
 	var unpackedResults=Array.prototype.concat.apply([],results.filter(function(a){return a!=undefined}));
-	var filteredResults=uniquify(unpackedResults,function(p){return p.network+p.bot+p.number+p.name});
+	var filteredResults=uniquify(unpackedResults,function(p){return p.network+p.bot+p.packnumber+p.name});
 	return filteredResults;
 }

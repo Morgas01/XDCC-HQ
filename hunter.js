@@ -1,7 +1,7 @@
 var subOfficeName=process.argv[2];
 var search=process.argv[3];
 
-var http=require("http");
+var url=require("url");
 var path=require("path");
 var fs=require("fs");
 require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
@@ -29,9 +29,10 @@ if(subOffice.type==="FILE"&&fs.existsSync(targetFilePath))
 }
 else
 {
-	var url=subOffice.getUrl(search);
-	logger.info({url:url},"hunt from url");
-	http.get(url,function(response)
+	var getUrl=subOffice.getUrl(search);
+	logger.info({url:getUrl},"hunt from url");
+	var protocol=require(url.parse(getUrl).protocol.slice(0,-1)||"http");
+	protocol.get(getUrl,function(response)
 	{
 		var data="";
 		response.on("data",function(chunk)
