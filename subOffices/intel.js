@@ -1,4 +1,5 @@
 
+exports.type="SEARCH";
 exports.getUrl=function(search)
 {
 	return "http://intel.haruhichan.com/ajax.php?a=s&t="+encodeURIComponent(search);

@@ -2,15 +2,17 @@
 exports.network=null;
 exports.channel=null;
 exports.url=null;
+exports.bot=null;
 
-exports.type="SEARCH";
+exports.type="FILE";
 exports.getUrl=function(search)
 {
-	return exports.url+"/search.php?t="+encodeURIComponent(search);
+	return exports.url;
 }
-var parseRegEx=/b:"([^"]+).*n:(\d+).*s:(\d+).*f:"([^"]+)/g
+var parseRegEx=/"right">#?(\d+).*?"right">.*?"right">(\d+.).*?>([^<]+)<\/a/g;
 exports.parse=function(data)
 {
+	data=data.replace(/\n/g,"");
 	var rtn=[];
 	var match;
 	while(match=parseRegEx.exec(data))
@@ -18,10 +20,10 @@ exports.parse=function(data)
 		rtn.push({
 			network:exports.network,
 			channel:exports.channel,
-			bot:match[1],
+			bot:exports.bot,
 			name:match[4],
-			packnumber:match[2],
-			size:match[3]+"M"
+			packnumber:match[3],
+			size:match[2]
 		});
 	}
 	return rtn;

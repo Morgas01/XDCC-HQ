@@ -1,4 +1,5 @@
 
+exports.type="SEARCH";
 exports.getUrl=function(search)
 {
 	return "http://nibl.co.uk/bots.php?search="+encodeURIComponent(search);

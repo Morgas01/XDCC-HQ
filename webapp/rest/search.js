@@ -4,6 +4,7 @@ var logger=require("../../logger")("search")
 var fork=require("child_process").fork;
 
 var subOffices={};
+var uniquify=µ.getModule("uniquify");
 
 
 module.exports=function(request)
@@ -21,9 +22,9 @@ module.exports=function(request)
 	    		{
 	    			return doSearch(subOffice,search);
 	    		});
-	    		Promise.all(searchJobs).then(function(results)
+	    		Promise.all(searchJobs).then(filterResults).then(function(filteredResults)
 	    		{
-	    			resolve(Array.prototype.concat.apply([],results.filter(function(a){return a!=undefined})));
+	    			resolve(filteredResults);
 	    		},reject)
 	    	}
 	    });
@@ -38,8 +39,9 @@ var doSearch=function(subOffice,search)
 		var hunter=fork(path.join(__dirname,"..","..","hunter"),[subOffice,search]);
 		hunter.on("message",function(data)
 		{
+			data=JSON.parse(data);
+			resolve(data);
 			logger.info({search:search},"hunted in subOffice %s %d packs",subOffice,data.length);
-			resolve(JSON.parse(data));
 		});
 		hunter.on("error",function(err){
 			logger.error({search:search,error:err},"hunter has trown an error for subOffice %s",subOffice);
@@ -51,4 +53,10 @@ var doSearch=function(subOffice,search)
 			resolve();
 		});
 	});
+};
+var filterResults=function(results)
+{
+	var unpackedResults=Array.prototype.concat.apply([],results.filter(function(a){return a!=undefined}));
+	var filteredResults=uniquify(unpackedResults,function(p){return p.network+p.bot+p.number+p.name});
+	return filteredResults;
 }
