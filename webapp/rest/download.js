@@ -63,14 +63,14 @@ exports.add=function(request)
 	    	try
 	    	{
 		    	post=JSON.parse(post);
-		    	for(var d of post)
+		    	for(var i=0;i<post.length;i++)
 		    	{
-		    		d=new XDCCPackage(d);
+		    		var d=post[i]=new XDCCPackage(post[i]);
 		    		d.state="pending";
 		    		d.message={type:"info",text:"pending"};
 		    		notifyEventSources("add",d);
 		    	}
-	    		downloads.save(d);
+	    		downloads.save(post).then(function(){this.flush()});
 		    	resolve("ok");
 		    	startDownloads();
 	    	}
