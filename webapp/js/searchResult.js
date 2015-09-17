@@ -6,7 +6,8 @@
 	SC=SC({
 		org:"Organizer",
 		rs:"rescope",
-		rq:"request"
+		rq:"request",
+		it:"iterate"
 	});
 	
 	//TODO var fields=[]
@@ -30,7 +31,7 @@
 		init:function(header,results)
 		{
 			this.mega(header);
-			SC.rs.all(this,["_onFilter","_onListClick","_onAction","updateFilters"]);
+			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters"]);
 			
 			this.org=new SC.org(results);
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
@@ -85,6 +86,7 @@
 			this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
 			this.resultList=this.content.querySelector(".resultList");
 			this.resultList.addEventListener("click",this._onListClick);
+			this.resultList.addEventListener("mousedown",this._onListMouseDown);
 			
 			this.sort("name",false);
 		},
@@ -130,6 +132,48 @@
 			}
 			e.preventDefault();
 			return false;
+		},
+		_onListMouseDown:function(downEvent)
+		{
+			var row=downEvent.target;
+			while(row.parentNode&&row.parentNode!=this.resultList)row=row.parentNode;
+			if(row.parentNode)
+			{
+				if(row.tagName==="DIV")
+				{
+					var onMove=moveEvent=>
+					{
+						this.resultList.removeEventListener("mousemove",onMove);
+						row.classList.add("selected");
+						
+						var onMouseOver=overEvent=>
+						{
+							var hoverRow=overEvent.target;
+							while(hoverRow.parentNode&&hoverRow.parentNode!=this.resultList)hoverRow=hoverRow.parentNode;
+							if(hoverRow.parentNode) hoverRow.classList.add("selected");
+						};
+						var onMouseUp=()=>
+						{
+							this.resultList.removeEventListener("mouseover",onMouseOver);
+							this.resultList.removeEventListener("mouseup",onMouseUp);
+						};
+						this.resultList.addEventListener("mouseover",onMouseOver);
+						this.resultList.addEventListener("mouseup",onMouseUp);
+						
+						moveEvent.preventDefault();
+						return false;
+					};
+					var onClick=()=>
+					{
+						this.resultList.removeEventListener("mousemove",onMove);
+						this.resultList.removeEventListener("click",onClick);
+					}
+					this.resultList.addEventListener("mousemove",onMove);
+					this.resultList.addEventListener("click",onClick);
+				}
+				downEvent.preventDefault();
+				return false;
+			}
 		},
 		sort:function(column,desc)
 		{
