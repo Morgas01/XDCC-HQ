@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/Morgas01/XDCC-HQ.git"
   },
+  "engine": {
+	  "node": ">=4.0.0"
+  },
   "dependencies": {
     "axdcc": "^0.2.23",
     "bunyan": "^1.4.0",

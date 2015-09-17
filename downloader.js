@@ -1,6 +1,7 @@
 var irc=require("irc");
 var axdcc=require("axdcc");
 require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
+var XDCCPackage=require("./webapp/js/XDCCPackage");
 var logger=require("./logger")("downloader");
 var config=require("./config");
 //*
@@ -45,7 +46,7 @@ var joinChannel=function(channel)
 
 process.on("message",function(download)
 {
-	download=JSON.parse(download);
+	download=new XDCCPackage().fromJSON(JSON.parse(download));
 	var childLogger=logger.child({download:download});
 	getClient(download.network)
 	.then(joinChannel(download.channel))
@@ -62,10 +63,10 @@ process.on("message",function(download)
 		{
 			//TODO check filename
 			if(pack.filename==download.name||pack.filename.replace(/_/g," ")==download.name)
-				download.msg.text="connected";
+				download.message.text="connected";
 			else
-				download.msg={type:"warning",text:"wrong filename: "+pack.filename};
-			download.startTime=Date.now();
+				download.message={type:"warning",text:"wrong filename: "+pack.filename};
+			download.startTime=new Date();
 			download.location=pack.location;
 			childLogger.debug({pack:pack,download:download},"connect");
 			process.send(JSON.stringify(download));
@@ -73,22 +74,24 @@ process.on("message",function(download)
 		request.on('dlerror',function()
 		{
 			download.state="fail";			
-			download.msg={type:"error",text:"download error"};
+			download.message={type:"error",text:"download error"};
 			childLogger.error({args:arguments},"download error");
 			process.send(JSON.stringify(download));
 		}); 
 		request.on('progress',function(pack,loaded)
 		{
-			download.progress=[loaded,pack.filesize];
-			download.updateTime=Date.now();
+			download.progressValue=loaded;
+			download.progressMax=pack.filesize;
+			download.updateTime=new Date();
 			childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
 			process.send(JSON.stringify(download));
 		});
 		request.once('complete',function(pack)
 		{
-			download.progress=[pack.filesize,pack.filesize];
+			download.progressValue=pack.filesize;
+			download.progressMax=pack.filesize;
 			download.state="done";
-			download.msg={type:"info",text:"complete"};
+			download.message={type:"info",text:"complete"};
 			childLogger.info({pack:pack,download:download},"complete");
 			process.send(JSON.stringify(download));
 			request.emit('kill');

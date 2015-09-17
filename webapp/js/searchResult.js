@@ -226,7 +226,7 @@
 				content.innerHTML="<div>successfully added packaged to download queue</div>";
 				
 				var gotoDownloads=document.createElement("a");
-				gotoDownloads.href="downloads.html";
+				gotoDownloads.href="downloadManager.html";
 				gotoDownloads.target="_blank";
 				gotoDownloads.textContent="go to downloads";
 				gotoDownloads.addEventListener("click",function()
@@ -244,6 +244,7 @@
 				content.appendChild(closeBtn);
 				
 				document.body.appendChild(dialog);
+				closeBtn.focus();
 			})
 		}
 	});

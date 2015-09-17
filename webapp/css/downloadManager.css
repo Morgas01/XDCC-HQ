@@ -1,0 +1,42 @@
+#control {
+	display: flex;
+	justify-content: space-around;
+}
+
+.XDCCPackage {
+	margin: 5px;
+}
+.XDCCPackage > div {
+	display: flex;
+	flex-wrap:wrap;
+}
+.XDCCPackage progress {
+	flex-basis:100%;
+	height:30px;
+}
+.XDCCPackage span {
+	padding: 5px;
+}
+.XDCCPackage .message {
+	flex-grow:1;
+}
+
+.XDCCPackage[data-state=pending],.XDCCPackage[data-state=pending] legend {
+	background-color: lightgray;
+}
+.XDCCPackage[data-state=running],.XDCCPackage[data-state=running] legend {
+	background-color: lightgreen;
+}
+.XDCCPackage[data-state=error],.XDCCPackage[data-state=error] legend {
+	background-color: red;
+}
+.XDCCPackage[data-state=done],.XDCCPackage[data-state=done] legend {
+	background-color: lightblue;
+}
+
+.XDCCPackage .message[data-type="warning"] {
+	background-color: yellow;
+}
+.XDCCPackage .message[data-type="error"] {
+	background-color: red;
+}
