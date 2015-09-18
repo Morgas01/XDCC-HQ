@@ -21,6 +21,13 @@
 	SC.rq.json("rest/download/pause").then(updatePuseBtn,µ.logger.error);
 	
 	
+	document.getElementById("removeDone").addEventListener("click",function()
+	{
+		SC.rq("rest/download/removeDone");
+	});
+	
+	
+	
 	var es=new EventSource("rest/download/get");
 	es.addEventListener("error",µ.logger.error);
 	
@@ -54,19 +61,27 @@
 			µ.logger.info("update",data.ID);
 			var original=org.getMap("ID")[data.ID];
 			if(!original) onAdd(data)
-			else original.update(data);
+			else
+			{
+				original.update(data);
+				org.update([original]);
+			}
 		});
 		
 		es.addEventListener("remove",function(removeEvent)
 		{
 			var data=JSON.parse(removeEvent.data);
-			µ.logger.info("remove",data.ID);
-			var original=org.getMap("ID")[data.ID];
-			if(!original)µ.logger.error("could not find original")
-			else
+			µ.logger.info("remove",data);
+			var idMap=org.getMap("ID");
+			for(var id of data)
 			{
-				org.remove([original])
-				original.dom.element.remove();
+				var original=idMap[id];
+				if(!original)µ.logger.error("could not find original")
+				else
+				{
+					org.remove([original])
+					original.dom.element.remove();
+				}
 			}
 		});
 		

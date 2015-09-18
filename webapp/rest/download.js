@@ -18,7 +18,7 @@ exports.get=function(request,queryParam,response)
 	downloads.load(XDCCPackage,{}).then(function(all)
 	{
 		response.write("event: list\n");
-		response.write("data: " + JSON.stringify(downloads.db.values.map(d=>d.fields)) + "\n\n");
+		response.write("data: " + JSON.stringify(downloads.db.getValues().map(d=>d.fields)) + "\n\n");
 	}).then(function()
 	{
 		eventSources.push(response);
@@ -29,9 +29,9 @@ exports.get=function(request,queryParam,response)
 		}, false);
 	});
 }
-var notifyEventSources=function(eventType,download)
+var notifyEventSources=function(eventType,data)
 {
-	var data=JSON.stringify(download);
+	data=JSON.stringify(data);
 	for(var es of eventSources)es.write("event: "+eventType+"\ndata: "+data+"\n\n");
 }
 exports.pause=function(request,queryParam)
@@ -80,6 +80,39 @@ exports.add=function(request)
 	    	}
 	    });
 	});
+};
+exports.remove=function(request)
+{
+	if(request.method!=="POST")return "post package IDs in json array";
+	else return new Promise(function(resolve,reject)
+	{
+		var post = '';
+	    request.on('data', function (data) {post += data});
+	    request.on('end', function ()
+	    {
+	    	try
+	    	{
+		    	post=JSON.parse(post);
+		    	downloads.load(XDCCPackage,{ID:post,state:s=>s!="running"}).then(function(toDelete)
+		    	{
+		    		downloads.delete(XDCCPackage,toDelete);
+		    		notifyEventSources("remove",toDelete.map(d=>d.ID));
+		    	})
+	    	}
+	    	catch(e)
+	    	{
+	    		reject(e);
+	    	}
+	    });
+	});
+};
+exports.removeDone=function(request)
+{
+	return downloads.load(XDCCPackage,{state:"done"}).then(function(toDelete)
+	{
+		downloads.delete(XDCCPackage,toDelete);
+		notifyEventSources("remove",toDelete.map(d=>d.ID));
+	}).original;
 };
 
 var startDownloads=function()
