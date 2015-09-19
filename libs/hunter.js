@@ -4,15 +4,15 @@ var search=process.argv[3];
 var url=require("url");
 var path=require("path");
 var fs=require("fs");
-require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
-var logger=require("./logger")(subOfficeName);
+require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
+var logger=require("../logger")(subOfficeName);
 
 var SC=µ.shortcut({
 	ef:"enshureFolder"
 });
 var targetDir=path.join(__dirname,"temp");
 var targetFilePath=path.join(targetDir,subOfficeName+"on");
-var subOffice=require("./subOffices/"+subOfficeName);
+var subOffice=require("../subOffices/"+subOfficeName);
 
 var filterResults=function(results)
 {

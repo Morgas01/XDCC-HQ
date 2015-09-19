@@ -3,9 +3,9 @@ var logger=require("../../logger")("download");
 var XDCCPackage=require("../js/XDCCPackage");
 var JsonConnector=µ.getModule("DB/jsonConnector");
 var fork=require("child_process").fork;
-var downloader=fork(path.join(__dirname,"..","..","downloader"));
+var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
 
-var config=require("../../config");
+var config=require("../../libs/configManager");
 var downloads=new JsonConnector(path.join(__dirname,"..","..","temp","downloads.json"));
 var pause=!config.autoStartDownloads;
 var active={_count:0};
@@ -15,6 +15,7 @@ exports.get=function(request,queryParam,response)
 {
 	response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
 	response.write("retry: 10000\n");
+	response.write("event: pause\ndata: "+pause+"\n\n");
 	downloads.load(XDCCPackage,{}).then(function(all)
 	{
 		response.write("event: list\n");
@@ -34,6 +35,7 @@ var notifyEventSources=function(eventType,data)
 	data=JSON.stringify(data);
 	for(var es of eventSources)es.write("event: "+eventType+"\ndata: "+data+"\n\n");
 }
+
 exports.pause=function(request,queryParam)
 {
 	if("action" in queryParam)
@@ -51,6 +53,7 @@ exports.pause=function(request,queryParam)
 	}
 	return pause;
 };
+
 exports.add=function(request)
 {
 	if(request.method!=="POST")return "post packages in json array";
@@ -70,7 +73,11 @@ exports.add=function(request)
 		    		d.message={type:"info",text:"pending"};
 		    		notifyEventSources("add",d);
 		    	}
-	    		downloads.save(post).then(function(){this.flush()});
+	    		downloads.save(post).then(function()
+	    		{
+	    			this.flush();
+			    	for(var i=0;i<post.length;i++) notifyEventSources("add",d);
+	    		});
 		    	resolve("ok");
 		    	startDownloads();
 	    	}
@@ -81,6 +88,7 @@ exports.add=function(request)
 	    });
 	});
 };
+
 exports.remove=function(request)
 {
 	if(request.method!=="POST")return "post package IDs in json array";
@@ -183,3 +191,7 @@ downloader.on("message",function(d)
 		}
 	});
 });
+
+
+startDownloads();
+config.on("change",startDownloads);

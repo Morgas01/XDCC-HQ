@@ -1,9 +1,9 @@
 var irc=require("irc");
 var axdcc=require("axdcc");
-require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
-var XDCCPackage=require("./webapp/js/XDCCPackage");
-var logger=require("./logger")("downloader");
-var config=require("./config");
+require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
+var XDCCPackage=require("../webapp/js/XDCCPackage");
+var logger=require("../logger")("downloader");
+var config=require("./configManager");
 //*
 var clients={};
 
@@ -68,7 +68,7 @@ process.on("message",function(download)
 				download.message={type:"warning",text:"wrong filename: "+pack.filename};
 			download.startTime=new Date();
 			download.location=pack.location;
-			childLogger.debug({pack:pack,download:download},"connect");
+			childLogger.info({pack:pack,download:download},"connect");
 			process.send(JSON.stringify(download));
 		}); 
 		request.on('dlerror',function()

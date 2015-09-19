@@ -36,7 +36,7 @@ var doSearch=function(subOffice,search)
 	return new Promise(function (resolve)
 	{
 		logger.info({search:search},"start hunting in subOffice %s",subOffice);
-		var hunter=fork(path.join(__dirname,"..","..","hunter"),[subOffice,search]);
+		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search]);
 		hunter.on("message",function(data)
 		{
 			data=JSON.parse(data);

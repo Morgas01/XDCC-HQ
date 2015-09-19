@@ -7,7 +7,7 @@ var querystring=require("querystring");
 require("./webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var logger=require("./logger")("server");
 var goPath=µ.getModule("goPath");
-var config=require("./config");
+var config=require("./libs/configManager");
 logger.info("starting server",config);
 
 var rest={};
@@ -73,6 +73,9 @@ var server=http.createServer(function(request,response)
 });
 
 server.listen(config.serverPort);
+
+//preload download service to autoStart downloads
+rest.downloads=require("./webapp/rest/download");
 
 logger.info("server startet",config.serverPort);
 

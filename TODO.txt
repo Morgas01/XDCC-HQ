@@ -1,6 +1,5 @@
 overall
--	save/change config
--	save downloads
+-	propagate config changes to downloader
 -	download request timeout
 -	resume support
 -	clean names, check crc
@@ -8,12 +7,12 @@ overall
 -	config subOffice type FILE expire now (forced new)
 
 index.html
--	autofocus close button in dialogs
 -	append downloads in selection order
 -	simplify downloading from different bots
 
 downloads.html
 -	show network,channel and bot
 -	popup/dialog msg command for pack(s)
+-	popup/dialog filenames
 -	abort/retry downloads
 -	manually add download

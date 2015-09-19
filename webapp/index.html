@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<title>XDCC-HQ</title>
 		
+		<link rel="stylesheet" href="css/index.css">
 		<link rel="stylesheet" href="css/searchResult.css">
 		<link rel="stylesheet" href="css/tabs.css">
 		
@@ -26,14 +27,18 @@
 	</head>
 	<body>
 		<div id="config">
+			<label for="showConfig">&#128295;</label>
+			<input type="checkbox" id="showConfig">
 			<table>
-				<tr><td>serverPort</td><td><input name="serverPort" required min="0" type="number"></td></tr>
-				<tr><td>downloadDir</td><td><input name="downloadDir" required type="text"><input name="resolvedDownloadDir" type="text" disabled></td></tr>
-				<tr><td>maxDownloads</td><td><input name="maxDownloads" required min="0" type="number"></td></tr>
-				<tr><td>maxNetworkDownloads</td><td><input name="maxNetworkDownloads" required min="0" type="number"></td></tr>
-				<tr><td>maxBotDownloads</td><td><input name="maxBotDownloads" required min="0" type="number"></td></tr>
-				<tr><td>cleanNames</td><td><input name="cleanNames" type="checkbox"></td></tr>
-				<tr><td>checkCRC</td><td><input name="checkCRC" type="checkbox"></td></tr>
+				<tr><td>server port</td><td><input name="serverPort" required min="0" type="number"></td><td>needs restart</td></tr>
+				<tr><td>irc nick</td><td><input name="ircNick" required type="text"></td><td>no change to connected networks</td></tr>
+				<tr><td>download directory</td><td><input name="downloadDir" required type="text"></td><td><input name="resolvedDownloadDir" type="text" disabled></td></tr>
+				<tr><td>maximum downloads</td><td><input name="maxDownloads" required min="0" type="number"></td></tr>
+				<tr><td>maximum network downloads</td><td><input name="maxNetworkDownloads" required min="0" type="number"></td></tr>
+				<tr><td>maximum bot downloads</td><td><input name="maxBotDownloads" required min="0" type="number"></td></tr>
+				<tr><td>autoStart downloads</td><td><input name="autoStartDownloads" type="checkbox"></td><td>initial pause state</td></tr>
+				<tr><td>clean names</td><td><input name="cleanNames" type="checkbox"></td></tr>
+				<tr><td>check CRC</td><td><input name="checkCRC" type="checkbox"></td></tr>
 			</table>
 		</div>
 		<div id="search">

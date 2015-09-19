@@ -18,7 +18,6 @@
 	{
 		SC.rq.json("rest/download/pause?action="+pauseBtn.dataset.action);
 	});
-	SC.rq.json("rest/download/pause").then(updatePuseBtn,µ.logger.error);
 	
 	
 	document.getElementById("removeDone").addEventListener("click",function()

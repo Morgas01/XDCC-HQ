@@ -1,0 +1,47 @@
+#config {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#config label {
+	display: inline-block;
+	border: 2px #EEEEFF outset;
+	padding: 2px 5px;
+	border-radius: 5px;
+	background: #EEEEFF;
+}
+#config label:active {
+	border-style:inset;
+	background: #AAAAFF;
+}
+#config #showConfig,
+#config #showConfig:not(:checked) + * {
+	display:none;
+}
+
+
+#searchForm {
+	text-align: center;
+}
+
+
+
+.dialog {
+    position: fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    background-color: RGBA(0,0,0,0.5);
+}
+.dialog .content {
+    position: fixed;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding:5px;
+    border: 1px solid;
+    border-radius: 10px;
+    background-color: white;
+    z-index: 1;
+}
