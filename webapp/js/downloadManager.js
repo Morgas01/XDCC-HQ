@@ -83,13 +83,11 @@
 				}
 			}
 		});
-		
-		es.addEventListener("pause",function(pauseEvent)
-		{
-			updatePuseBtn(JSON.parse(pauseEvent.data));
-		})
 	});
-
+	es.addEventListener("pause",function(pauseEvent)
+	{
+		updatePuseBtn(JSON.parse(pauseEvent.data));
+	});
 	window.addEventListener("beforeunload",function(){es.close()})
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

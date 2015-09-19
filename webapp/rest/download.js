@@ -14,7 +14,7 @@ var eventSources=[];
 exports.get=function(request,queryParam,response)
 {
 	response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
-	response.write("retry: 10000\n");
+	response.write("retry: 5000\n");
 	response.write("event: pause\ndata: "+pause+"\n\n");
 	downloads.load(XDCCPackage,{}).then(function(all)
 	{
