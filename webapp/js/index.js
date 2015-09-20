@@ -53,6 +53,22 @@
 		µ.logger.error(e);
 		throw e;
 	}
+	window.addEventListener("keyup",function(e)
+	{
+		if(e.ctrlKey&&e.code=="Space")
+		{
+			if(e.shiftKey)
+			{
+				window.scrollTo(0,0);
+				document.querySelector("#searchForm input").select();
+			}
+			else
+			{
+				var filter=document.querySelector("#search .tabContainer > header.active + * input[name=filter]");
+				filter&&filter.select();
+			}
+		}
+	});
 	
 	//execute
 	updateConfig();

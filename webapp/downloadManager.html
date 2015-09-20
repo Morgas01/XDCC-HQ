@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<title>XDCC-HQ Downloads</title>
 		<link rel="stylesheet" href="css/downloadManager.css">
+		<link rel="stylesheet" href="css/dialog.css">
 		
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.adopt.js"></script>
@@ -21,11 +22,13 @@
 		
 		<script type="text/javascript" defer="defer" src="js/XDCCPackage.js"></script>
 		<script type="text/javascript" defer="defer" src="js/downloadManager.js"></script>
+		<script type="text/javascript" defer="defer" src="js/dialog.js"></script>
 	</head>
 	<body>
 	<div id="control">
-		<button id="pause"></button>
-		<button id="removeDone">remove completed downloads</button>
+		<button data-action="pause"></button>
+		<button data-action="removeDone">remove completed downloads</button>
+		<button data-action="listFilenames">list filenames</button>
 	</div>
 	</body>
 </html>

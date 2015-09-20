@@ -1,30 +1,43 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 	
+	var ORG=GMOD("Organizer");
 	SC=SC({
 		adopt:"adopt",
 		gp:"goPath",
-		org:"Organizer",
 		rq:"request",
 		xp:"XDCCPackage"
 	});
 	
-	var pauseBtn=document.getElementById("pause");
+	var org=new ORG()
+	.map("ID","ID");
+
+	var pauseBtn=document.querySelector("[data-action=pause]");
 	var updatePuseBtn=function(pause)
 	{
-		if(pause) pauseBtn.textContent=pauseBtn.dataset.action="continue";
-		else pauseBtn.textContent=pauseBtn.dataset.action="pause";
+		if(pause) pauseBtn.textContent=pauseBtn.dataset.value="continue";
+		else pauseBtn.textContent=pauseBtn.dataset.value="pause";
 	};
-	pauseBtn.addEventListener("click",function()
+	var controlActions={
+		pause:function(e)
+		{
+			SC.rq.json("rest/download/pause?action="+pauseBtn.dataset.value);
+		},
+		removeDone:function()
+		{
+			SC.rq("rest/download/removeDone");
+		},
+		listFilenames:function()
+		{
+			openDialog('<textArea rows="26" cols="100">'+org.getValues().map(p=>p.name).join("\n")+'</textArea>')
+		}
+	};
+	document.getElementById("control").addEventListener("click",function(e)
 	{
-		SC.rq.json("rest/download/pause?action="+pauseBtn.dataset.action);
+		if(e.target.dataset.action in controlActions)
+		{
+			controlActions[e.target.dataset.action](e);
+		}
 	});
-	
-	
-	document.getElementById("removeDone").addEventListener("click",function()
-	{
-		SC.rq("rest/download/removeDone");
-	});
-	
 	
 	
 	var es=new EventSource("rest/download/get");
@@ -33,9 +46,6 @@
 	es.addEventListener("list",function onList (listEvent)
 	{
 		es.removeEventListener("list", onList);
-		
-		var org=new SC.org()
-		.map("ID","ID");
 		
 		var onAdd=function(download)
 		{

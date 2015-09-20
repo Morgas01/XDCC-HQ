@@ -9,6 +9,10 @@ overall
 index.html
 -	append downloads in selection order
 -	simplify downloading from different bots
+-	show errors of subOffices
+-	close search tabs with middle click
+-	open tab with waiting symbol
+-	exchange dialogs with seperate .js
 
 downloads.html
 -	show network,channel and bot
