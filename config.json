@@ -7,6 +7,5 @@
 	"maxBotDownloads": 2,
 	"autoStartDownloads": false,
 	"cleanNames": true,
-	"checkCRC": true,
-	"resolvedDownloadDir": "C:\\XDCC"
+	"checkCRC": true
 }
