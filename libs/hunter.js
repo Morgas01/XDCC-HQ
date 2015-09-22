@@ -10,7 +10,7 @@ var logger=require("../logger")(subOfficeName);
 var SC=µ.shortcut({
 	ef:"enshureFolder"
 });
-var targetDir=path.join(__dirname,"temp");
+var targetDir=path.join(__dirname,"..","temp");
 var targetFilePath=path.join(targetDir,subOfficeName+"on");
 var subOffice=require("../subOffices/"+subOfficeName);
 
