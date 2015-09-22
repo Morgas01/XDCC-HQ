@@ -73,7 +73,7 @@
 <div class="filters">\n';
 	for(var g of groups)
 	{
-		var parts=Object.keys(this.org.getGroup(g));
+		var parts=Object.keys(this.org.getGroup(g)).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
 		contentHTML+='<fieldset><legend>'+g+'</legend><select data-group="'+g+'" multiple="true">'+
 			parts.map(p=>'<option value="'+p+'">'+p+'</option>').join("\n")+
 		'</select></fieldset>';
