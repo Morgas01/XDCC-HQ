@@ -2,12 +2,13 @@ var fs=require("fs");
 var path=require("path");
 
 var SC=µ.shortcut({
-	ef:"enshureFolder"
+	ef:"enshureFolder",
 });
+var proxy=µ.getModule("proxy");
 
 var eventEmitter = new (require('events'))()
 var methods=["on","once","addListener","removeListener","emit"];
-for(var m of methods) exports[m]=eventEmitter[m];
+proxy(eventEmitter,methods,exports);
 
 exports.add=function(config,noSave)
 {
