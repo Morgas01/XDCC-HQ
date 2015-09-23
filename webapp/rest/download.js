@@ -71,12 +71,11 @@ exports.add=function(request)
 		    		var d=post[i]=new XDCCPackage(post[i]);
 		    		d.state="pending";
 		    		d.message={type:"info",text:"pending"};
-		    		notifyEventSources("add",d);
 		    	}
 	    		downloads.save(post).then(function()
 	    		{
 	    			this.flush();
-			    	for(var i=0;i<post.length;i++) notifyEventSources("add",d);
+			    	for(var i=0;i<post.length;i++) notifyEventSources("add",post[i]);
 	    		});
 		    	resolve("ok");
 		    	startDownloads();
