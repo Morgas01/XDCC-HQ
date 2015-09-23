@@ -36,24 +36,6 @@ var notifyEventSources=function(eventType,data)
 	for(var es of eventSources)es.write("event: "+eventType+"\ndata: "+data+"\n\n");
 }
 
-exports.pause=function(request,queryParam)
-{
-	if("action" in queryParam)
-	{
-		switch(queryParam.action.toUpperCase())
-		{
-			case "PAUSE":
-				pause=true;
-				break;
-			case "CONTINUE":
-				pause=false;
-				startDownloads();
-		}
-		for(var es of eventSources)es.write("event: pause\ndata: "+pause+"\n\n");
-	}
-	return pause;
-};
-
 exports.add=function(request)
 {
 	if(request.method!=="POST")return "post packages in json array";
@@ -69,7 +51,7 @@ exports.add=function(request)
 		    	for(var i=0;i<post.length;i++)
 		    	{
 		    		var d=post[i]=new XDCCPackage(post[i]);
-		    		d.state="pending";
+		    		d.state=XDCCPackage.states.PENDING;
 		    		d.message={type:"info",text:"pending"};
 		    	}
 	    		downloads.save(post).then(function()
@@ -88,38 +70,131 @@ exports.add=function(request)
 	});
 };
 
-exports.remove=function(request)
+//control actions
+exports.pause=function(request,queryParam)
 {
-	if(request.method!=="POST")return "post package IDs in json array";
-	else return new Promise(function(resolve,reject)
+	if("action" in queryParam)
 	{
-		var post = '';
-	    request.on('data', function (data) {post += data});
-	    request.on('end', function ()
-	    {
-	    	try
-	    	{
-		    	post=JSON.parse(post);
-		    	downloads.load(XDCCPackage,{ID:post,state:s=>s!="running"}).then(function(toDelete)
-		    	{
-		    		downloads.delete(XDCCPackage,toDelete);
-		    		notifyEventSources("remove",toDelete.map(d=>d.ID));
-		    	})
-	    	}
-	    	catch(e)
-	    	{
-	    		reject(e);
-	    	}
-	    });
-	});
+		switch(queryParam.action.toUpperCase())
+		{
+			case "PAUSE":
+				pause=true;
+				break;
+			case "CONTINUE":
+				pause=false;
+				startDownloads();
+		}
+		for(var es of eventSources)es.write("event: pause\ndata: "+pause+"\n\n");
+	}
+	return pause;
 };
+
 exports.removeDone=function(request)
 {
-	return downloads.load(XDCCPackage,{state:"done"}).then(function(toDelete)
+	return downloads.load(XDCCPackage,{state:XDCCPackage.states.DONE}).then(function(toDelete)
 	{
 		downloads.delete(XDCCPackage,toDelete);
 		notifyEventSources("remove",toDelete.map(d=>d.ID));
 	}).original;
+};
+
+//download actions
+exports.disable=function(request,queryParam)
+{
+	if("ID" in queryParam)
+	{
+		return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
+		{
+			if(results.length==0)
+				return "no download with ID "+queryParam.ID+" found";
+			else if(results[0].state!==XDCCPackage.states.PENDING)
+			{
+				return "download is not Pending";
+			}
+			else
+			{
+				results[0].state=XDCCPackage.states.DISABLED;
+				results[0].message={type:"info",text:"disabled"};
+				downloads.save(results[0]);
+				notifyEventSources("update",results[0]);
+			}
+		}).original;
+	}
+	return "no query parameter ID found";
+};
+
+exports.enable=function(request,queryParam)
+{
+	if("ID" in queryParam)
+	{
+		return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
+		{
+			if(results.length==0)
+				return "no download with ID "+queryParam.ID+" found";
+			else if(results[0].state!==XDCCPackage.states.DISABLED)
+			{
+				return "download is not Disabled";
+			}
+			else
+			{
+				results[0].state=XDCCPackage.states.PENDING;
+				downloads.save(results[0]);
+				notifyEventSources("update",results[0]);
+				startDownloads();
+	    		return "ok";
+			}
+		}).original;
+	}
+	return "no query parameter ID found";
+};
+
+exports.remove=function(request,queryParam)
+{
+	if("ID" in queryParam)
+	{
+		return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
+		{
+			if(results.length==0)
+				return "no download with ID "+queryParam.ID+" found";
+			else if(results[0].state===XDCCPackage.states.RUNNING)
+			{
+				return "download is Running";
+			}
+			else
+			{
+				downloads.delete(XDCCPackage,results);
+				notifyEventSources("remove",[results[0].ID]);
+	    		return "ok";
+			}
+		}).original;
+	}
+	return "no query parameter ID found";
+};
+
+exports.reset=function(request,queryParam)
+{
+	if("ID" in queryParam)
+	{
+		return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
+		{
+			if(results.length==0)
+				return "no download with ID "+queryParam.ID+" found";
+			else if(results[0].state===XDCCPackage.states.RUNNING)
+			{
+				sendKillDownload(results[0].ID);
+				return "ok";
+			}
+			else
+			{
+				results[0].state=XDCCPackage.states.DISABLED;
+				results[0].message={type:"info",text:"reset"};
+				downloads.save(results[0]);
+	    		notifyEventSources("update",results[0]);
+	    		return "ok";
+			}
+		}).original;
+	}
+	return "no query parameter ID found";
 };
 
 var startDownloads=function()
@@ -128,45 +203,42 @@ var startDownloads=function()
 	{
 		if(active._count<config.maxDownloads)
 		{
-			downloads.load(XDCCPackage,{}).then(function(all)
+			downloads.load(XDCCPackage,{state:XDCCPackage.states.PENDING}).then(function(all)
 			{
 				for(var d of all)
 				{
-					if(d.state=="pending")
+					if(active._count<config.maxDownloads)
 					{
-						if(active._count<config.maxDownloads)
+						if(!active[d.network])active[d.network]={_count:0};
+						var net=active[d.network];
+						if(net._count<config.maxNetworkDownloads)
 						{
-							if(!active[d.network])active[d.network]={_count:0};
-							var net=active[d.network];
-							if(net._count<config.maxNetworkDownloads)
+							if(!net[d.bot])net[d.bot]=0;
+							if(net[d.bot]<config.maxBotDownloads)
 							{
-								if(!net[d.bot])net[d.bot]=0;
-								if(net[d.bot]<config.maxBotDownloads)
-								{
-									d.progress=[0,1];
-									d.state="running";
-									d.message={type:"info",text:"starting"};
-									d.startTime=0;
-									d.updateTime=0;
-									d.location="";
-									
-									net[d.bot]++;
-									net._count++;
-									active._count++;
-									
-									logger.info({download:d},"run");
-									logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
-									
-									downloads.save(d);
-						    		notifyEventSources("update",d);
-									downloader.send(JSON.stringify(d));
-								}
-								else d.msg="bot cap reached";
+								d.progress=[0,1];
+								d.state=XDCCPackage.states.RUNNING;
+								d.message={type:"info",text:"starting"};
+								d.startTime=0;
+								d.updateTime=0;
+								d.location="";
+								
+								net[d.bot]++;
+								net._count++;
+								active._count++;
+								
+								logger.info({download:d},"run");
+								logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
+								
+								downloads.save(d);
+					    		notifyEventSources("update",d);
+					    		sendDownload(d);
 							}
-							else d.msg="network download cap reached";
+							else d.message.text="bot cap reached";
 						}
-						else d.msg="overall download cap reached";
+						else d.message.text="network download cap reached";
 					}
+					else d.message.text="overall download cap reached";
 				}
 			});
 		}
@@ -179,7 +251,7 @@ downloader.on("message",function(d)
 	downloads.save(d).then(function()
 	{
 		notifyEventSources("update",d);
-		if(d.state==="done"||d.state==="fail")
+		if(d.state!==XDCCPackage.states.RUNNING)
 		{
 			active._count--;
 			active[d.network]._count--;
@@ -190,7 +262,16 @@ downloader.on("message",function(d)
 		}
 	});
 });
-
+var sendDownload=function(d)
+{
+	var msg={type:"download",data:d}
+	downloader.send(JSON.stringify(msg));
+};
+var sendKillDownload=function(d)
+{
+	var msg={type:"kill",data:d}
+	downloader.send(JSON.stringify(msg));
+};
 
 startDownloads();
 config.on("change",startDownloads);

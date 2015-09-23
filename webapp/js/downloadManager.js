@@ -38,6 +38,17 @@
 			controlActions[e.target.dataset.action](e);
 		}
 	});
+
+	var downloadsContainer=document.getElementById("downloads");
+	downloadsContainer.addEventListener("click",function(e)
+	{
+		var action=e.target.dataset.action;
+		if(action)
+		{
+			var downloadID=e.target.parentNode.parentNode.parentNode.dataset.downloadId;
+			SC.rq.json("rest/download/"+action+"?ID="+downloadID).then(µ.logger.info,µ.logger.error);
+		}
+	});
 	
 	
 	var es=new EventSource("rest/download/get");
@@ -52,7 +63,7 @@
 			//TODO check for data.id in org
 			download=new SC.xp().fromJSON(download);
 			org.add([download]);
-			document.body.appendChild(download.getDom().element);
+			downloadsContainer.appendChild(download.getDom().element);
 		};
 		
 		for(var d of JSON.parse(listEvent.data)) onAdd(d);

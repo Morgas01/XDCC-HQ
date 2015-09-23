@@ -20,20 +20,32 @@
 .XDCCPackage .message {
 	flex-grow:1;
 }
-
-.XDCCPackage[data-state=pending],.XDCCPackage[data-state=pending] legend {
+.XDCCPackage legend {
+	background-color: white;
+} 
+.XDCCPackage,.XDCCPackage legend {
+	border: 1px lightgray solid;
+}
+.XDCCPackage[data-state=Disabled] {
+	background-image: repeating-linear-gradient(45deg, grey, grey 10px, lightgray 10px, lightgray 20px);
+}
+.XDCCPackage[data-state=Pending] {
 	background-color: lightgray;
 }
-.XDCCPackage[data-state=running],.XDCCPackage[data-state=running] legend {
+.XDCCPackage[data-state=Running] {
 	background-color: lightgreen;
 }
-.XDCCPackage[data-state=error],.XDCCPackage[data-state=error] legend {
+.XDCCPackage[data-state=Fail] {
 	background-color: red;
 }
-.XDCCPackage[data-state=done],.XDCCPackage[data-state=done] legend {
+.XDCCPackage[data-state=Done] {
 	background-color: lightblue;
 }
-
+.XDCCPackage:not([data-state=Pending]) .actions [data-action=disable],
+.XDCCPackage:not([data-state=Disabled]) .actions [data-action=enable],
+.XDCCPackage[data-state=Running] .actions [data-action=remove] {
+	display:none;
+}
 .XDCCPackage .message[data-type="warning"] {
 	background-color: yellow;
 }

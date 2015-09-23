@@ -47,7 +47,7 @@ var server=http.createServer(function(request,response)
 			}
 			catch(e)
 			{
-				logger.error("service error",e);
+				logger.error({error:e},"service error: %s",e.message);
 				fillResponse(response,500,e);
 			}
 		}

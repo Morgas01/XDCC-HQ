@@ -43,6 +43,7 @@
 			if(!this.dom)
 			{
 				this.dom={element:document.createElement("fieldset")};
+				this.dom.element.dataset.downloadId=this.ID;
 				this.dom.element.classList.add("XDCCPackage")
 				this.dom.element.title=this.dom.element.dataset.state=this.state
 				this.dom.element.innerHTML=
@@ -55,6 +56,12 @@
 		<span class="time"></span>\
 		<span class="speed"></span>\
 		<span class="remaining"></span>\
+		<div class="actions">\
+			<button data-action="disable">disable</button>\
+			<button data-action="enable">enable</button>\
+			<button data-action="remove">remove</button>\
+			<button data-action="reset">reset</button>\
+		</div>\
 	</div>\
 	';
 				this.dom.progress  = this.dom.element.querySelector("progress");
@@ -88,7 +95,7 @@
 				
 					this.dom.time.textContent=getTimeString(this.updateTime-this.startTime);
 					
-					if(this.state!=="done"&&this.lastUpdateTime)
+					if(this.state===XP.states.RUNNING&&this.lastUpdateTime)
 					{
 						var lastSpeed=(this.progressValue-this.dom.progress.value)/(this.updateTime-this.lastUpdateTime);
 						this.dom.speed.textContent+=" ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
@@ -101,8 +108,8 @@
 				
 				if(this.progressMax)
 				{
-					this.dom.progress.value       = this.progressValue;
-					this.dom.progress.max         = this.progressMax;
+					this.dom.progress.value = this.progressValue;
+					this.dom.progress.max   = this.progressMax;
 				}
 				
 				if(this.location) this.dom.location.textContent = this.location;
@@ -115,6 +122,14 @@
 			}
 		}
 	});
+	XP.states={
+		DISABLED:"Disabled",
+		PENDING:"Pending",
+		RUNNING:"Running",
+		CHECKING:"Checking CRC",
+		DONE:"Done",
+		FAILED:"Failed"
+	};
 	
 	SMOD("XDCCPackage",XP);
 	if(typeof module!=="undefined")module.exports=XP;
