@@ -138,6 +138,7 @@ exports.enable=function(request,queryParam)
 			else
 			{
 				results[0].state=XDCCPackage.states.PENDING;
+				results[0].message={type:"info",text:"pending"};
 				downloads.save(results[0]);
 				notifyEventSources("update",results[0]);
 				startDownloads();
@@ -230,8 +231,6 @@ var startDownloads=function()
 								logger.info({download:d},"run");
 								logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
 								
-								downloads.save(d);
-					    		notifyEventSources("update",d);
 					    		sendDownload(d);
 							}
 							else d.message.text="bot cap reached";
@@ -239,6 +238,8 @@ var startDownloads=function()
 						else d.message.text="network download cap reached";
 					}
 					else d.message.text="overall download cap reached";
+					downloads.save(d);
+		    		notifyEventSources("update",d);
 				}
 			});
 		}
