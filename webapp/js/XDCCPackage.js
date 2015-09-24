@@ -34,6 +34,7 @@
 			this.addField("location",		FIELD.TYPES.STRING	,param.location			);
 			this.addField("startTime",		FIELD.TYPES.DATE	,param.startTime		);
 			this.addField("updateTime",		FIELD.TYPES.DATE	,param.updateTime		);
+			this.addField("orderIndex",		FIELD.TYPES.INT		,param.orderIndex		);
 			
 			this.dom=null;
 		},
@@ -44,6 +45,7 @@
 			{
 				this.dom={element:document.createElement("fieldset")};
 				this.dom.element.dataset.downloadId=this.ID;
+				this.dom.element.draggable=true;
 				this.dom.element.classList.add("XDCCPackage")
 				this.dom.element.title=this.dom.element.dataset.state=this.state
 				this.dom.element.innerHTML=
@@ -84,6 +86,7 @@
 			if(this.dom)
 			{
 				this.dom.element.title=this.dom.element.dataset.state=this.state;
+				this.dom.element.style.order=this.orderIndex;
 	
 				if(this.updateTime)
 				{

@@ -49,6 +49,60 @@
 			SC.rq.json("rest/download/"+action+"?ID="+downloadID).then(µ.logger.info,µ.logger.error);
 		}
 	});
+	downloadsContainer.addEventListener("dragstart",function(e)
+	{
+		e.dataTransfer.setData('text/plain',e.target.dataset.downloadId);
+		e.dataTransfer.effectAllowed="move";
+		e.target.style.opacity=0.5;
+	});
+	downloadsContainer.addEventListener("dragenter",function(e)
+	{
+		var target=e.target;
+		while(target!=downloadsContainer&&target.parentNode!=downloadsContainer) target=target.parentNode;
+		if(e.dataTransfer.getData("text/plain")!=target.dataset.downloadId)
+		{
+			target.counter=target.counter||0;
+			target.counter++
+			target.classList.add("dragover");
+		}
+	});
+	downloadsContainer.addEventListener("dragover",function(e)
+	{
+		var target=e.target;
+		while(target!=downloadsContainer&&target.parentNode!=downloadsContainer) target=target.parentNode;
+		if(e.dataTransfer.getData("text/plain")!=target.dataset.downloadId)
+		{
+			e.preventDefault();
+		}
+	});
+	downloadsContainer.addEventListener("dragleave",function(e)
+	{
+		var target=e.target;
+		while(target!=downloadsContainer&&target.parentNode!=downloadsContainer) target=target.parentNode;
+		if(e.dataTransfer.getData("text/plain")!=target.dataset.downloadId)
+		{
+			if(--target.counter==0) target.classList.remove("dragover");
+		}
+	});
+	downloadsContainer.addEventListener("dragend",function(e)
+	{
+		e.target.style.opacity=null;
+	});
+	downloadsContainer.addEventListener("drop",function(e)
+	{
+		e.preventDefault();
+		var target=e.target;
+		while(target!=downloadsContainer&&target.parentNode!=downloadsContainer) target=target.parentNode;
+		SC.rq({
+			url:"rest/download/setOrder",
+			data:JSON.stringify({
+				ID:parseInt(e.dataTransfer.getData("text/plain"),10),
+				beforeID:parseInt(target.dataset.downloadId,10)
+			})
+		});
+		target.classList.remove("dragover");
+		//Array.prototype.forEach.call(downloadsContainer.querySelectorAll(".dragover"),e=>e.classList.remove("dragover"));
+	});
 	
 	
 	var es=new EventSource("rest/download/get");

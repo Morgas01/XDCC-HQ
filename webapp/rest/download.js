@@ -4,22 +4,42 @@ var XDCCPackage=require("../js/XDCCPackage");
 var JsonConnector=µ.getModule("DB/jsonConnector");
 var fork=require("child_process").fork;
 var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
+var SC=µ.shortcut({
+	find:"find"
+});
 
 var config=require("../../libs/configManager");
 var downloads=new JsonConnector(path.join(__dirname,"..","..","temp","downloads.json"));
 var pause=!config.autoStartDownloads;
 var active={_count:0};
+var nextOrderIndex=1;
 var eventSources=[];
 
+
+var cleanOrderIndexes=function(all)
+{//clean orderIndexes & calculate next one
+	nextOrderIndex=1;
+	for(var d of all)
+	{
+		d.orderIndex=nextOrderIndex++;
+	}
+	downloads.save(all);
+	console.log(all.map(d=>d.ID));
+};
+downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
+{
+	cleanOrderIndexes(all);
+	downloads.flush();
+});
 exports.get=function(request,queryParam,response)
 {
 	response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
 	response.write("retry: 5000\n");
 	response.write("event: pause\ndata: "+pause+"\n\n");
-	downloads.load(XDCCPackage,{}).then(function(all)
+	downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
 	{
 		response.write("event: list\n");
-		response.write("data: " + JSON.stringify(downloads.db.getValues().map(d=>d.fields)) + "\n\n");
+		response.write("data: " + JSON.stringify(all) + "\n\n");
 	}).then(function()
 	{
 		eventSources.push(response);
@@ -53,6 +73,7 @@ exports.add=function(request)
 		    		var d=post[i]=new XDCCPackage(post[i]);
 		    		d.state=XDCCPackage.states.PENDING;
 		    		d.message={type:"info",text:"pending"};
+		    		d.orderIndex=nextOrderIndex++;
 		    	}
 	    		downloads.save(post).then(function()
 	    		{
@@ -196,6 +217,62 @@ exports.reset=function(request,queryParam)
 		}).original;
 	}
 	return "no query parameter ID found";
+};
+exports.setOrder=function(request)
+{
+	if(request.method!=="POST")return "post json like {ID:number,beforeID:number}";
+	else return new Promise(function(resolve,reject)
+	{
+		var post = '';
+	    request.on('data', function (data) {post += data});
+	    request.on('end', function ()
+	    {
+	    	try
+	    	{
+		    	post=JSON.parse(post);
+		    	downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
+		    	{
+		    		var toOrder=SC.find(all,{ID:post.ID});
+		    		if(toOrder.length>0)
+		    		{
+		    			toOrder=toOrder[0];
+			    		if(post.beforeID==null)
+			    		{
+			    			if(all[all.length-1]!=toOrder.value)
+			    			{
+			    				all.splice(toOrder.index,1);
+			    				all.push(toOrder.value);
+			    				toOrder.value.orderIndex=nextOrderIndex++;
+			    				downloads.save(toOrder.value);
+						    	notifyEventSources("update",toOrder.value);
+			    			}
+			    			//else is already last one
+		    				resolve("ok");
+			    		}
+			    		else
+			    		{
+			    			var before=SC.find(all,{ID:post.beforeID});
+			    			if(before.length>0)
+			    			{
+			    				before=before[0];
+			    				all.splice(toOrder.index,1);
+			    				all.splice(before.index,0,toOrder.value);
+			    				cleanOrderIndexes(all);
+						    	for(var i=0;i<all.length;i++) notifyEventSources("update",all[i]);
+			    				resolve("ok");
+			    			}
+			    			else resolve("no download found with ID "+post.beforeID);
+			    		}
+		    		}
+		    		else resolve("no download found with ID "+post.ID);
+		    	},reject);
+	    	}
+	    	catch(e)
+	    	{
+	    		reject(e);
+	    	}
+	    });
+	});
 };
 
 var startDownloads=function()
