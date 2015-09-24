@@ -189,7 +189,9 @@
 		},
 		getSelected:function()
 		{
-			return Array.map(this.content.querySelectorAll(".selected"),e=>this.org.values[e.dataset.index]);
+			return Array.from(this.content.querySelectorAll(".selected"))
+			.sort((a,b)=>a.style.order>b.style.order)
+			.map(e=>this.org.values[e.dataset.index]);
 		},
 		updateFilters:function()
 		{
