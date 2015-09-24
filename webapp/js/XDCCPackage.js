@@ -81,7 +81,7 @@
 			if(param)
 			{
 				this.lastUpdateTime	= this.updateTime;
-				this.fromJSON(param);;
+				this.fromJSON(param);
 			}
 			if(this.dom)
 			{

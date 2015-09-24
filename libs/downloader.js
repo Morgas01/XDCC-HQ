@@ -155,6 +155,11 @@ process.on("message",function(message)
 			}
 			else {
 				logger.info("has no download with ID %d",message.data);
+				process.send(JSON.stringify({
+					ID:message.data,
+					state:XDCCPackage.states.DISABLED,
+					message:{type:"info",text:"not running"}
+				}));
 			}
 			break;
 		default:

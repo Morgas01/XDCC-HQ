@@ -24,7 +24,6 @@ var cleanOrderIndexes=function(all)
 		d.orderIndex=nextOrderIndex++;
 	}
 	downloads.save(all);
-	console.log(all.map(d=>d.ID));
 };
 downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
 {
@@ -281,7 +280,7 @@ var startDownloads=function()
 	{
 		if(active._count<config.maxDownloads)
 		{
-			downloads.load(XDCCPackage,{state:XDCCPackage.states.PENDING}).then(function(all)
+			downloads.load(XDCCPackage,{state:XDCCPackage.states.PENDING},"orderIndex").then(function(all)
 			{
 				for(var d of all)
 				{
@@ -325,18 +324,23 @@ var startDownloads=function()
 
 downloader.on("message",function(d)
 {
-	d=new XDCCPackage().fromJSON(JSON.parse(d));
-	downloads.save(d).then(function()
+	d=JSON.parse(d);
+	downloads.load(XDCCPackage,{ID:d.ID}).then(function(results)
 	{
-		notifyEventSources("update",d);
-		if(d.state!==XDCCPackage.states.RUNNING)
+		if(results.length>0)
 		{
-			active._count--;
-			active[d.network]._count--;
-			active[d.network][d.bot]--;
-			logger.info({download:d},"end");
-			logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,active[d.network]._count,d.bot,active[d.network][d.bot]);
-			startDownloads();
+			d=results[0].fromJSON(d);
+			notifyEventSources("update",d);
+			downloads.save(d);
+			if(d.state!==XDCCPackage.states.RUNNING)
+			{
+				active._count--;
+				active[d.network]._count--;
+				active[d.network][d.bot]--;
+				logger.info({download:d},"end");
+				logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,active[d.network]._count,d.bot,active[d.network][d.bot]);
+				startDownloads();
+			}
 		}
 	});
 });

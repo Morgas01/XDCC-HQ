@@ -190,7 +190,7 @@
 		getSelected:function()
 		{
 			return Array.from(this.content.querySelectorAll(".selected"))
-			.sort((a,b)=>a.style.order>b.style.order)
+			.sort((a,b)=>parseInt(a.style.order,10)>parseInt(b.style.order,10))
 			.map(e=>this.org.values[e.dataset.index]);
 		},
 		updateFilters:function()
