@@ -1,4 +1,5 @@
 overall
+-	set µ.logger.out to bunyan logger
 -	propagate config changes to downloader
 -	download request timeout
 -	resume support
