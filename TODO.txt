@@ -1,6 +1,5 @@
 overall
 -	set µ.logger.out to bunyan logger
--	propagate config changes to downloader
 -	download request timeout
 -	resume support
 -	clean names, check crc
@@ -8,16 +7,10 @@ overall
 -	config subOffice type FILE expire now (forced new)
 
 index.html
--	append downloads in selection order
 -	simplify downloading from different bots
 -	show errors of subOffices
--	close search tabs with middle click
--	open tab with waiting symbol
--	exchange dialogs with seperate .js
 
 downloads.html
 -	show network,channel and bot
--	popup/dialog msg command for pack(s)
--	popup/dialog filenames
--	abort/retry downloads
 -	manually add download
+-	compact mode

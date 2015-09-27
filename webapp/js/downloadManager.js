@@ -20,11 +20,17 @@
 	var controlActions={
 		pause:function(e)
 		{
-			SC.rq.json("rest/download/pause?action="+pauseBtn.dataset.value);
+			SC.rq("rest/download/pause?action="+pauseBtn.dataset.value).always(function(result)
+			{
+				if(result!="ok") openDialog('<div>'+result+'</div>');
+			});
 		},
 		removeDone:function()
 		{
-			SC.rq("rest/download/removeDone");
+			SC.rq("rest/download/removeDone").always(function(result)
+			{
+				if(result!="ok") openDialog('<div>'+result+'</div>');
+			});
 		},
 		listFilenames:function()
 		{
@@ -46,7 +52,10 @@
 		if(action)
 		{
 			var downloadID=e.target.parentNode.parentNode.parentNode.dataset.downloadId;
-			SC.rq.json("rest/download/"+action+"?ID="+downloadID).then(µ.logger.info,µ.logger.error);
+			SC.rq("rest/download/"+action+"?ID="+downloadID).always(function(result)
+			{
+				if(result!="ok") openDialog('<div>'+result+'</div>');
+			});
 		}
 	});
 	downloadsContainer.addEventListener("dragstart",function(e)

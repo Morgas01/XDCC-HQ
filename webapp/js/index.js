@@ -34,15 +34,16 @@
 	document.getElementById("searchForm").addEventListener("submit",function(e)
 	{
 		e.preventDefault();
-		var search=this.search.value;
-		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:search}).then(function(results)
+		var search=this.search.value;if(!tabContainer)
 		{
-			if(!tabContainer)
-			{
-				tabContainer=new SC.tc();
-				document.getElementById("search").appendChild(tabContainer.domElement);
-			}
-			tabContainer.add(new SC.sr(search,results));
+			tabContainer=new SC.tc();
+			document.getElementById("search").appendChild(tabContainer.domElement);
+		}
+		var sr=new SC.sr(search);
+		tabContainer.add(sr);
+		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:search}).then(function(data)
+		{
+			sr.setData(data);
 		},errorlogger);
 		return false;
 	});

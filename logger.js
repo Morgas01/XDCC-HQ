@@ -5,16 +5,7 @@
 	var enshureFolder = GMOD("enshureFolder");
 	var logFolder=path.join(__dirname,"logs");
 	enshureFolder(logFolder);
-	var errorSerializer=function(error)
-	{
-		if(error instanceof Error)
-			return {
-				name:error.name,
-				message:error.message,
-				stack:error.stack
-			};
-		return error
-	};
+
 	module.exports=function(name)
 	{
 		return bunyan.createLogger({
@@ -29,9 +20,19 @@
 				}
 			],
 			serializers: {
-				error: errorSerializer
+				error: module.exports.errorSerializer
 			}
 		});
-	}
+	};
+	module.exports.errorSerializer=function(error)
+	{
+		if(error instanceof Error)
+			return {
+				name:error.name,
+				message:error.message,
+				stack:error.stack
+			};
+		return error
+	};
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

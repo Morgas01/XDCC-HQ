@@ -6,7 +6,8 @@
 		{
 			this.domElement=document.createElement("div");
 			this.domElement.classList.add("tabContainer");
-			this.domElement.addEventListener("click",this._onClick.bind(this));
+			this.domElement.addEventListener("mousedown",this._onMousedown.bind(this));
+			this.domElement.addEventListener("mouseup",this._onMouseup.bind(this));
 			this.tabs=[];
 			this.activeTab=null;
 			if(tabs)this.add(tabs);
@@ -57,16 +58,24 @@
 				this.activeTab.header.classList.add("active");
 			}
 		},
-		_onClick:function(e)
+		_onMousedown:function(e)
 		{
-			if(e.target.tagName==="HEADER"&&e.target.parentNode===this.domElement)
-			{
-				this.setActive(this.tabs[Array.indexOf(this.domElement.childNodes,e.target)/2]);
-			}
-			else if (e.target.tagName=="BUTTON"&&e.target.parentNode.parentNode===this.domElement)
+			if(e.target.parentNode===this.domElement) e.preventDefault();
+		},
+		_onMouseup:function(e)
+		{
+			if ((e.target.tagName=="BUTTON"||e.which==2)&&e.target.parentNode.parentNode===this.domElement)
 			{
 				this.removeTab(this.tabs[Array.indexOf(this.domElement.childNodes,e.target.parentNode)/2])
 			}
+			else if (e.which==2&&e.target.parentNode===this.domElement)
+			{
+				this.removeTab(this.tabs[Array.indexOf(this.domElement.childNodes,e.target)/2])
+			}
+			else if(e.target.tagName==="HEADER"&&e.target.parentNode===this.domElement)
+			{
+				this.setActive(this.tabs[Array.indexOf(this.domElement.childNodes,e.target)/2]);
+			} 
 		}
 	});
 	SMOD("TabContainer",TabContainer);

@@ -103,10 +103,13 @@ exports.pause=function(request,queryParam)
 			case "CONTINUE":
 				pause=false;
 				startDownloads();
+				break;
+			default:
+				return "action "+queryParam.action+" not found. action mus be either Pause or Continue.";
 		}
 		for(var es of eventSources)es.write("event: pause\ndata: "+pause+"\n\n");
 	}
-	return pause;
+	return "ok";
 };
 
 exports.removeDone=function(request)
@@ -115,6 +118,7 @@ exports.removeDone=function(request)
 	{
 		downloads.delete(XDCCPackage,toDelete);
 		notifyEventSources("remove",toDelete.map(d=>d.ID));
+		return "ok";
 	}).original;
 };
 
@@ -137,6 +141,7 @@ exports.disable=function(request,queryParam)
 				results[0].message={type:"info",text:"disabled"};
 				downloads.save(results[0]);
 				notifyEventSources("update",results[0]);
+				return "ok";
 			}
 		}).original;
 	}

@@ -6,6 +6,7 @@ var path=require("path");
 var fs=require("fs");
 require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var logger=require("../logger")(subOfficeName);
+var errorSerializer=require("../logger").errorSerializer
 
 var SC=µ.shortcut({
 	ef:"enshureFolder"
@@ -25,41 +26,59 @@ if(subOffice.type==="FILE"&&fs.existsSync(targetFilePath))
 	logger.info("hunt from existing file");
 	var results=require(targetFilePath);
 	results=filterResults(results);
-	process.send(JSON.stringify(results));
+	process.send(JSON.stringify({results:results,error:null}));
 }
 else
 {
-	var getUrl=subOffice.getUrl(search);
-	logger.info({url:getUrl},"hunt from url");
-	var protocol=require(url.parse(getUrl).protocol.slice(0,-1)||"http");
-	protocol.get(getUrl,function(response)
+	try
 	{
-		var data="";
-		response.on("data",function(chunk)
+		var getUrl=subOffice.getUrl(search);
+		logger.info({url:getUrl},"hunt from url");
+		var protocol=require(url.parse(getUrl).protocol.slice(0,-1)||"http");
+		protocol.get(getUrl,function(response)
 		{
-			data+=chunk;
-		});
-		response.on("error",function(e)
-		{
-			logger.error({error:e},"error response");
-		});
-		response.on("end",function()
-		{
-			var results=subOffice.parse(data);
-			switch(subOffice.type)
+			var data="";
+			response.on("data",function(chunk)
 			{
-				case "FILE":
-					logger.info("save results to file");
-					SC.ef(targetDir);
-					fs.writeFileSync(targetFilePath,JSON.stringify(results));
-					results=filterResults(results);
-				case "SEARCH":
-				default:
-					process.send(JSON.stringify(results));
-			}
+				data+=chunk;
+			});
+			response.on("error",function(e)
+			{
+				logger.error({error:e},"error response");
+				process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
+			});
+			response.on("end",function()
+			{
+				try
+				{
+					var results=subOffice.parse(data);
+					switch(subOffice.type)
+					{
+						case "FILE":
+							logger.info("save results to file");
+							SC.ef(targetDir);
+							fs.writeFileSync(targetFilePath,JSON.stringify(results));
+							results=filterResults(results);
+						case "SEARCH":
+						default:
+							process.send(JSON.stringify({results:results,error:null}));
+					}
+				}
+				catch (e)
+				{
+					logger.error({error:e},"error parse data");
+					process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
+				}
+			});
+		}).on("error",function(e)
+		{
+			logger.error({error:e},"error get data");
+			process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
 		});
-	}).on("error",function(e)
+	}
+	catch (e)
 	{
-		logger.error({error:e},"error get");
-	});
+		logger.error({error:e},"error get url");
+		process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
+	}
 }

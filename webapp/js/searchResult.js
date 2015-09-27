@@ -26,25 +26,40 @@
 			return "no subber found";
 		}
 	};
+	var groups=["subber","bot","network"];
 	
 	var SR=µ.Class(Tab,{
-		init:function(header,results)
+		init:function(header)
 		{
 			this.mega(header);
 			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters"]);
 			
-			this.org=new SC.org(results);
+			this.org=new SC.org();
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
-
-			var groups=["subber","bot","network"];
 			for(var g of groups) this.org.group(g,guides[g]);
+			this.errors=[];
 			
 			this.sortColumn=null;
 			this.desc=false;
 			this.filterExp=null;
 			
-			this.content.classList.add("searchResult");
+			this.content.classList.add("searchResult","pending");
+		},
+		setData:function(data)
+		{
+			this.content.classList.remove("pending");
+			this.org.add(data.results);
+			this.errors=data.errors;
+			this.errors.sort(SC.org.sortGetter(goPath.guide("subOffice")));
+			
 			var contentHTML='\
+<div class="errors">\n'+
+	this.errors.map(e=>'<div>\
+		<span>'+e.subOffice+'</span>\
+		<span>'+e.error.message+'</span>\
+	</div>\
+	<pre>'+e.error.stack+'</pre>').join("\n")+'\
+</div>\
 <div class="control">\
 	<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
 	<div class="actions">\
@@ -61,7 +76,7 @@
 		<span class="col-packnumber">packnumber</span>\
 		<span class="col-size">size</span>\
 	</header>\n'+
-	results.map((r,i)=>'<div data-index="'+i+'">'+
+	data.results.map((r,i)=>'<div data-index="'+i+'">'+
 		'<span class="col-network" title="'+r.network+'">'+r.network+'</span>'+
 		'<span class="col-channel" title="'+r.channel+'">'+r.channel+'</span>'+
 		'<span class="col-bot" title="'+r.bot+'">'+r.bot+'</span>'+

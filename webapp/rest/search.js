@@ -40,23 +40,33 @@ var doSearch=function(subOffice,search)
 		hunter.on("message",function(data)
 		{
 			data=JSON.parse(data);
+			data.subOffice=subOffice;
 			resolve(data);
-			logger.info({search:search},"hunted in subOffice %s %d packs",subOffice,data.length);
+			if(!data.error)logger.info({search:search},"hunted in subOffice %s %d packs",subOffice,data.results.length);
+			else logger.warn({search:search,error:data.error},"hunted in subOffice %s with an error",subOffice);
 		});
 		hunter.on("error",function(err){
 			logger.error({search:search,error:err},"hunter has trown an error for subOffice %s",subOffice);
-			resolve();
+			resolve({results:[],subOffice:subOffice,error:err});
 		})
 		hunter.on("exit",function()
 		{
 			logger.info({search:search},"hunt ended in subOffice %s",subOffice);
-			resolve();
+			resolve({results:[],subOffice:subOffice,error:"unexpected exit"});
 		});
 	});
 };
-var filterResults=function(results)
+var filterResults=function(huntResults)
 {
-	var unpackedResults=Array.prototype.concat.apply([],results.filter(function(a){return a!=undefined}));
-	var filteredResults=uniquify(unpackedResults,function(p){return p.network+p.bot+p.packnumber+p.name});
-	return filteredResults;
+	var rtn={
+		results:[],
+		errors:[]
+	};
+	for(var i=0;i<huntResults.length;i++)
+	{
+		rtn.results=rtn.results.concat(huntResults[i].results);
+		if(huntResults[i].error) rtn.errors.push({subOffice:huntResults[i].subOffice,error:huntResults[i].error});
+	}
+	rtn.results=uniquify(rtn.results,function(p){return p.network+p.bot+p.packnumber+p.name});
+	return rtn;
 }
