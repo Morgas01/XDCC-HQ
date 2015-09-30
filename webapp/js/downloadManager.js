@@ -116,6 +116,7 @@
 	
 	var es=new EventSource("rest/download/get");
 	es.addEventListener("error",µ.logger.error);
+	es.addEventListener("ping",µ.logger.debug);
 	
 	es.addEventListener("list",function onList (listEvent)
 	{
