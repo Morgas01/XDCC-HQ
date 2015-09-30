@@ -159,6 +159,8 @@
 					var onMove=moveEvent=>
 					{
 						this.resultList.removeEventListener("mousemove",onMove);
+						var selected=this.resultList.querySelectorAll(".selected");
+						for(var i=0;i<selected.length;i++)selected[i].classList.remove("selected");
 						row.classList.add("selected");
 						
 						var onMouseOver=overEvent=>
