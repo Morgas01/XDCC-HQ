@@ -32,28 +32,32 @@ downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
 });
 exports.get=function(request,queryParam,response)
 {
-	response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
-	response.write("retry: 5000\n");
-	response.write("event: pause\ndata: "+pause+"\n\n");
-	downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
+	if(request.accept==="text/event-stream")
 	{
-		response.write("event: list\n");
-		response.write("data: " + JSON.stringify(all) + "\n\n");
-	}).then(function()
-	{
-		eventSources.push(response);
-		request.connection.addListener("close", function () {
-			var index=eventSources.indexOf(response);
-			if(index===-1)logger.error("could not find response in eventSources");
-			else eventSources.splice(index,1);
-		}, false);
-	});
-}
+		response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
+		response.write("retry: 5000\n");
+		response.write("event: pause\ndata: "+pause+"\n\n");
+		downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
+		{
+			response.write("event: list\n");
+			response.write("data: " + JSON.stringify(all) + "\n\n");
+		}).then(function()
+		{
+			eventSources.push(response);
+			request.connection.addListener("close", function () {
+				var index=eventSources.indexOf(response);
+				if(index===-1)logger.error("could not find response in eventSources");
+				else eventSources.splice(index,1);
+			}, false);
+		});
+	}
+	else return downloads.load(XDCCPackage,{},"orderIndex").original
+};
 var notifyEventSources=function(eventType,data)
 {
 	data=JSON.stringify(data);
 	for(var es of eventSources)es.write("event: "+eventType+"\ndata: "+data+"\n\n");
-}
+};
 
 exports.add=function(request)
 {
@@ -362,3 +366,8 @@ var sendKillDownload=function(d)
 
 startDownloads();
 config.on("change",startDownloads);
+
+setInterval(function ()
+{
+	notifyEventSources("ping",process.uptime());
+})
