@@ -32,7 +32,7 @@ downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
 });
 exports.get=function(request,queryParam,response)
 {
-	if(request.accept==="text/event-stream")
+	if(request.headers.accept==="text/event-stream")
 	{
 		response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
 		response.write("retry: 5000\n");
@@ -370,4 +370,4 @@ config.on("change",startDownloads);
 setInterval(function ()
 {
 	notifyEventSources("ping",process.uptime());
-})
+},60000).unref();
