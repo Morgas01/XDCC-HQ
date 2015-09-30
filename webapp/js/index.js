@@ -30,11 +30,41 @@
 	
 	
 	//search
+	var searchHistory=null;
+	var updateSearchHistory=(function()
+	{
+		var dom=document.getElementById("searchHistory");
+		try
+		{
+			searchHistory=JSON.parse(localStorage.getItem("searchHistory"))||[];
+		}
+		catch(e)
+		{
+			µ.logger.info(dom.innerHTML="localStorage not available");
+		}
+		return function(search)
+		{
+			if(searchHistory!=null)
+			{
+				if(search)
+				{
+					var index=searchHistory.indexOf(search);
+					if(index!=-1) searchHistory.splice(index,1);
+					searchHistory.unshift(search);
+					searchHistory.length=Math.min(searchHistory.length,10);//max count
+					localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
+				}
+				dom.innerHTML=searchHistory.map(s=>'<option value="'+s+'"></option>').join("\n");
+			}
+		}
+	})();
+	
 	var tabContainer=null;
 	document.getElementById("searchForm").addEventListener("submit",function(e)
 	{
 		e.preventDefault();
-		var search=this.search.value;if(!tabContainer)
+		var search=this.search.value;
+		if(!tabContainer)
 		{
 			tabContainer=new SC.tc();
 			document.getElementById("search").appendChild(tabContainer.domElement);
@@ -45,6 +75,9 @@
 		{
 			sr.setData(data);
 		},errorlogger);
+		updateSearchHistory(search);
+		this.search.value="";
+		this.search.focus();
 		return false;
 	});
 	
@@ -65,6 +98,7 @@
 	
 	//execute
 	updateConfig();
+	updateSearchHistory();
 	
 	document.querySelector("#searchForm [name=search]").select();
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
