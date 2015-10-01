@@ -1,6 +1,7 @@
-Morgas.js
+XDCC-HQ
 =========
 
-JavaScript data processing framework for fun
+A NodeJs webserver/application for crawling xdcc search sites and managing downloads
 
-[tests Page](http://morgas01.github.io/Morgas.js/test/test.html)
+known bugs:
+-	download reset does not abort the connection (axdcc)
