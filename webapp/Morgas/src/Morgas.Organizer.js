@@ -248,7 +248,7 @@
 		clear:function()
 		{
 			SC.it(this.filters,child=>child.clear());
-			this.maps.clear();
+			SC.it(this.maps,map=>map.values={});
 			SC.it(this.groups,group=>{
 				for(var g in group.values)
 				{
