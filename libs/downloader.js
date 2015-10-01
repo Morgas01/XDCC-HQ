@@ -1,3 +1,4 @@
+var util=require("util");
 var irc=require("irc");
 var axdcc=require("axdcc");
 require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
@@ -12,25 +13,29 @@ var getClient=function(network)
 	if(clients[network])return clients[network];
 	else return clients[network]=new Promise(function(resolve,reject)
 	{
-		logger.info("make new client for network %s with nick %s",network,config.ircNick);
+		var cLogger=logger.child({network:network});
+		cLogger.info("make new client for network %s with nick %s",network,config.ircNick);
 		var client=new irc.Client(network, config.ircNick);
+		client.on("error",function(err){cLogger.error({error:err})}); //general error logging
 		var events=['motd','topic','part','kick','kill','message','notice','selfMessage','ping','pm', 'nick', 'action'];
 		events.forEach(function(type)
 		{
 			client.on(type,function(msg)
 			{
-				logger.debug({args:arguments},network,type);
+				cLogger.debug({args:arguments},network,type);
 			})
 		});
+		var onError=function(err)
+		{
+			cLogger.error({error:err},"unable to create client for network %s made nick %s",network,config.ircNick);
+			reject(err);
+		};
+		client.once("error",onError);
 		client.once("registered",function()
 		{
-			logger.info("new client for network %s made nick %s",network,config.ircNick);
+			client.removeListener("error",onError);
+			cLogger.info("new client for network %s made nick %s",network,config.ircNick);
 			resolve(client);
-		});
-		client.once("error",function(err)
-		{
-			logger.error({error:err},"unable to create client for network %s made nick %s",network,config.ircNick);
-			reject(client);
 		});
 	});
 }
@@ -40,9 +45,18 @@ var joinChannel=function(channel)
 	{
 		if(client.opt.channels.indexOf(channel) == -1)
 		{
-			return new Promise(function(resolve)
+			return new Promise(function(resolve,reject)
 			{
-				client.join(channel,function(){resolve(client)});
+				var onError=function(err)
+				{
+					logger.error({error:err},"unable to join Channel %s for network %s made nick %s",channel);
+					reject(err);
+				};
+				client.once("error",onError);
+				client.join(channel,function(){
+					client.removeListener("error",onError);
+					resolve(client)
+				});
 			});
 		}
 		else return client;
@@ -59,92 +73,101 @@ process.on("message",function(message)
 		case "download":
 			var download=new XDCCPackage().fromJSON(message.data);
 			var childLogger=logger.child({download:download});
-			runningDownloads.set(download.ID,{
+			var activeDownload={
 				abort:false,
 				download:download,
 				request:null
-			});
+			};
+			runningDownloads.set(download.ID,activeDownload);
 			logger.info("add download with ID %d",download.ID);
 			var doContinue=function(data)
 			{//check if download was aborted
-				if(runningDownloads.get(download.ID).abort)return Promise.reject("abort");
+				if(activeDownload.abort)return Promise.reject("abort");
 				return data;
 			}
 			getClient(download.network).then(doContinue)
 			.then(joinChannel(download.channel)).then(doContinue)
 			.then(function(client)
 			{
-				var request = new axdcc.Request(client, {
-				    "pack"              : download.packnumber,
-				    "nick"              : download.bot,
-				    "path"              : config.downloadDir,
-				    "resume"            : false, //TODO restart download when resume is not supported
-				    "progressInterval"  : 1
+				return new Promise(function(resolve,reject){
+					var request = new axdcc.Request(client, {
+					    "pack"              : download.packnumber,
+					    "nick"              : download.bot,
+					    "path"              : config.downloadDir,
+					    "resume"            : false, //TODO restart download when resume is not supported
+					    "progressInterval"  : 1
+					});
+					activeDownload.request=request;
+					
+					request.on('connect',function(pack)
+					{
+						//TODO check filename
+						if(pack.filename==download.name||pack.filename.trim()==download.name||pack.filename.replace(/_/g," ").trim()==download.name)
+							download.message.text="connected";
+						else
+							download.message={type:"warning",text:"wrong filename: "+pack.filename};
+						download.startTime=new Date();
+						download.location=pack.location;
+						childLogger.info({pack:pack,download:download},"connect");
+						process.send(JSON.stringify(download));
+					});
+					request.on('dlerror',function()
+					{
+						childLogger.error({args:arguments},"download error");
+						reject(["download error",arguments]);
+					});
+					request.on('progress',function(pack,loaded)
+					{
+						download.progressValue=loaded;
+						download.progressMax=pack.filesize;
+						download.updateTime=new Date();
+						childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
+						process.send(JSON.stringify(download));
+					});
+					client.once("error",reject);
+					request.once('complete',function(pack)
+					{
+						client.removeListener("error",reject);
+						resolve(pack);
+					});
+					request.emit("start");
+					childLogger.info({download:download},"start");
 				});
-				request.on('connect',function(pack)
-				{
-					//TODO check filename
-					if(pack.filename==download.name||pack.filename.replace(/_/g," ")==download.name)
-						download.message.text="connected";
-					else
-						download.message={type:"warning",text:"wrong filename: "+pack.filename};
-					download.startTime=new Date();
-					download.location=pack.location;
-					childLogger.info({pack:pack,download:download},"connect");
-					process.send(JSON.stringify(download));
-				}); 
-				request.on('dlerror',function()
-				{
-					download.state=XDCCPackage.states.FAIL;			
-					download.message={type:"error",text:"download error"};
-					childLogger.error({args:arguments},"download error");
-					process.send(JSON.stringify(download));
-					runningDownloads.delete(download.ID);
-				}); 
-				request.on('progress',function(pack,loaded)
-				{
-					download.progressValue=loaded;
-					download.progressMax=pack.filesize;
-					download.updateTime=new Date();
-					childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
-					process.send(JSON.stringify(download));
-				});
-				request.once('complete',function(pack)
-				{
-					download.progressValue=pack.filesize;
-					download.progressMax=pack.filesize;
-					download.state=XDCCPackage.states.DONE;
-					download.message={type:"info",text:"complete"};
-					childLogger.info({pack:pack,download:download},"complete");
-					process.send(JSON.stringify(download));
-					runningDownloads.delete(download.ID);
-					request.emit('kill');
-				});
-				return request;
-			}).then(doContinue).then(function(request)
+			}).then(function(pack)
 			{
-				runningDownloads.get(download.ID).request=request;
-				request.emit("start");
-				childLogger.info({download:download},"start");
-			},function(err)
+				download.progressValue=pack.filesize;
+				download.progressMax=pack.filesize;
+				download.state=XDCCPackage.states.DONE;
+				download.message={type:"info",text:"complete"};
+				childLogger.info({pack:pack,download:download},"complete");
+				process.send(JSON.stringify(download));
+				runningDownloads.delete(download.ID);
+				request.emit('kill');//cleanup
+			},
+			function(err)
 			{
+				runningDownloads.delete(download.ID);
+				download.progressValue=download.progressMax=0;
 				if(err==="abort")
 				{
-					logger.info({download:download},"abort download");
-					runningDownloads.delete(download.ID);
+					childLogger.info({download:download},"abort download");
 					download.state=XDCCPackage.states.DISABLED;
-					download.progressValue=download.progressMax=0;
 					download.message={type:"info",text:"aborted"};
-					process.send(JSON.stringify(download));
 				}
-				else childLogger.error(arguments);
+				else
+				{
+					download.state=XDCCPackage.states.FAILED;
+					download.message={type:"error",text:util.inspect(err)};
+					childLogger.error({error:err},"download failed");
+				}
+				process.send(JSON.stringify(download));
 			});
 			break;
 		case "kill":
 			if(runningDownloads.has(message.data))
 			{
 				var t=runningDownloads.get(message.data);
-				t.request.emit("kill");
+				t.request.emit("cancel");
 				var download=t.download;
 				runningDownloads.delete(download.ID);
 				download.state=XDCCPackage.states.DISABLED;

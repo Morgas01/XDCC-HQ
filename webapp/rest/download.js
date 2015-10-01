@@ -351,6 +351,7 @@ downloader.on("message",function(d)
 				startDownloads();
 			}
 		}
+		else logger.error("could not find download with ID %d",d.ID);
 	});
 });
 var sendDownload=function(d)
