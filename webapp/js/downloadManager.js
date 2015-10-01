@@ -113,61 +113,91 @@
 		//Array.prototype.forEach.call(downloadsContainer.querySelectorAll(".dragover"),e=>e.classList.remove("dragover"));
 	});
 	
-	
+
+	var onAdd=function(download)
+	{
+		//TODO check for data.id in org
+		download=new SC.xp().fromJSON(download);
+		org.add([download]);
+		downloadsContainer.appendChild(download.getDom().element);
+	};
+	var parseFileSize=function(size)
+	{
+		return parseFloat(size.replace(/kb?/i,"e3").replace(/mb?/i,"e6").replace(/gb?/i,"e9").replace(/tb?/i,"e12"))||0;
+	}
+	var formatFileSize=function(size)
+	{
+		if(size>1e12) return (size/1e12).toFixed(1)+"T";
+		else if(size>1e9) return (size/1e9).toFixed(1)+"G";
+		else if(size>1e6) return (size/1e6).toFixed(1)+"M";
+		else if(size>1e3) return (size/1e3).toFixed(1)+"K";
+		else return size+"B";
+	}
+	var updateStats=function()
+	{
+		var downloads={total:org.values.length,done:0,pending:0}, fileSize={total:0,done:0};
+		for(var d of org.values)
+		{
+			if(d.state===SC.xp.states.DONE) downloads.done++;
+			if(d.state===SC.xp.states.PENDING) downloads.pending++;
+			
+			if(d.progressMax)
+			{
+				fileSize.total+=d.progressMax;
+				fileSize.done+=d.progressValue;
+			}
+			else fileSize.total+=parseFileSize(d.size);
+		}
+		document.getElementById("downloadCount").innerHTML=downloads.done+"/"+downloads.total+" ("+downloads.pending+")";
+		document.getElementById("fileSize").innerHTML=formatFileSize(fileSize.done)+"/"+formatFileSize(fileSize.total)+" ("+formatFileSize(fileSize.total-fileSize.done)+")";
+	};
 	var es=new EventSource("rest/download/get");
 	es.addEventListener("error",µ.logger.error);
 	es.addEventListener("ping",µ.logger.debug);
 	
 	es.addEventListener("list",function onList (listEvent)
 	{
-		es.removeEventListener("list", onList);
-		
-		var onAdd=function(download)
-		{
-			//TODO check for data.id in org
-			download=new SC.xp().fromJSON(download);
-			org.add([download]);
-			downloadsContainer.appendChild(download.getDom().element);
-		};
-		
+		for(var d of org.values) d.dom.element.remove();
+		org.clear();
 		for(var d of JSON.parse(listEvent.data)) onAdd(d);
-		
-		es.addEventListener("add",function(addEvent)
+		updateStats();
+	});
+	es.addEventListener("add",function(addEvent)
+	{
+		var data=JSON.parse(addEvent.data)
+		µ.logger.info("add",data.ID);
+		onAdd(data);
+		updateStats();
+	});
+	es.addEventListener("update",function(updateEvent)
+	{
+		var data=JSON.parse(updateEvent.data);
+		µ.logger.info("update",data.ID);
+		var original=org.getMap("ID")[data.ID];
+		if(!original) onAdd(data)
+		else
 		{
-			var data=JSON.parse(addEvent.data)
-			µ.logger.info("add",data.ID);
-			onAdd(data);
-		});
-		
-		es.addEventListener("update",function(updateEvent)
+			original.update(data);
+			org.update([original]);
+		}
+		updateStats();
+	});
+	es.addEventListener("remove",function(removeEvent)
+	{
+		var data=JSON.parse(removeEvent.data);
+		µ.logger.info("remove",data);
+		var idMap=org.getMap("ID");
+		for(var id of data)
 		{
-			var data=JSON.parse(updateEvent.data);
-			µ.logger.info("update",data.ID);
-			var original=org.getMap("ID")[data.ID];
-			if(!original) onAdd(data)
+			var original=idMap[id];
+			if(!original)µ.logger.error("could not find original")
 			else
 			{
-				original.update(data);
-				org.update([original]);
+				org.remove([original])
+				original.dom.element.remove();
+				updateStats();
 			}
-		});
-		
-		es.addEventListener("remove",function(removeEvent)
-		{
-			var data=JSON.parse(removeEvent.data);
-			µ.logger.info("remove",data);
-			var idMap=org.getMap("ID");
-			for(var id of data)
-			{
-				var original=idMap[id];
-				if(!original)µ.logger.error("could not find original")
-				else
-				{
-					org.remove([original])
-					original.dom.element.remove();
-				}
-			}
-		});
+		}
 	});
 	es.addEventListener("pause",function(pauseEvent)
 	{

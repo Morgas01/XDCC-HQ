@@ -10,6 +10,10 @@ body{
 	display: flex;
 	justify-content: space-around;
 }
+#stats {
+	display: flex;
+	justify-content: space-around
+}
 #downloads {
 	flex-grow:1;
 	padding: 10px 0;

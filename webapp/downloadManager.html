@@ -26,9 +26,19 @@
 	</head>
 	<body>
 	<div id="control">
-		<button data-action="pause"></button>
+		<button data-action="pause">???</button>
 		<button data-action="removeDone">remove completed downloads</button>
 		<button data-action="listFilenames">list filenames</button>
+	</div>
+	<div id="stats">
+		<div>
+			<span>Downloads:</span>
+			<span id="downloadCount">???</span>
+		</div>
+		<div>
+			<span>File size:</span>
+			<span id="fileSize">???</span>
+		</div>
 	</div>
 	<div id="downloads"></div>
 	</body>
