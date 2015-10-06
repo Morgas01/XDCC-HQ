@@ -9,12 +9,12 @@ exports.getUrl=function(search)
 {
 	return exports.url;
 }
-var parseRegEx=/"right">#?(\d+).*?"right">.*?"right">(\d+.).*?>([^<]+)<\/a/g;
+var parseRegEx=/#(\d+)\s*\d*x\s*\[\s*([\d\.,GgMmKkBb]+)\]\s*(.+)/g;
 exports.parse=function(data)
 {
-	data=data.replace(/\n/g,"");
 	var rtn=[];
 	var match;
+	console.log(data.slice(280,600));
 	while(match=parseRegEx.exec(data))
 	{
 		rtn.push({

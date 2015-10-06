@@ -8,7 +8,6 @@ overall
 
 index.html
 -	simplify downloading from different bots
--	show errors of subOffices
 
 downloads.html
 -	show network,channel and bot
