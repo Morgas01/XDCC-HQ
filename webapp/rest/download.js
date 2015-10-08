@@ -338,6 +338,7 @@ downloader.on("message",function(d)
 	{
 		if(results.length>0)
 		{
+			d.orderIndex=results[0].orderIndex; //overwrite orderIndex because it could be an old one
 			d=results[0].fromJSON(d);
 			notifyEventSources("update",d);
 			downloads.save(d);

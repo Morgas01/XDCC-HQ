@@ -9,7 +9,8 @@
 	});
 	
 	var org=new ORG()
-	.map("ID","ID");
+	.map("ID","ID").
+	sort("orderIndex",ORG.attributeSort(["orderIndex"]));
 
 	var pauseBtn=document.querySelector("[data-action=pause]");
 	var updatePuseBtn=function(pause)
@@ -34,7 +35,7 @@
 		},
 		listFilenames:function()
 		{
-			openDialog('<textArea rows="26" cols="100">'+org.getValues().map(p=>p.name).join("\n")+'</textArea>')
+			openDialog('<textArea rows="26" cols="100">'+org.getSort("orderIndex").map(p=>p.name).join("\n")+'</textArea>')
 		}
 	};
 	document.getElementById("control").addEventListener("click",function(e)
@@ -135,8 +136,9 @@
 	}
 	var updateStats=function()
 	{
-		var downloads={total:org.values.length,done:0,pending:0}, fileSize={total:0,done:0};
-		for(var d of org.values)
+		var values=org.getValues();
+		var downloads={total:values.length,done:0,pending:0}, fileSize={total:0,done:0};
+		for(var d of values)
 		{
 			if(d.state===SC.xp.states.DONE) downloads.done++;
 			if(d.state===SC.xp.states.PENDING) downloads.pending++;
@@ -174,7 +176,7 @@
 		var data=JSON.parse(updateEvent.data);
 		µ.logger.info("update",data.ID);
 		var original=org.getMap("ID")[data.ID];
-		if(!original) onAdd(data)
+		if(!original) onAdd(data);
 		else
 		{
 			original.update(data);
@@ -195,9 +197,9 @@
 			{
 				org.remove([original])
 				original.dom.element.remove();
-				updateStats();
 			}
 		}
+		updateStats();
 	});
 	es.addEventListener("pause",function(pauseEvent)
 	{
