@@ -12,6 +12,8 @@
 	.map("ID","ID").
 	sort("orderIndex",ORG.attributeSort(["orderIndex"]));
 
+//********** Control **********
+	
 	var pauseBtn=document.querySelector("[data-action=pause]");
 	var updatePuseBtn=function(pause)
 	{
@@ -45,7 +47,30 @@
 			controlActions[e.target.dataset.action](e);
 		}
 	});
+	
+	var activeStyle=document.getElementById("activeStyle");
+	activeStyle.innerHTML=Array.prototype.map.call(document.querySelectorAll("link[title]"),l=>'<option value="'+l.title+'">'+l.title+'</option>').join("\n");
+	try
+	{
+		activeStyle.value=localStorage.getItem("activeStyle")||document.selectedStyleSheetSet;
+		if(activeStyle.value!=document.selectedStyleSheetSet)
+			document.selectedStyleSheetSet=activeStyle.value;
+	}
+	catch(e)
+	{
+		µ.logger.info("localStorage not available");
+		activeStyle.value=document.selectedStyleSheetSet;
+	}
+	activeStyle.addEventListener("change",function()
+	{
+		document.selectedStyleSheetSet=this.value;
+		try {localStorage.setItem("activeStyle",this.value);}catch(e){}
+	},false);
 
+//********** Downloads **********	
+	
+//***** actions *****
+	
 	var downloadsContainer=document.getElementById("downloads");
 	downloadsContainer.addEventListener("click",function(e)
 	{
@@ -59,6 +84,9 @@
 			});
 		}
 	});
+	
+//***** Drag&Drop *****
+	
 	downloadsContainer.addEventListener("dragstart",function(e)
 	{
 		e.dataTransfer.setData('text/plain',e.target.dataset.downloadId);
@@ -114,7 +142,8 @@
 		//Array.prototype.forEach.call(downloadsContainer.querySelectorAll(".dragover"),e=>e.classList.remove("dragover"));
 	});
 	
-
+//***** data *****
+	
 	var onAdd=function(download)
 	{
 		//TODO check for data.id in org

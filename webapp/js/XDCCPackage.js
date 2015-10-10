@@ -43,29 +43,27 @@
 	
 			if(!this.dom)
 			{
-				this.dom={element:document.createElement("fieldset")};
+				this.dom={element:document.createElement("div")};
 				this.dom.element.dataset.downloadId=this.ID;
 				this.dom.element.draggable=true;
 				this.dom.element.classList.add("XDCCPackage")
 				this.dom.element.title=this.dom.element.dataset.state=this.state
 				this.dom.element.innerHTML=
-	'\
-	<legend>'+this.name+'</legend>\
-	<div>\
-		<progress value="0" max="1"></progress>\
-		<span class="location"></span>\
-		<span class="message"></span>\
-		<span class="time"></span>\
-		<span class="speed"></span>\
-		<span class="remaining"></span>\
-		<div class="actions">\
-			<button data-action="disable">disable</button>\
-			<button data-action="enable">enable</button>\
-			<button data-action="remove">remove</button>\
-			<button data-action="reset">reset</button>\
-		</div>\
-	</div>\
-	';
+'\
+<span class="name">'+this.name+'</span>\
+<progress value="0" max="1"></progress>\
+<span class="location"></span>\
+<span class="message"></span>\
+<span class="time"></span>\
+<span class="speed"></span>\
+<span class="remaining"></span>\
+<div class="actions">\
+	<button data-action="disable">disable</button>\
+	<button data-action="enable">enable</button>\
+	<button data-action="remove">remove</button>\
+	<button data-action="reset">reset</button>\
+</div>\
+';
 				this.dom.progress  = this.dom.element.querySelector("progress");
 				this.dom.speed     = this.dom.element.querySelector(".speed");
 				this.dom.remaining = this.dom.element.querySelector(".remaining");
