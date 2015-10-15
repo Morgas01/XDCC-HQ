@@ -13,4 +13,3 @@ index.html
 downloads.html
 -	show network,channel and bot
 -	manually add download
--	compact mode
