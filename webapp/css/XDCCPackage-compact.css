@@ -23,7 +23,8 @@
 	box-sizing:border-box;
 	z-index:0;
 }
-.XDCCPackage:not([data-state=Running]) progress {
+.XDCCPackage:not([data-state=Running]) progress,
+.XDCCPackage:not([data-state=Running]) .remaining {
 	display:none;
 }
 .XDCCPackage .message {
