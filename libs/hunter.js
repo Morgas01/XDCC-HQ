@@ -8,6 +8,8 @@ require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var logger=require("../logger")(subOfficeName);
 var errorSerializer=require("../logger").errorSerializer
 
+var MAX_FILE_AGE=3;
+
 var SC=µ.shortcut({
 	ef:"enshureFolder"
 });
@@ -21,7 +23,18 @@ var filterResults=function(results)
 	return results.filter(function(p){return exp.test(p.name)});
 }
 
+var useFile=false;
 if(subOffice.type==="FILE"&&fs.existsSync(targetFilePath))
+{
+	useFile=true;
+	var age=(Date.now()-fs.statSync(targetFilePath).mtime)/864E5;
+	if(age>MAX_FILE_AGE)
+	{
+		logger.info("not using file because it's too old (%s days)",age.toFixed(1));
+		useFile=false;
+	}
+}
+if(useFile)
 {
 	logger.info("hunt from existing file");
 	var results=require(targetFilePath);
