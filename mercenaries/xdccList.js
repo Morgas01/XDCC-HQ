@@ -14,7 +14,6 @@ exports.parse=function(data)
 {
 	var rtn=[];
 	var match;
-	console.log(data.slice(280,600));
 	while(match=parseRegEx.exec(data))
 	{
 		rtn.push({
