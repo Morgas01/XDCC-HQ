@@ -77,7 +77,7 @@
 		var action=e.target.dataset.action;
 		if(action)
 		{
-			var downloadID=e.target.parentNode.parentNode.parentNode.dataset.downloadId;
+			var downloadID=e.target.parentNode.parentNode.dataset.downloadId;
 			SC.rq("rest/download/"+action+"?ID="+downloadID).always(function(result)
 			{
 				if(result!="ok") openDialog('<div>'+result+'</div>');
