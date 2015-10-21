@@ -1,5 +1,6 @@
 var subOfficeName=process.argv[2];
 var search=process.argv[3];
+var fileExpiration=process.argv[4];
 
 var url=require("url");
 var path=require("path");
@@ -8,7 +9,6 @@ require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var logger=require("../logger")(subOfficeName);
 var errorSerializer=require("../logger").errorSerializer
 
-var MAX_FILE_AGE=3;
 
 var SC=µ.shortcut({
 	ef:"enshureFolder"
@@ -27,8 +27,8 @@ var useFile=false;
 if(subOffice.type==="FILE"&&fs.existsSync(targetFilePath))
 {
 	useFile=true;
-	var age=(Date.now()-fs.statSync(targetFilePath).mtime)/864E5;
-	if(age>MAX_FILE_AGE)
+	var age=(Date.now()-fs.statSync(targetFilePath).mtime)/864E5; //in days
+	if(age>fileExpiration)
 	{
 		logger.info("not using file because it's too old (%s days)",age.toFixed(1));
 		useFile=false;

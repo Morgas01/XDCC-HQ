@@ -5,6 +5,7 @@
 	"maxDownloads": 8,
 	"maxNetworkDownloads": 4,
 	"maxBotDownloads": 2,
+	"fileExpiration": 3,
 	"autoStartDownloads": false,
 	"cleanNames": true,
 	"checkCRC": true

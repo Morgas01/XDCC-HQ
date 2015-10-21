@@ -2,6 +2,7 @@ var fs=require("fs");
 var path = require("path");
 var logger=require("../../logger")("search")
 var fork=require("child_process").fork;
+var config=require("../../libs/configManager");
 
 var subOffices={};
 var uniquify=µ.getModule("uniquify");
@@ -35,8 +36,8 @@ var doSearch=function(subOffice,search)
 {
 	return new Promise(function (resolve)
 	{
-		logger.info({search:search},"start hunting in subOffice %s",subOffice);
-		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search]);
+		logger.info({search:search,fileExpiration:config.fileExpiration},"start hunting in subOffice %s",subOffice);
+		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search,config.fileExpiration]);
 		hunter.on("message",function(data)
 		{
 			data=JSON.parse(data);
