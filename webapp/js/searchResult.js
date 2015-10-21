@@ -10,8 +10,6 @@
 		it:"iterate"
 	});
 	
-	//TODO var fields=[]
-	
 	var guides={
 		network:goPath.guide("network"),
 		channel:goPath.guide("channel"),
@@ -27,6 +25,10 @@
 		}
 	};
 	var groups=["subber","bot","network"];
+	var uniqueNames=function(item)
+	{
+		return this.values.map(i=>this.getValue(i).name).indexOf(item.name)==-1;
+	};
 	
 	var SR=µ.Class(Tab,{
 		init:function(header)
@@ -37,6 +39,7 @@
 			this.org=new SC.org();
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
 			for(var g of groups) this.org.group(g,guides[g]);
+			this.org.filter("uniqueNames",uniqueNames);
 			this.errors=[];
 			
 			this.sortColumn=null;
@@ -64,6 +67,7 @@
 	<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
 	<div class="actions">\
 		<button data-action="showSelected">show selected</button>\
+		<button data-action="selectBots">change bot for selected</button>\
 		<button data-action="download">download</button>\
 	</div>\
 </div>\
@@ -85,7 +89,8 @@
 		'<span class="col-size" title="'+r.size+'">'+r.size+'</span>'+
 	'</div>').join("\n")+'\
 </div>\
-<div class="filters">\n';
+<div class="filters">\
+	<label><input type="checkbox" name="uniqueNames">unique names</label>\n';
 	for(var g of groups)
 	{
 		var parts=Object.keys(this.org.getGroup(g)).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
@@ -213,7 +218,8 @@
 		updateFilters:function()
 		{
 			var c=this.org.combine(false,this.sortColumn);
-			if(this.filterExp)c.filter(this.filterExp);
+			if(this.filterExp) c.filter(this.filterExp);
+			if(this.content.querySelector('.filters [name="uniqueNames"]:checked')) c.filter("uniqueNames")	;			
 			Array.forEach(this.content.querySelectorAll(".filters select"),s=>
 			{
 				var options=s.querySelectorAll(":checked");
@@ -238,16 +244,7 @@
 		},
 		showSelected:function()
 		{
-			var dialog=document.createElement("div");
-			dialog.classList.add("dialog");
-			var content=document.createElement("div");
-			content.classList.add("content");
-			dialog.appendChild(content);
-			var textArea=document.createElement("textarea");
-			textArea.cols=100;
-			textArea.rows=10;
-			content.appendChild(textArea);
-			
+			var html='<textarea cols="100" rows="10">';
 			var o=new SC.org(this.getSelected()).group("network",guides.network,function(child){child.group("bot",guides.bot)});
 			var networks=o.getGroup("network");
 			for(var n in networks)
@@ -257,20 +254,40 @@
 				{
 					var bot=bots[b];
 					var chan=n+"/"+bot[0].channel+"\n";
-					if(textArea.value.indexOf(chan)===-1)textArea.value+=chan;
-					textArea.value+="/msg "+b+" XDCC BATCH "+bot.map(p=>p.packnumber).join(",")+"\n";
+					if(html.indexOf(chan)===-1)html+=chan;
+					html+="/msg "+b+" XDCC BATCH "+bot.map(p=>p.packnumber).join(",")+"\n";
 				}
 			}
-			var closeBtn=document.createElement("button");
-			closeBtn.textContent="close";
-			closeBtn.addEventListener("click",function()
+			html+="</textarea>";
+			openDialog(html);
+		},
+		selectBots:function()
+		{
+			if(!this.org.hasGroup("uniqueNames"))this.org.group("uniqueNames",guides.name);
+			var uniqueNames=this.org.getGroup("uniqueNames");
+			var html='<table>';
+			var selected=this.getSelected();
+			for(var s of selected)
 			{
+				html+='<tr><td>'+s.name+'<td><td><select>'+this.org.getGroupPart("uniqueNames",s.name).getValues()
+				.map(i=>'<option value="'+this.org.values.indexOf(i)+'" '+(selected.indexOf(i)!=-1?'selected >':'>')+i.bot+'</option>')+
+				'</select></td></tr>';
+				
+			}
+			html+='</table>';
+			var dialog=openDialog(html);
+
+			var okBtn=document.createElement("button");
+			dialog.firstElementChild.insertBefore(okBtn,dialog.firstElementChild.lastElementChild);
+			okBtn.textContent="ok";
+			okBtn.addEventListener("click",()=>
+			{
+				Array.prototype.forEach.call(this.content.querySelectorAll(".selected"),e=>e.classList.remove("selected"));
+				Array.prototype.map.call(dialog.querySelectorAll(":checked"),e=>e.value)
+				.forEach(i=>this.content.querySelector('[data-index="'+i+'"]').classList.add("selected"));
+				
 				dialog.remove();
 			});
-			content.appendChild(closeBtn);
-			
-			document.body.appendChild(dialog);
-			textArea.select();
 		},
 		download:function()
 		{
@@ -281,6 +298,7 @@
 				scope:this
 			}).then(function()
 			{
+				/*
 				var dialog=document.createElement("div");
 				dialog.classList.add("dialog");
 				var content=document.createElement("div");
@@ -308,6 +326,8 @@
 				
 				document.body.appendChild(dialog);
 				closeBtn.focus();
+				*/
+				openDialog('<div>successfully added packaged to download queue</div><a href="downloadManager.html" target="_blank">go to downloads</a>');
 			})
 		}
 	});

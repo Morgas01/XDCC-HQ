@@ -21,4 +21,5 @@ function openDialog (contentHTML)
 	var tA=content.querySelector("textArea");
 	if(tA) tA.select();
 	else closeBtn.focus();
+	return dialog;
 }

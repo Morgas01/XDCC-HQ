@@ -5,9 +5,6 @@ overall
 -	2 downloads from same bot (running request accepts new one (axdcc))
 -	clean names, check crc
 
-index.html
--	simplify downloading from different bots
-
 downloads.html
 -	show network,channel and bot
 -	manually add download
