@@ -5,7 +5,8 @@
 		adopt:"adopt",
 		gp:"goPath",
 		rq:"request",
-		xp:"XDCCPackage"
+		xp:"XDCCPackage",
+		gIn:"getInputValues",
 	});
 	
 	var org=new ORG()
@@ -33,6 +34,75 @@
 			SC.rq("rest/download/removeDone").always(function(result)
 			{
 				if(result!="ok") openDialog('<div>'+result+'</div>');
+			});
+		},
+		addDownload:function()
+		{
+			var dialog=openDialog('\
+			<form>\
+				<table>\
+					<tr>\
+						<td>Network</td>\
+						<td><input name="network" required type="text"></td>\
+					</tr>\
+					<tr>\
+						<td>Channel</td>\
+						<td><input name="channel" required type="text" pattern="[#&][^ ,A-Z]+"></td>\
+						<td>/[#&amp;][^ ,A-Z]+/</td>\
+					</tr>\
+					<tr>\
+						<td>Bot</td>\
+						<td><input name="bot" required type="text"></td>\
+					</tr>\
+					<tr>\
+						<td>packnumber</td>\
+						<td><input name="packnumber" required type="number"></td>\
+					</tr>\
+					<tr>\
+						<td>to packnumber</td>\
+						<td><input name="toPacknumber" type="number"></td>\
+					</tr>\
+			</form>\
+			');
+			var okBtn=document.createElement("button");
+			dialog.firstElementChild.insertBefore(okBtn,dialog.firstElementChild.lastElementChild);
+			okBtn.textContent="ok";
+			okBtn.addEventListener("click",()=>
+			{
+				if(okBtn.disabled==false)
+				{
+					okBtn.disabled=true;
+					var form=dialog.querySelector("form");
+					if(form.checkValidity())
+					{
+						var data=SC.gIn(form.querySelectorAll("input"),null,true);
+						data.toPacknumber=Math.max(data.packnumber,data.toPacknumber);
+						var packages=[];
+						for(var i=data.packnumber;i<=data.toPacknumber;i++)
+						{
+							packages.push(new SC.xp({
+								network:data.network,
+								channel:data.channel,
+								bot:data.bot,
+								packnumber:i
+							}));
+						}
+						SC.rq({
+							urls:["rest/download/add"],
+							contentType:"application/json",
+							data:JSON.stringify(packages)
+						}).then(function(){
+							dialog.remove();
+							openDialog('<div>successfully added packaged to download queue</div>');
+						},
+						function(e)
+						{
+							µ.logger.error(e);
+							okBtn.disabled=false;
+							//TODO error message
+						});
+					}
+				}
 			});
 		},
 		listFilenames:function()

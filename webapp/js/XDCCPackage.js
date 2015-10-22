@@ -50,8 +50,12 @@
 				this.dom.element.title=this.dom.element.dataset.state=this.state
 				this.dom.element.innerHTML=
 '\
-<span class="name">'+this.name+'</span>\
+<span class="name"></span>\
 <progress value="0" max="1"></progress>\
+<span class="network"></span>\
+<span class="channel"></span>\
+<span class="bot"></span>\
+<span class="packnumber"></span>\
 <span class="location"></span>\
 <span class="message"></span>\
 <span class="time"></span>\
@@ -64,18 +68,25 @@
 	<button data-action="reset">reset</button>\
 </div>\
 ';
-				this.dom.progress  = this.dom.element.querySelector("progress");
-				this.dom.speed     = this.dom.element.querySelector(".speed");
-				this.dom.remaining = this.dom.element.querySelector(".remaining");
-				this.dom.location  = this.dom.element.querySelector(".location");
-				this.dom.message   = this.dom.element.querySelector(".message");
-				this.dom.time      = this.dom.element.querySelector(".time");
+				this.dom.name		= this.dom.element.querySelector(".name");
+				this.dom.progress	= this.dom.element.querySelector("progress");
+				this.dom.network	= this.dom.element.querySelector(".network");
+				this.dom.channel	= this.dom.element.querySelector(".channel");
+				this.dom.bot		= this.dom.element.querySelector(".bot");
+				this.dom.packnumber	= this.dom.element.querySelector(".packnumber");
+				this.dom.location	= this.dom.element.querySelector(".location");
+				this.dom.message	= this.dom.element.querySelector(".message");
+				this.dom.time		= this.dom.element.querySelector(".time");
+				this.dom.speed		= this.dom.element.querySelector(".speed");
+				this.dom.remaining	= this.dom.element.querySelector(".remaining");
 			}
 			this.update();
 			return this.dom;
 		},
 		update:function(param)
 		{
+			this.dom.name.textContent = this.name;
+			
 			if(param)
 			{
 				this.lastUpdateTime	= this.updateTime;
@@ -113,6 +124,10 @@
 					this.dom.progress.max   = this.progressMax;
 				}
 				
+				if(this.network) this.dom.network.textContent = this.network;
+				if(this.channel) this.dom.channel.textContent = this.channel;
+				if(this.bot) this.dom.bot.textContent = this.bot;
+				if(this.packnumber) this.dom.packnumber.textContent = this.packnumber;
 				if(this.location) this.dom.location.textContent = this.location;
 	
 				if(this.message)

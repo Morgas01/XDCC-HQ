@@ -13,9 +13,10 @@ var getClient=function(network)
 	if(clients[network])return clients[network];
 	else return clients[network]=new Promise(function(resolve,reject)
 	{
-		var cLogger=logger.child({network:network});
+		var cLogger=logger.child({network:network,nick:config.ircNick});
 		cLogger.info("make new client for network %s with nick %s",network,config.ircNick);
 		var client=new irc.Client(network, config.ircNick);
+		client.logger=cLogger;
 		client.on("error",function(err){cLogger.error({error:err})}); //general error logging
 		var events=['motd','topic','part','kick','kill','message','notice','selfMessage','ping','pm', 'nick', 'action'];
 		events.forEach(function(type)
@@ -45,16 +46,18 @@ var joinChannel=function(channel)
 	{
 		if(client.opt.channels.indexOf(channel) == -1)
 		{
+			client.logger.info("joining channel %s",channel);
 			return new Promise(function(resolve,reject)
 			{
 				var onError=function(err)
 				{
-					logger.error({error:err},"unable to join Channel %s for network %s made nick %s",channel);
+					client.logger.error({error:err},"unable to join Channel %s",channel);
 					reject(err);
 				};
 				client.once("error",onError);
 				client.join(channel,function(){
 					client.removeListener("error",onError);
+					client.logger.info("joined channel %s",channel);
 					resolve(client)
 				});
 			});
@@ -101,7 +104,8 @@ process.on("message",function(message)
 					
 					request.on('connect',function(pack)
 					{
-						//TODO check filename
+						
+						if(!download.name) download.name=pack.filename;
 						if(pack.filename==download.name||pack.filename.trim()==download.name||pack.filename.replace(/_/g," ").trim()==download.name)
 							download.message.text="connected";
 						else

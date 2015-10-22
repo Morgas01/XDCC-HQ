@@ -51,7 +51,7 @@
 					var index=searchHistory.indexOf(search);
 					if(index!=-1) searchHistory.splice(index,1);
 					searchHistory.unshift(search);
-					searchHistory.length=Math.min(searchHistory.length,10);//max count
+					searchHistory.length=Math.min(searchHistory.length,20);//max count
 					localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
 				}
 				dom.innerHTML=searchHistory.map(s=>'<option value="'+s+'"></option>').join("\n");
