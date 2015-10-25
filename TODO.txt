@@ -4,3 +4,4 @@ overall
 -	resume support
 -	2 downloads from same bot (running request accepts new one (axdcc))
 -	clean names, check crc
+-	irc client/messages overview
