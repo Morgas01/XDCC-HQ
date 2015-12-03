@@ -13,7 +13,7 @@ exports.parse=function(data)
 			network:"irc.rizon.net",
 			channel:"#intel",
 			bot:d.botname,
-			name:d.filename,
+			name:d.filename.trim(),
 			packnumber:d.packnum,
 			size:d.size
 		};
