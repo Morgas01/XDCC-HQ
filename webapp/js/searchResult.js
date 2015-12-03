@@ -269,7 +269,7 @@
 			var selected=this.getSelected();
 			for(var s of selected)
 			{
-				html+='<tr><td>'+s.name+'<td><td><select>'+this.org.getGroupPart("uniqueNames",s.name).getValues()
+				html+='<tr><td>'+s.name+'<td><td><select>'+this.org.getGroupPart("uniqueNames",s.name).getValues().sort()
 				.map(i=>'<option value="'+this.org.values.indexOf(i)+'" '+(selected.indexOf(i)!=-1?'selected >':'>')+i.bot+'</option>')+
 				'</select></td></tr>';
 				
@@ -298,35 +298,6 @@
 				scope:this
 			}).then(function()
 			{
-				/*
-				var dialog=document.createElement("div");
-				dialog.classList.add("dialog");
-				var content=document.createElement("div");
-				content.classList.add("content");
-				dialog.appendChild(content);
-				content.innerHTML="<div>successfully added packaged to download queue</div>";
-				
-				var gotoDownloads=document.createElement("a");
-				gotoDownloads.href="downloadManager.html";
-				gotoDownloads.target="_blank";
-				gotoDownloads.textContent="go to downloads";
-				gotoDownloads.addEventListener("click",function()
-				{
-					dialog.remove();
-				});
-				content.appendChild(gotoDownloads);
-				
-				var closeBtn=document.createElement("button");
-				closeBtn.textContent="close";
-				closeBtn.addEventListener("click",function()
-						{
-					dialog.remove();
-						});
-				content.appendChild(closeBtn);
-				
-				document.body.appendChild(dialog);
-				closeBtn.focus();
-				*/
 				openDialog('<div>successfully added packaged to download queue</div><a href="downloadManager.html" target="_blank">go to downloads</a>');
 			})
 		}
