@@ -69,30 +69,39 @@
 		 ];
 		
 		var org=new ORG(data)
+		.sort("ASC",ORG.attributeSort([["data","value"]],false))
+		.sort("DESC",ORG.attributeSort(["data.value"],true))
 		.filter("filter",{group:/^h\w+g$/,active:true})
 		.map("id map","id")
 		.group("animal group","group");
 
+		deepEqual(org.getSort("ASC"),[data[4],data[2],data[3],data[0],data[1]],"asc");
+		deepEqual(org.getSort("DESC"),[data[1],data[0],data[3],data[2],data[4]],"desc");
 		deepEqual(org.getFilter("filter").getValues(),[data[3]],"filter");
 		deepEqual(org.getMap("id map"),{0:data[0],1:data[1],2:data[2],3:data[3],4:data[4]},"map");
 		deepEqual(org.getGroupValues("animal group"),{rabbit:[data[0],data[1],data[4]],hedgehog:[data[2],data[3],data[4]]},"group");
 		data[0].group="hedgehog";
+		data[0].data.value=15;
+		data[2].data.value=28;
 		data[2].active=true;
 		data[2].id=5;
-		data[3].data.value=2;
 		data[3].active=false;
 		org.update([data[0],data[2],data[3]]);
-		deepEqual(org.getFilter("filter").getValues(),[data[2]],"filter update");
-		deepEqual(org.getMap("id map"),{0:data[0],1:data[1],5:data[2],3:data[3],4:data[4]},"map update");
-		deepEqual(org.getGroupValues("animal group"),{rabbit:[data[1],data[4]],hedgehog:[data[0],data[2],data[4],data[3]]},"group update");
+		deepEqual(org.getSort("ASC"),[data[4],data[0],data[3],data[2],data[1]],"asc updated");
+		deepEqual(org.getSort("DESC"),[data[1],data[2],data[3],data[0],data[4]],"desc updated");
+		deepEqual(org.getFilter("filter").getValues(),[data[2]],"filter updated");
+		deepEqual(org.getMap("id map"),{0:data[0],1:data[1],5:data[2],3:data[3],4:data[4]},"map updated");
+		deepEqual(org.getGroupValues("animal group"),{rabbit:[data[1],data[4]],hedgehog:[data[0],data[2],data[4],data[3]]},"group updated");
 		org.remove([data[2],data[3]]);
+		deepEqual(org.getSort("ASC"),[data[4],data[0],data[1]],"asc removed");
+		deepEqual(org.getSort("DESC"),[data[1],data[0],data[4]],"desc removed");
 		deepEqual(org.getFilter("filter").getValues(),[],"filter removed");
 		deepEqual(org.getMap("id map"),{0:data[0],1:data[1],4:data[4]},"map removed");
 		deepEqual(org.getGroupValues("animal group"),{rabbit:[data[1],data[4]],hedgehog:[data[0],data[4]]},"group removed");
 	});
 
 	
-	test("object",function()
+	test("children",function()
 	{
 		var data=[
 			{

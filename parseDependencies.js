@@ -41,8 +41,9 @@ function mapToMap(arr,map)
 	while(!(step=it.next()).done) rtn.push(step.value);
 	return rtn;
 }
-module.exports=function collectDependencies(dirs)
+module.exports=function collectDependencies(dirs,rootDir)
 {
+	rootDir=rootDir||"";
 	var depsRegEx=/SC=SC\(((?:[^\)]||\);)+)\);/m;
 	return getFileList(dirs).then(function(list)
 	{
@@ -92,7 +93,7 @@ module.exports=function collectDependencies(dirs)
 			for(var i=0;i<dependencies.length;i++)
 			{
 				var dep=dependencies[i];
-				if(dep.file=="Morgas.js")
+				if(dep.file==rootDir+"Morgas.js")
 				{
 					rtn.dependencies[dep.file]=true;
 				}
@@ -101,12 +102,12 @@ module.exports=function collectDependencies(dirs)
 					rDep=rtn.dependencies[dep.file]={};
 					if(!dep.deps)
 					{
-						rDep.deps=["Morgas.js"];
+						rDep.deps=[rootDir+"Morgas.js"];
 					}
 					else
 					{
 						rDep.deps=mapToMap(dep.deps,moduleFiles,dep.file);
-						rDep.deps.unshift("Morgas.js");
+						rDep.deps.unshift(rootDir+"Morgas.js");
 					}
 					if(dep.uses)
 					{

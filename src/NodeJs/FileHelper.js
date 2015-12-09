@@ -107,29 +107,58 @@
 		},
 		calcCRC:function(filename)
 		{
-			var csm=GMOD("util.crc32")(FS.readFileSync(PATH.resolve(this.dir,filename))).toString(16).toUpperCase();
-			cms=("00000000"+csm).slice(-8);//fillup missing 0s
-			return cms;
+			return new (GMOD("Promise"))((signal)=>
+			{
+				var builder=new (GMOD("util.crc32")).Builder();
+				var stream=FS.createReadStream(PATH.resolve(this.dir,filename));
+				stream.on("data",function(data)
+				{
+					builder.add(data);
+				});
+				stream.on("end",function()
+				{
+					signal.resolve(("00000000"+builder.get().toString(16).toUpperCase()).slice(-8));
+				});
+				stream.on("error",signal.reject);
+			});
 		},
 		checkCRC:function(cb)
 		{
-			rtn=[];
-			for(var i=0;i<this.selected.length;i++)
+			var rtn=[];
+			var todo=this.selected.slice();
+			while(todo.length>0&&!todo[0].match(this.extractChecksum))
 			{
-				var fileName=this.selected[i];
-				var match=fileName.match(this.extractChecksum);
-				if(match)
-				{
-					var csm=this.calcCRC(fileName);
-					rtn.push([fileName,csm,csm===match[1]]);
-					if(cb)cb(rtn[rtn.length-1]);
-				}
-				else rtn.push([fileName,null,null]);
+				rtn.push([todo.shift(),null,null]);
+				if(cb)cb(rtn[rtn.length-1]);
 			}
-			return rtn;
+			if(todo.length==0) return rtn;
+			
+			return new (GMOD("Promise"))((signal)=>
+			{
+				var next=(csm)=>
+				{
+					rtn.push([todo[0],csm,csm===todo[0].match(this.extractChecksum)[1]]);
+					if(cb)cb(rtn[rtn.length-1]);
+					todo.shift();
+					while(todo.length>0&&!todo[0].match(this.extractChecksum))
+					{
+						rtn.push([todo.shift(),null,null]);
+						if(cb)cb(rtn[rtn.length-1]);
+					}
+					if(todo.length>0)
+					{
+						this.calcCRC(todo[0]).always(next);
+					}
+					else
+						signal.resolve(rtn);
+				}
+				this.calcCRC(todo[0]).always(next);
+			});
 		},
 		appendCRC:function()
 		{
+			return "TODO";
+			/*
 			rtn=[];
 			for(var i=0;i<this.selected.length;i++)
 			{
@@ -146,6 +175,7 @@
 				}
 			}
 			return rtn;
+			*/
 		},
 		"delete":function(pattern)
 		{
@@ -186,7 +216,7 @@
 				
 				file=file.replace(/_/g," ");
 				file=file.replace(/\.(?![^\.]+$)/g," ");
-				if(file.indexOf("%20")!==-1) file=decodeURIComponent(file);
+				if(file.indexOf("%20")!==-1||file.indexOf("%5B")!==-1) file=decodeURIComponent(file);
 				if(file.match(/\[\d\]\./))
 				{
 					var originalName=file.replace(/\[\d\]\./,".");

@@ -2,14 +2,13 @@
 	
 	µ.NodeJs=µ.NodeJs||{};
 	
-	var PATCH=µ.Patch;
+	var PATCH=GMOD("Patch");
 	var readline = require('readline');
 	
 	var COM=µ.NodeJs.Commander=µ.Class({
 		init:function(commandPackages)
 		{
 			commandPackages=commandPackages||[];
-			
 			commandPackages.unshift("exit");
 			
 			var self=this;
@@ -62,11 +61,18 @@
 					console.log("unknown command "+cmd);
 					if(!closed){self.rl.setPrompt(self.prompt);self.rl.prompt()};
 				}
-			}).on("close",function(){closed=true});
+			})
+			.on("close",function(){closed=true})
+			.on("pause",function(){closed=true})
+			.on("resume",function(){closed=false});
 			
 			for(var i=0;i<commandPackages.length;i++)
 			{
-				new COM.Packages[commandPackages[i]](this);
+				if(HMOD("CommandPackage."+commandPackages[i]))
+				{
+					var pack=GMOD("CommandPackage."+commandPackages[i]);
+					new pack(this);
+				}
 			}
 			if(!closed){self.rl.setPrompt(self.prompt);self.rl.prompt()};
 		},
@@ -97,25 +103,30 @@
 			this.instance.rl.prompt();
 			*/
 			console.log(msg);
+		},
+		pause:function()
+		{
+			this.instance.rl.pause();
+		},
+		resume:function()
+		{
+			this.instance.rl.resume();
+			this.instance.rl.setPrompt(this.instance.prompt);
+			this.instance.rl.prompt()
 		}
 	});
 	SMOD("CommandPackage",COM.CommandPackage);
 	
-	COM.CommandPackageFactory=function(name,init,commands)
+	var EXIT=µ.Class(COM.CommandPackage,
 	{
-		var c={
-			patchID:name,
-			commands:commands
-		};
-		if(init)c.patch=init;
-		COM.Packages[name]=µ.Class(COM.CommandPackage,c);
-	};
-	SMOD("ComPackFactory",COM.CommandPackageFactory);
-	
-	COM.CommandPackageFactory("exit", null, {
-		exit:function(line)
-		{
-			this.instance.rl.close();
+		patchID:"exit",
+		commands:{
+			exit:function(line)
+			{
+				this.instance.rl.close();
+			}
 		}
 	});
+	SMOD("CommandPackage.exit",EXIT);
+	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

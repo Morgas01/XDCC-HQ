@@ -242,7 +242,8 @@
 		},
 		destroy:function()
 		{
-			
+			//TODO destructor
+			this.mega();
 		},
 		_open:function(signal,classNames)
 		{

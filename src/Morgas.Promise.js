@@ -28,7 +28,7 @@
 			opts=SC.adopt({
 				scope:null,
 				args:[],
-				simple:false //set to true to omit the signal in call
+				simple:false // set to true to omit the signal in call
 			},opts);
 			this.scope=opts.scope;
 			
@@ -40,7 +40,7 @@
 			});
 			this._abort=abort;
 			
-			//prepare functions
+			// prepare functions
 			opts.args=[].concat(opts.args);
 			var onAbort=(fn)=>this.original.catch((reason)=>{if(reason==="abort")fn()});
 			fns=[].concat(fns).map((fn)=>
@@ -80,7 +80,7 @@
 			});
 			Promise.all(fns).then(_rs,abort);
 		},
-		rescopeFn:rescopeApply,//first: apply result of Promise.all | then: only rescope
+		rescopeFn:rescopeApply,// first: apply result of Promise.all | then: only rescope
 		_wrapNext:function(next)
 		{
 			return {
@@ -121,6 +121,7 @@
 			this.mega();
 		}
 	});
+	PROM.prototype.catch=PROM.prototype.error;
 	PROM.isThenable=function(thenable)
 	{
 		return thenable&&typeof thenable.then==="function";
@@ -131,7 +132,7 @@
 		else args=[].concat(args);
 		return function vow()
 		{
-			//TODO replace with Array.slice
+			// TODO replace with Array.slice
 			var vArgs=args.concat(Array.prototype.slice.call(arguments));
 			return new PROM(fn,{args:vArgs,scope:scope});
 		}

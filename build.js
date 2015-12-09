@@ -1,7 +1,9 @@
 var fs=require("fs");
 var path=require("path");
 
-var removeFolder=require("./src/NodeJs/removeFolder");
+require("./src/NodeJs/Morgas.NodeJs");
+
+var removeFolder=µ.getModule("removeFolder");
 var minify=require("./minify");
 
 removeFolder("build");
