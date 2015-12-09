@@ -39,6 +39,7 @@
 		return this;
 	};
 	CRC32.Builder.prototype.get=function(){return this.crcPart;};
+	CRC32.Builder.prototype.getFormatted=function(){return ("00000000"+this.crcPart.toString(16).toUpperCase()).slice(-8);};
 
 	SMOD("util.crc32",CRC32);
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
