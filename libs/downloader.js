@@ -5,6 +5,8 @@ require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
 var XDCCPackage=require("../webapp/js/XDCCPackage");
 var logger=require("../logger")("downloader");
 var config=require("./configManager");
+var CRCBuilder=µ.getModule("util.crc32").Builder;
+var extractChecksum=/[\[\(]([0-9A-Z]{8})[\)\]]\./;
 //*
 var clients={};
 
@@ -79,7 +81,8 @@ process.on("message",function(message)
 			var activeDownload={
 				abort:false,
 				download:download,
-				request:null
+				request:null,
+				crcBuilder:null
 			};
 			runningDownloads.set(download.ID,activeDownload);
 			logger.info("add download with ID %d",download.ID);
@@ -94,11 +97,12 @@ process.on("message",function(message)
 			{
 				return new Promise(function(resolve,reject){
 					var request = new axdcc.Request(client, {
-					    "pack"              : download.packnumber,
-					    "nick"              : download.bot,
-					    "path"              : config.downloadDir,
-					    "resume"            : false, //TODO restart download when resume is not supported
-					    "progressInterval"  : 1
+					    pack:download.packnumber,
+					    nick:download.bot,
+					    path:config.downloadDir,
+					    resume:true, //TODO restart download when resume is not supported
+					    progressInterval:1,
+					    fileSuffix:""
 					});
 					activeDownload.request=request;
 					
@@ -115,6 +119,14 @@ process.on("message",function(message)
 						childLogger.info({pack:pack,download:download},"connect");
 						process.send(JSON.stringify(download));
 					});
+					if(config.checkCRC)
+					{
+						activeDownload.crcBuilder=new CRCBuilder(download.crc);
+						request.on("data",function(data)
+						{
+							download.crc=activeDownload.crcBuilder.add(data).get();
+						});
+					}
 					request.on('dlerror',function()
 					{
 						childLogger.error({args:arguments},"download error");
@@ -128,10 +140,8 @@ process.on("message",function(message)
 						childLogger.debug({pack:pack,download:download},"progess %d%%",(loaded/pack.filesize*100));
 						process.send(JSON.stringify(download));
 					});
-					client.once("error",reject);
 					request.once('complete',function(pack)
 					{
-						client.removeListener("error",reject);
 						resolve(pack);
 					});
 					request.emit("start");
@@ -143,6 +153,21 @@ process.on("message",function(message)
 				download.progressMax=pack.filesize;
 				download.state=XDCCPackage.states.DONE;
 				download.message={type:"info",text:"complete"};
+				if(activeDownload.crcBuilder)
+				{
+					var crc=activeDownload.crcBuilder.getFormatted();
+					var match=download.name.match(extractChecksum);
+					if(match)
+					{
+						if(match[1].toUpperCase()===crc) download.message.text+=" CRC: OK";
+						else
+						{
+							download.message.type+="warning";
+							download.message.text+=" CRC: DIFFERENT -> "+crc;
+						}
+					}
+					else download.message.text+=" CRC: "+crc;
+				}
 				childLogger.info({pack:pack,download:download},"complete");
 				process.send(JSON.stringify(download));
 				runningDownloads.delete(download.ID);
@@ -165,13 +190,14 @@ process.on("message",function(message)
 					childLogger.error({error:err},"download failed");
 				}
 				process.send(JSON.stringify(download));
-			});
+			}).catch(err=>childLogger.error({error:err},"error"));
 			break;
 		case "kill":
 			if(runningDownloads.has(message.data))
 			{
 				var t=runningDownloads.get(message.data);
-				t.request.emit("cancel");
+				t.abort=true;
+				if(t.request) t.request.emit("cancel");
 				var download=t.download;
 				runningDownloads.delete(download.ID);
 				download.state=XDCCPackage.states.DISABLED;

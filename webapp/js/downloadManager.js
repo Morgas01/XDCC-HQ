@@ -223,7 +223,7 @@
 	};
 	var parseFileSize=function(size)
 	{
-		return parseFloat(size.replace(/kb?/i,"e3").replace(/mb?/i,"e6").replace(/gb?/i,"e9").replace(/tb?/i,"e12"))||0;
+		return parseFloat(size&&size.replace(/kb?/i,"e3").replace(/mb?/i,"e6").replace(/gb?/i,"e9").replace(/tb?/i,"e12"))||0;
 	}
 	var formatFileSize=function(size)
 	{
@@ -231,6 +231,7 @@
 		else if(size>1e9) return (size/1e9).toFixed(1)+"G";
 		else if(size>1e6) return (size/1e6).toFixed(1)+"M";
 		else if(size>1e3) return (size/1e3).toFixed(1)+"K";
+		else if (!size) return 0;
 		else return size+"B";
 	}
 	var updateStats=function()

@@ -35,6 +35,7 @@
 			this.addField("startTime",		FIELD.TYPES.DATE	,param.startTime		);
 			this.addField("updateTime",		FIELD.TYPES.DATE	,param.updateTime		);
 			this.addField("orderIndex",		FIELD.TYPES.INT		,param.orderIndex		);
+			this.addField("crc",			FIELD.TYPES.STRING	,param.crc				);
 			
 			this.dom=null;
 		},
