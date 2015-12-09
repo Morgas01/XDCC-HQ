@@ -13,6 +13,14 @@
 			start();
 		});
 	});
+	asyncTest("bad request",function()
+	{
+		REQ(["bad/url"]).catch(function(error)
+		{
+			ok(error.data.url==="bad/url","error: "+error.message)
+			start();
+		});
+	});
 	asyncTest("request fallback",function()
 	{
 		REQ(["bad/url","resources/request.json"]).then(function(text)

@@ -9,7 +9,7 @@ var oldGetModule=µ.getModule;
 
 µ.hasModule=function(key)
 {
-	if(key in moduleRegister|| fs.existsSync(path.resolve(__dirname,key+".js")))return true;
+	if(key in moduleRegister||oldhasModule(key)||fs.existsSync(path.resolve(__dirname,key+".js")))return true;
 	return false;
 }
 µ.getModule=function(key)
@@ -21,7 +21,8 @@ var oldGetModule=µ.getModule;
 		{
 			try
 			{
-				µ.setModule(key,require("./"+key));
+				var result=require("./"+key);
+				if(!oldhasModule(key))µ.setModule(key,result);
 			}
 			catch(e)
 			{

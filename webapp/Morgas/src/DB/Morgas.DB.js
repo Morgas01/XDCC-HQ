@@ -477,6 +477,7 @@
 				case FIELD.TYPES.DATE:
 					this.value=new Date(Date.UTC.apply(Date,jsonObj.split(",")));
 					break;
+				//TODO other conversions e.g. number from string
 				default:
 					this.value=jsonObj;
 			}

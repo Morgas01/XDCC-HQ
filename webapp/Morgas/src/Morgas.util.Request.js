@@ -8,7 +8,7 @@
 	
 	var doRequest=function(signal,param)
 	{
-		if(param.urls.length==0) signal.reject();
+		if(param.urls.length==0) signal.reject(new µ.Warning("no Url"));
 		else
 		{
 			var url=param.urls.shift();
@@ -23,14 +23,18 @@
 				}
 				else
 				{
-					µ.logger.error({url:url,status:req.status,statusText:req.statusText});
-					doRequest(signal,param);
+					var w=new µ.Warning(req.status,{url:url,xhr:req});
+					µ.logger.error(w);
+					if(param.urls.length==0) signal.reject(w);
+					else doRequest(signal,param);
 				}
 			};
-			req.onerror=function()
+			req.onerror=function(error)
 			{
-				µ.logger.error({url:url,status:"Network Error"});
-				doRequest(signal,param);
+				var w=new µ.Warning("Network Error",{url:url,xhr:req,error:error});
+				µ.logger.error(w);
+				if(param.urls.length==0) signal.reject(w);
+				else doRequest(signal,param);
 			};
 			if(param.progress)
 			{
