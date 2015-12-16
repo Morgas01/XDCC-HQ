@@ -69,6 +69,15 @@ var joinChannel=function(channel)
 }
 var runningDownloads=new Map();
 
+var cleanName=function(name)
+{
+	if((name.indexOf("%20")!==-1&&name.indexOf(" ")===-1)||(name.indexOf("%5B")!==-1&&name.indexOf("[")===-1))
+		name=decodeURIComponent(name);
+	name=name.replace(/_/g," ");
+	name=name.replace(/\.(?![^\.]+$)/g," ");
+	return name;
+};
+
 process.on("message",function(message)
 {
 	message=JSON.parse(message);
@@ -96,22 +105,30 @@ process.on("message",function(message)
 			.then(function(client)
 			{
 				return new Promise(function(resolve,reject){
-					var request = new axdcc.Request(client, {
+					var requestParam={
 					    pack:download.packnumber,
 					    nick:download.bot,
 					    path:config.downloadDir,
 					    resume:true, //TODO restart download when resume is not supported
 					    progressInterval:1,
 					    fileSuffix:""
-					});
+					};
+					if(config.cleanNames)
+					{
+						download.name=cleanName(download.name);
+					    requestParam.filename=download.name;
+					}
+					var request = new axdcc.Request(client, requestParam);
 					activeDownload.request=request;
 					
 					request.on('connect',function(pack)
 					{
 						
 						if(!download.name) download.name=pack.filename;
-						if(pack.filename==download.name||pack.filename.trim()==download.name||pack.filename.replace(/_/g," ").trim()==download.name)
+						if(cleanName(pack.filename)===cleanName(download.name))
+						{
 							download.message.text="connected";
+						}
 						else
 							download.message={type:"warning",text:"wrong filename: "+pack.filename};
 						download.startTime=new Date();
@@ -162,7 +179,7 @@ process.on("message",function(message)
 						if(match[1].toUpperCase()===crc) download.message.text+=" CRC: OK";
 						else
 						{
-							download.message.type+="warning";
+							download.message.type="warning";
 							download.message.text+=" CRC: DIFFERENT -> "+crc;
 						}
 					}
@@ -171,7 +188,6 @@ process.on("message",function(message)
 				childLogger.info({pack:pack,download:download},"complete");
 				process.send(JSON.stringify(download));
 				runningDownloads.delete(download.ID);
-				request.emit('kill');//cleanup
 			},
 			function(err)
 			{
