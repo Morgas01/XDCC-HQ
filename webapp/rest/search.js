@@ -19,11 +19,21 @@ module.exports=function(request)
 	    	if (search.length==0) reject("empty search string");
 	    	else
 	    	{
-	    		var searchJobs=fs.readdirSync(path.join(__dirname,"..","..","subOffices")).map(function(subOffice)
+	    		var searchJobs=fs.readdirSync(path.join(__dirname,"..","..","subOffices"));
+	    		logger.info({subOffices:searchJobs});
+	    		var promises=searchJobs.map(function(subOffice)
 	    		{
-	    			return doSearch(subOffice,search);
+	    			var promise=doSearch(subOffice,search);
+	    			promise.then(data=>
+	    			{
+	    				var i=searchJobs.indexOf(subOffice);
+	    				if(i==-1) logger.error("unknown job has finished: %s",subOffice);
+	    				else searchJobs.splice(i,1);
+	    				logger.info({remainingJobs:searchJobs},"%d jobs remaining",searchJobs.length);
+	    			})
+	    			return promise;
 	    		});
-	    		Promise.all(searchJobs).then(filterResults).then(function(filteredResults)
+	    		Promise.all(promises).then(filterResults).then(function(filteredResults)
 	    		{
 	    			resolve(filteredResults);
 	    		},reject)
