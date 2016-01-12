@@ -17,4 +17,7 @@
     border-radius: 10px;
     background-color: white;
     z-index: 1;
+	max-height:95%;
+	max-width:95%;
+	overflow:auto;
 }

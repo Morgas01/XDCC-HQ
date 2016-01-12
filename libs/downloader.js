@@ -113,7 +113,7 @@ process.on("message",function(message)
 					    progressInterval:1,
 					    fileSuffix:""
 					};
-					if(config.cleanNames)
+					if(config.cleanNames&&download.name)
 					{
 						download.name=cleanName(download.name);
 					    requestParam.filename=download.name;
@@ -124,13 +124,23 @@ process.on("message",function(message)
 					request.on('connect',function(pack)
 					{
 						
-						if(!download.name) download.name=pack.filename;
+						if(!download.name)
+						{
+							if(config.cleanNames)
+							{
+								request.args.filename=download.name=cleanName(pack.filename);
+							}
+							else download.name=pack.filename;
+						}
 						if(cleanName(pack.filename)===cleanName(download.name))
 						{
 							download.message.text="connected";
 						}
 						else
+						{
 							download.message={type:"warning",text:"wrong filename: "+pack.filename};
+							request.args.filename=null;
+						}
 						download.startTime=new Date();
 						download.location=pack.location;
 						childLogger.info({pack:pack,download:download},"connect");

@@ -30,6 +30,7 @@
 			this.addField("state",			FIELD.TYPES.STRING	,param.state			);
 			this.addField("message",		FIELD.TYPES.JSON	,param.message			);
 			this.addField("progressValue",	FIELD.TYPES.INT		,param.progressValue	);
+			this.addField("progressStart",	FIELD.TYPES.INT		,param.progressStart	);
 			this.addField("progressMax",	FIELD.TYPES.INT		,param.progressMax		);
 			this.addField("location",		FIELD.TYPES.STRING	,param.location			);
 			this.addField("startTime",		FIELD.TYPES.DATE	,param.startTime		);
@@ -100,21 +101,21 @@
 	
 				if(this.updateTime)
 				{
-					var averageSpeed=this.progressValue/(this.updateTime-this.startTime);
+					var averageSpeed=(this.progressValue-this.progressStart)/(this.updateTime-this.startTime);
 					this.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s";
 					
-					var averageRemaining=(this.progressMax-this.progressValue)/averageSpeed;
+					var averageRemaining=(this.progressMax-(this.progressValue-this.progressStart))/averageSpeed;
 					this.dom.remaining.textContent=getTimeString(averageRemaining);
 				
 					this.dom.time.textContent=getTimeString(this.updateTime-this.startTime);
 					
 					if(this.state===XP.states.RUNNING&&this.lastUpdateTime)
 					{
-						var lastSpeed=(this.progressValue-this.dom.progress.value)/(this.updateTime-this.lastUpdateTime);
+						var lastSpeed=((this.progressValue-this.progressStart)-this.dom.progress.value)/(this.updateTime-this.lastUpdateTime);
 						this.dom.speed.textContent+=" ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
 	
-						var lastRemaining=(this.progressMax-this.progressValue)/lastSpeed;	
-						this.dom.remaining.textContent+=" ( "+(isFinite(lastSpeed)?getTimeString(lastRemaining):"--:--:--")+" )";
+						var lastRemaining=(this.progressMax-(this.progressValue-this.progressStart))/lastSpeed;	
+						this.dom.remaining.textContent+=" ( "+(isFinite(lastRemaining)?getTimeString(lastRemaining):"--:--:--")+" )";
 					}
 					
 				}
@@ -143,7 +144,6 @@
 		DISABLED:"Disabled",
 		PENDING:"Pending",
 		RUNNING:"Running",
-		CHECKING:"Checking CRC",
 		DONE:"Done",
 		FAILED:"Failed"
 	};

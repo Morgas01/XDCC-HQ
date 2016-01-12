@@ -1,10 +1,8 @@
 {
 	"serverPort": 8080,
-	"ircNick": "Lt Dan",
+	"ircNick": "Lt_Dan",
 	"downloadDir": "downloads",
-	"maxDownloads": 8,
-	"maxNetworkDownloads": 4,
-	"maxBotDownloads": 2,
+	"maxDownloads": 4,
 	"fileExpiration": 3,
 	"autoStartDownloads": false,
 	"cleanNames": true,

@@ -1,6 +1,7 @@
 var path = require("path");
 var logger=require("../../logger")("download");
 var XDCCPackage=require("../js/XDCCPackage");
+var Operator=require("../../libs/ircOperator");
 var JsonConnector=µ.getModule("DB/jsonConnector");
 var fork=require("child_process").fork;
 var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
@@ -111,7 +112,7 @@ exports.pause=function(request,queryParam)
 			default:
 				return "action "+queryParam.action+" not found. action mus be either Pause or Continue.";
 		}
-		for(var es of eventSources)es.write("event: pause\ndata: "+pause+"\n\n");
+		notifyEventSources("pause",pause);
 	}
 	return "ok";
 };
@@ -295,38 +296,46 @@ var startDownloads=function()
 				{
 					if(active._count<config.maxDownloads)
 					{
-						if(!active[d.network])active[d.network]={_count:0};
+						if(!active[d.network])active[d.network]={};
 						var net=active[d.network];
-						if(net._count<config.maxNetworkDownloads)
+						if(!net[d.bot])
 						{
-							if(!net[d.bot])net[d.bot]=0;
-							if(net[d.bot]<config.maxBotDownloads)
+							
+							net[d.bot]=true;
+							active._count++;
+							
+							logger.info({download:d},"run");
+							logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
+							
+				    		/*
+							sendDownload(d);
+							/*/
+							Operator.downloadPackage(config.ircNick,d,{
+								path:config.downloadDir,
+								cleanName:config.cleanNames,
+								update:function(d)
+								{
+									notifyEventSources("update",d);
+									downloads.save(d);
+								}
+							}).catch(function(error)
 							{
-								d.progress=[0,1];
-								d.state=XDCCPackage.states.RUNNING;
-								d.message={type:"info",text:"starting"};
-								d.startTime=0;
-								d.updateTime=0;
-								d.location="";
-								
-								net[d.bot]++;
-								net._count++;
-								active._count++;
-								
-								logger.info({download:d},"run");
-								logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
-								
-					    		sendDownload(d);
-							}
-							else d.message.text="bot cap reached";
+								logger.error({error:error},"ERROR");
+							}).then(function()
+							{
+								net[d.bot]=false;
+								active._count--;
+								startDownloads();
+							});
+							//*/
 						}
-						else d.message.text="network download cap reached";
+						else d.message.text="bot cap reached";
 					}
 					else d.message.text="overall download cap reached";
 					downloads.save(d);
 		    		notifyEventSources("update",d);
 				}
-			});
+			}).catch(function(){console.log(arguments)});
 		}
 	}
 };

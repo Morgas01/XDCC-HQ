@@ -9,7 +9,7 @@ exports.getUrl=function(search)
 {
 	return exports.url;
 }
-var parseRegEx=/"right">#?(\d+).*?"right">.*?"right">(\d+.).*?>([^<]+)<\/a/g;
+var parseRegEx=/"right">#?(\d+).*?"right">.*?"right">(\d+.).*?>([^<]+)<\/(a|span)/g;
 exports.parse=function(data)
 {
 	data=data.replace(/\n/g,"");
