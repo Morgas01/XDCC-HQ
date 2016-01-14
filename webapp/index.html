@@ -22,26 +22,14 @@
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.SortedArray.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.Organizer.js"></script>
 		
+		<script type="text/javascript" defer="defer" src="js/config.js"></script>
 		<script type="text/javascript" defer="defer" src="js/tabs.js"></script>
 		<script type="text/javascript" defer="defer" src="js/dialog.js"></script>
 		<script type="text/javascript" defer="defer" src="js/searchResult.js"></script>
 		<script type="text/javascript" defer="defer" src="js/index.js"></script>
 	</head>
 	<body>
-		<div id="config">
-			<label for="showConfig">&#128295;</label>
-			<input type="checkbox" id="showConfig">
-			<table>
-				<tr><td>server port</td><td><input name="serverPort" required min="0" type="number"></td><td>needs restart</td></tr>
-				<tr><td>irc nick</td><td><input name="ircNick" required type="text"></td><td>no change to connected networks</td></tr>
-				<tr><td>download directory</td><td><input name="downloadDir" required type="text"></td><td><input name="resolvedDownloadDir" type="text" disabled></td></tr>
-				<tr><td>maximum downloads</td><td><input name="maxDownloads" required min="0" type="number"></td></tr>
-				<tr><td>file expiration</td><td><input name="fileExpiration" required min="0" type="number"></td><td>expiration time in days for files used in searches</td></tr>
-				<tr><td>autoStart downloads</td><td><input name="autoStartDownloads" type="checkbox"></td><td>initial pause state</td></tr>
-				<tr><td>clean names</td><td><input name="cleanNames" type="checkbox"></td></tr>
-				<tr><td>check CRC</td><td><input name="checkCRC" type="checkbox"></td></tr>
-			</table>
-		</div>
+		<div id="config"></div>
 		<div id="search">
 			<form id="searchForm">
 				<input name="search" required placeholder="search" list="searchHistory"><button type="submit">search</button>

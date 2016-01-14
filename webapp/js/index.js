@@ -2,30 +2,10 @@
 
 	var SC=SC({
 		req:"request",
-		gIn:"getInputValues",
-		sIn:"setInputValues",
 		tc:"TabContainer",
 		sr:"SearchResult",
 	});
 	//TODO set µ.logger.out
-	
-	//config
-	var updateConfig=function(data)
-	{
-		return SC.req.json({
-			url:"rest/config",
-			contentType:"application/json",
-			data:JSON.stringify(data)
-		}).then(function(config)
-		{
-			SC.sIn(document.querySelectorAll("#config table input"),config);
-			return config;
-		},errorlogger);
-	}
-	document.getElementById("config").addEventListener("change",function(e)
-	{
-		updateConfig(SC.gIn(this.querySelectorAll("table input")));
-	});
 	
 	
 	
@@ -97,7 +77,6 @@
 	},false);
 	
 	//execute
-	updateConfig();
 	updateSearchHistory();
 	
 	document.querySelector("#searchForm [name=search]").select();

@@ -1,10 +1,15 @@
 {
 	"serverPort": 8080,
+	"fileExpiration": 3,
 	"ircNick": "Lt_Dan",
 	"downloadDir": "downloads",
-	"maxDownloads": 4,
-	"fileExpiration": 3,
 	"autoStartDownloads": false,
-	"cleanNames": true,
-	"checkCRC": true
+	"maxDownloads": 4,
+	"downloadTimeout":15000,
+	"resume":true,
+	"resumeTimeout":5000,
+	"fileSuffix":".part",
+	"checkName":false,
+	"cleanName": true,
+	"appendCRC": true
 }

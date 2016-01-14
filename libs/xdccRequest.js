@@ -195,13 +195,14 @@
 					catch (err){}//TODO handle error
 				}
 				
+				xdccPackage.location=offer.location + options.fileSuffix;
 				xdccPackage.progressMax=offer.filesize;
 				xdccPackage.progressValue=xdccPackage.progressStart=offer.resumepos;
 				xdccPackage.startTime=new Date();
 				xdccPackage.updateTime=null;
 				options.update(xdccPackage);
 				
-				var stream = fs.createWriteStream(offer.location + options.fileSuffix, {flags: 'a'});
+				var stream = fs.createWriteStream(xdccPackage.location, {flags: 'a'});
 				stream.on("open", function ()
 				{
 	
@@ -262,8 +263,8 @@
 		                	var match=offer.filename.match(extractChecksum);
 		                	if(match)
 		                	{
-		                		if(match[1].toUpperCase()===crcBuilder.getFormatted()) text="OK";
-		                		else text="DIFFERENT -> "+crcBuilder.getFormatted();
+		                		if(match[1].toUpperCase()===crcBuilder.getFormatted()) text+="OK";
+		                		else text+="DIFFERENT -> "+crcBuilder.getFormatted();
 		                	}
 		                	else
 		                	{
@@ -277,8 +278,7 @@
 	                		if(xdccPackage.message.type!=="info") text=xdccPackage.message.text+"\n"+text;
 	                		xdccPackage.message.text=text;
             				xdccPackage.state="Done";
-		                    if (options.fileSuffix) offer.location+=options.fileSuffix;
-		                    fs.rename(offer.location, path.resolve(options.path,offer.filename));
+		                    fs.rename(xdccPackage.location, xdccPackage.location=path.resolve(options.path,offer.filename));
                 			options.update(xdccPackage);
                 			options.update=µ.constantFunctions.ndef();
 		                    signal.resolve();
@@ -289,7 +289,7 @@
 			                {// Download incomplete
 			                	text="Server unexpected closed connection";
 			                }
-			                else if (received != pack.filesize && offer.finished)
+			                else if (received != offer.filesize && offer.finished)
 			                {// Download aborted
 			                	text="Server closed connection, download canceled";
 			                }
@@ -347,6 +347,7 @@
 			signal.onAbort(function()
 			{
 				ircClient.removeListener("ctcp-privmsg", onPrivmsg);
+				console.log("abort");
 			});
 			ircClient.say(xdccPackage.bot, "XDCC SEND " + xdccPackage.packnumber);
 			offer.requestTimer=setTimeout(function()

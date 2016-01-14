@@ -205,14 +205,19 @@
 		}
 		return rtn;
 	};
-	Operator.downloadPackage=function(nick,xdccPackage,options)
+	Operator.downloadPackage=SC.Promise.pledge(function(signal,nick,xdccPackage,options)
 	{
-		return Operator.connectToNetwork(xdccPackage.network,nick)
-		.then(()=>Operator.joinChannel(xdccPackage.network,xdccPackage.channel))
+		var doContinue=µ.constantFunctions.pass;
+		signal.onAbort(function(){doContinue=function(){return Promise.reject("abort");}});
+		
+		Operator.connectToNetwork(xdccPackage.network,nick).then(doContinue)
+		.then(()=>Operator.joinChannel(xdccPackage.network,xdccPackage.channel)).then(doContinue)
 		.then(function(client)
 		{
-			return xdccRequest(client,xdccPackage,options);
-		});
-	}
+			var request=xdccRequest(client,xdccPackage,options);
+			signal.onAbort(function(){request.abort();});
+			return request;
+		}).then(signal.resolve,signal.reject);
+	})
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

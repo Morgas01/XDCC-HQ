@@ -4,7 +4,7 @@ var XDCCPackage=require("../js/XDCCPackage");
 var Operator=require("../../libs/ircOperator");
 var JsonConnector=µ.getModule("DB/jsonConnector");
 var fork=require("child_process").fork;
-var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
+//var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
 var SC=µ.shortcut({
 	find:"find"
 });
@@ -210,19 +210,23 @@ exports.reset=function(request,queryParam)
 		{
 			if(results.length==0)
 				return "no download with ID "+queryParam.ID+" found";
-			else if(results[0].state===XDCCPackage.states.RUNNING)
+			/*else if(results[0].state===XDCCPackage.states.RUNNING)
 			{
 				sendKillDownload(results[0].ID);
 				return "ok";
-			}
-			else
+			}*/
+			if(active[results[0].network]&&active[results[0].network][results[0].bot])
 			{
+				active[results[0].network][results[0].bot].abort();
+			}
+			/*else
+			{*/
 				results[0].state=XDCCPackage.states.DISABLED;
 				results[0].message={type:"info",text:"reset"};
 				downloads.save(results[0]);
 	    		notifyEventSources("update",results[0]);
 	    		return "ok";
-			}
+			//}
 		}).original;
 	}
 	return "no query parameter ID found";
@@ -301,29 +305,39 @@ var startDownloads=function()
 						if(!net[d.bot])
 						{
 							
-							net[d.bot]=true;
 							active._count++;
 							
 							logger.info({download:d},"run");
-							logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,net._count,d.bot,net[d.bot]);
+							logger.info("active %d",active._count);
 							
 				    		/*
 							sendDownload(d);
 							/*/
-							Operator.downloadPackage(config.ircNick,d,{
-								path:config.downloadDir,
-								cleanName:config.cleanNames,
-								update:function(d)
+							net[d.bot]=Operator.downloadPackage(config.ircNick,d,{
+								path:			config.downloadDir,
+								fileSuffix:		config.fileSuffix,
+								timeout:		config.downloadTimeout,
+								resume:			config.resume,
+								resumeTimeout:	config.resumeTimeout,
+								checkName:		config.checkName,
+								cleanName:		config.cleanName,
+								appendCRC:		config.appendCRC,
+								update:			function(dUpdate)
 								{
+									d=dUpdate;
 									notifyEventSources("update",d);
 									downloads.save(d);
 								}
-							}).catch(function(error)
+							});
+							net[d.bot].catch(function(error)
 							{
 								logger.error({error:error},"ERROR");
+								d.state="Fail";
+								downloads.save(d);
+								notifyEventSources("update",d);
 							}).then(function()
 							{
-								net[d.bot]=false;
+								net[d.bot]=null;
 								active._count--;
 								startDownloads();
 							});
@@ -339,7 +353,7 @@ var startDownloads=function()
 		}
 	}
 };
-
+/*
 downloader.on("message",function(d)
 {
 	d=JSON.parse(d);
@@ -374,7 +388,7 @@ var sendKillDownload=function(d)
 	var msg={type:"kill",data:d}
 	downloader.send(JSON.stringify(msg));
 };
-
+*/
 startDownloads();
 config.on("change",startDownloads);
 
