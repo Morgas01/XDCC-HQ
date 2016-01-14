@@ -1,0 +1,15 @@
+#config label {
+	display: inline-block;
+	border: 2px #EEEEFF outset;
+	padding: 2px 5px;
+	border-radius: 5px;
+	background: #EEEEFF;
+}
+#config label:active {
+	border-style:inset;
+	background: #AAAAFF;
+}
+#config #showConfig,
+#config #showConfig:not(:checked) + * {
+	display:none;
+}
