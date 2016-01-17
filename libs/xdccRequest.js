@@ -219,8 +219,12 @@
 		                	xdccPackage.progressValue=received;
 		                	xdccPackage.updateTime=new Date();
 		                    options.update(xdccPackage);
-		                },options.progressInterval)
-		                log.info("connected")
+		                },options.progressInterval);
+						var text="connected";
+		                log.info(text);
+						if(xdccPackage.message.type!=="info") text=xdccPackage.message.text+"\n"+text;
+						xdccPackage.message.text=text;
+		                options.update(xdccPackage);
 		            });
 	
 		            // Callback for data

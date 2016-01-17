@@ -27,21 +27,29 @@
 		option.value="/"+c;
 		dataList.appendChild(option);
 	}
-	document.getElementById("cmd").addEventListener("change",function(event)
+	document.getElementById("cmd").addEventListener("keydown",function(event)
 	{
-		var line=event.target.value.trim();
-		var command="msg";
-		for(var c in commands)
+		if(event.code==="Enter")
 		{
-			if(line.indexOf("/"+c)==0)
+			var line=event.target.value.trim();
+			var command=null;
+			if(line[0]=="/")
 			{
-				line=line.slice(c.length+1).trim();
-				command=c;
-				break;
+				for(var c in commands)
+				{
+					if(line.indexOf("/"+c)==0)
+					{
+						line=line.slice(c.length+1).trim();
+						command=c;
+						break;
+					}
+				}
+				if(command===null)return e.target.setCustomValidity("no such command");
 			}
+			var data=commands[command](line);
+			SC.rq({url:"rest/irc/"+data.path,data:JSON.stringify(data)});
+			event.target.value="";
 		}
-		var data=commands[command](line);
-		SC.rq({url:"rest/irc/"+data.path,data:JSON.stringify(data)});
 	},false);
 	
 	
@@ -75,7 +83,7 @@
 		var row=document.createElement("div");
 		var time=document.createElement("span");
 		time.classList.add("timestamp");
-		time.textContent=msg.timestamp;
+		time.textContent=new Date(msg.timestamp).toLocaleTimeString();
 		row.appendChild(time);
 		var nick=document.createElement("span");
 		nick.classList.add("nick");
@@ -88,9 +96,17 @@
 		row.appendChild(text);
 		tab.content.appendChild(row);
 	};
+	var ircColor=/\x03(\d\d)(?:,(\d\d))?([^\x03]+)\x03/g;
+	var ircBold=/\x02([^\x02]+)\x02/g;
+	var ircItalic=/\x1D([^\x1D]+)\x1D/g;
+	var ircUnderline=/\x1F([^\x1F]+)\x1F/g;
 	var tranformText=function(text)
 	{
-		text=text.replace(/\n/g,"<br>");
+		text=text.replace(ircColor,'<span class="front-$1 back-$2">$3</span>');
+		text=text.replace(ircBold,'<b>$1</b>');
+		text=text.replace(ircItalic,'<i>$1</i>');
+		text=text.replace(ircUnderline,'<u>$1</u>');
+		//text=text.replace(/\n/g,"<br>");
 		text=text.replace(urlRegEx,t=>'<a target="_blank" href="'+t+'">'+t+'</a>');
 		text=text.replace(/([#$]\w+)/g,'<button data-channel="$1">$1</button>');
 		return text;

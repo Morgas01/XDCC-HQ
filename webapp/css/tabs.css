@@ -1,6 +1,7 @@
 .tabContainer {
 	display:flex;
 	flex-wrap:wrap;
+	align-content:flex-start;
 }
 .tabContainer > header {
 	border:3px outset;
@@ -24,6 +25,7 @@
 	order:2;
 	width:0;
 	flex-basis:100%;
+	align-self:stretch;
 	display:none;
 	border:3px inset;
 	border-radius: 0 5px 5px 5px;

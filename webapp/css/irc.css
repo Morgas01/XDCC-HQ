@@ -1,0 +1,137 @@
+html,body {
+	height:100%;
+	border: 0 none;
+	margin: 0;
+	padding: 0;
+}
+body {
+	display:flex;
+	flex-direction:column;
+}
+.tabContainer {
+	flex-grow:1;
+	overflow:hidden;
+}
+.tabContainer > header.active + * {
+	height: calc(100% - 9px - 2em);
+	width:100%;
+	overflow:auto;
+}
+.tabContainer > header.active + * > * {
+	display:table-row;
+}
+.tabContainer > header.active + *> * > * {
+	display:table-cell;
+	padding:0 5px;
+}
+.nick {
+	text-align:right;
+	white-space:nowrap;
+}
+.text {
+	width:100%;
+	background-color: lightgray;
+	border: 1px solid white;
+	white-space:pre-wrap;
+	font-family:monospace;
+}
+.text.notice {
+	font-style:italic;
+}
+
+.text .front-00 {
+	color:white;
+}
+.text .back-00 {
+	background-color:white;
+}
+.text .front-01 {
+	color:black;
+}
+.text .back-01 {
+	background-color:black;
+}
+.text .front-02 {
+	color:navy;
+}
+.text .back-02 {
+	background-color:navy;
+}
+.text .front-03 {
+	color:green;
+}
+.text .back-03 {
+	background-color:green;
+}
+.text .front-04 {
+	color:red;
+}
+.text .back-04 {
+	background-color:red;
+}
+.text .front-05 {
+	color:brown;
+}
+.text .back-05 {
+	background-color:brown;
+}
+.text .front-06 {
+	color:purple;
+}
+.text .back-06 {
+	background-color:purple;
+}
+.text .front-07 {
+	color:olive;
+}
+.text .back-07 {
+	background-color:olive;
+}
+.text .front-08 {
+	color:yellow;
+}
+.text .back-08 {
+	background-color:yellow;
+}
+.text .front-09 {
+	color:lime;
+}
+.text .back-09 {
+	background-color:lime;
+}
+.text .front-10 {
+	color:teal;
+}
+.text .back-10 {
+	background-color:teal;
+}
+.text .front-11 {
+	color:cyan;
+}
+.text .back-11 {
+	background-color:cyan;
+}
+.text .front-12 {
+	color:blue;
+}
+.text .back-12 {
+	background-color:blue;
+}
+.text .front-13 {
+	color:pink;
+}
+.text .back-13 {
+	background-color:pink;
+}
+.text .front-14 {
+	color:gray;
+}
+.text .back-14 {
+	background-color:gray;
+}
+.text .front-15 {
+	color:silver;
+}
+.text .back-15 {
+	background-color:silver;
+}

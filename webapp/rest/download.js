@@ -326,19 +326,18 @@ var startDownloads=function()
 								{
 									d=dUpdate;
 									notifyEventSources("update",d);
-									downloads.save(d);
 								}
 							});
 							net[d.bot].catch(function(error)
 							{
 								logger.error({error:error},"ERROR");
 								d.state="Fail";
-								downloads.save(d);
 								notifyEventSources("update",d);
 							}).then(function()
 							{
 								net[d.bot]=null;
 								active._count--;
+								downloads.save(d);
 								startDownloads();
 							});
 							//*/

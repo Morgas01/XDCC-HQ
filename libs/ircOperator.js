@@ -37,7 +37,7 @@
 		else arr=s.get("_messages");
 		
 		arr.push(msg);
-		arr.splice(MESSAGES_LIMIT);
+		if(arr.length>=MESSAGES_LIMIT)arr.splice(0,arr.length-MESSAGES_LIMIT);
 		Operator.emit("message",msg);
 	}
 	
@@ -65,6 +65,7 @@
 					server:networkUri,
 					nick:msg.nick||"Global",
 					text:msg.args.join("\t"),
+					type:"registered",
 					message:msg
 				});
 				signal.resolve(c);
@@ -74,6 +75,7 @@
 				addMessage({
 					server:networkUri,
 					nick:"Global",
+					type:"motd",
 					text:text
 				});
 			});
@@ -84,6 +86,7 @@
 					nick:nick||"Global",
 					text:topic,
 					target:target,
+					type:"topic",
 					message:message
 				});
 			});
@@ -94,6 +97,7 @@
 					nick:nick||"Global",
 					text:text,
 					target:target!==c.nick?target:nick||networkUri,
+					type:"message",
 					message:message
 				});
 			});
@@ -103,6 +107,7 @@
 					server:networkUri,
 					nick:c.nick||"Global",
 					text:text,
+					type:"selfMessage",
 					target:target
 				});
 			});
@@ -134,6 +139,7 @@
 					server:networkUri,
 					nick:msg.nick||"Global",
 					text:msg.args.join("\t"),
+					type:"error",
 					message:msg
 				});
 			});
@@ -142,6 +148,7 @@
 				addMessage({
 					server:networkUri,
 					nick:"Global",
+					type:"abort",
 					text:"failed to connect after "+retryCount+" attempts"
 				});
 			});
@@ -150,6 +157,7 @@
 				addMessage({
 					server:networkUri,
 					nick:"Global",
+					type:"netError",
 					text:error.name+": "+error.message,
 	
 					name:error.name,
