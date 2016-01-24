@@ -17,7 +17,7 @@
 	}
 	
 	var FH=µ.NodeJs.FileHelper=µ.Class({
-		extractChecksum:/[\[\(]([0-9A-Z]{8})[\)\]]\..{3,4}$/,
+		extractChecksum:/[\[\(]([0-9a-zA-Z]{8})[\)\]]\..{3,4}$/,
 		init:function(dir)
 		{
 			this.dir=PATH.resolve(dir||"./");
@@ -56,8 +56,7 @@
 			}
 			else if (pattern==="noCRC")
 			{
-				var hasCRC=this.extractChecksum;
-				return (files||this.ls()).filter(function(a){return !a.match(hasCRC)});
+				return (files||this.ls()).filter((a)=>!a.match(this.extractChecksum));
 			}
 			else if (pattern==="selected")
 			{
@@ -105,15 +104,29 @@
 			}
 			return rtn;
 		},
-		calcCRC:function(filename)
+		calcCRC:function(filename,progress)
 		{
 			return new (GMOD("Promise"))((signal)=>
 			{
+				var filePath=PATH.resolve(this.dir,filename);
+				var stats=null;
+				try
+				{
+					stats=FS.statSync(filePath);
+				}
+				catch(e)
+				{
+					signal.reject(e);
+					return;
+				}
+				var dataRead=0;
 				var builder=new (GMOD("util.crc32")).Builder();
-				var stream=FS.createReadStream(PATH.resolve(this.dir,filename));
+				var stream=FS.createReadStream(filePath);
 				stream.on("data",function(data)
 				{
 					builder.add(data);
+					dataRead+=data.length;
+					if(progress)progress(dataRead,stats.size);
 				});
 				stream.on("end",function()
 				{
@@ -122,7 +135,7 @@
 				stream.on("error",signal.reject);
 			});
 		},
-		checkCRC:function(cb)
+		checkCRC:function(cb,progress)
 		{
 			var rtn=[];
 			var todo=this.selected.slice();
@@ -137,7 +150,7 @@
 			{
 				var next=(csm)=>
 				{
-					rtn.push([todo[0],csm,csm===todo[0].match(this.extractChecksum)[1]]);
+					rtn.push([todo[0],csm,csm===todo[0].match(this.extractChecksum)[1].toUpperCase()]);
 					if(cb)cb(rtn[rtn.length-1]);
 					todo.shift();
 					while(todo.length>0&&!todo[0].match(this.extractChecksum))
@@ -147,35 +160,53 @@
 					}
 					if(todo.length>0)
 					{
-						this.calcCRC(todo[0]).always(next);
+						this.calcCRC(todo[0],progress).always(next);
 					}
 					else
 						signal.resolve(rtn);
 				}
-				this.calcCRC(todo[0]).always(next);
+				this.calcCRC(todo[0],progress).always(next);
 			});
 		},
-		appendCRC:function()
+		appendCRC:function(cb)
 		{
-			return "TODO";
-			/*
-			rtn=[];
-			for(var i=0;i<this.selected.length;i++)
+			var rtn=[];
+			while(this.selected.length>rtn.length&&this.selected[rtn.length].match(this.extractChecksum))
 			{
-				var fileName=this.selected[i];
-				var match=fileName.match(this.extractChecksum);
-				if(!match)
-				{
-					var crc=this.calcCRC(fileName);
-					var fext=PATH.extname(fileName);
-					var newFileName=fileName.slice(0,-fext.length)+"["+crc+"]"+fext;
-					FS.renameSync(PATH.resolve(this.dir,this.selected[i]),PATH.resolve(this.dir,newFileName));
-					this.selected[i]=newFileName;
-					rtn.push(newFileName);
-				}
+				rtn.push([this.selected[rtn.length],this.selected[rtn.length]]);
+				if(cb)cb(rtn[rtn.length-1]);
 			}
-			return rtn;
-			*/
+			
+			return new (GMOD("Promise"))((signal)=>
+			{
+				if(this.selected.length===rtn.length) signal.resolve(rtn);
+				else
+				{
+					var next=(csm)=>
+					{
+						var fileName=this.selected[rtn.length];
+						var fext=PATH.extname(fileName);
+						var newFileName=fileName.slice(0,-fext.length)+"["+csm+"]"+fext;
+						FS.renameSync(PATH.resolve(this.dir,fileName),PATH.resolve(this.dir,newFileName));
+						this.selected[rtn.length]=newFileName;
+						rtn.push([fileName,newFileName]);
+						if(cb)cb(rtn[rtn.length-1]);
+
+						while(this.selected.length>rtn.length&&this.selected[rtn.length].match(this.extractChecksum))
+						{
+							rtn.push([this.selected[rtn.length],this.selected[rtn.length]]);
+							if(cb)cb(rtn[rtn.length-1]);
+						}
+						if(this.selected.length>rtn.length)
+						{
+							this.calcCRC(this.selected[rtn.length]).always(next);
+						}
+						else
+							signal.resolve(rtn);
+					}
+					this.calcCRC(this.selected[rtn.length]).always(next);
+				}
+			});
 		},
 		"delete":function(pattern)
 		{

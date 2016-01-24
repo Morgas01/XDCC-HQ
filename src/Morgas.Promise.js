@@ -25,6 +25,8 @@
 		 */
 		init:function(fns,opts)
 		{
+			SC.rs.all(this,"abort");
+			
 			opts=SC.adopt({
 				scope:null,
 				args:[],
@@ -91,6 +93,7 @@
 				complete:PROM.prototype.complete,
 				error:PROM.prototype.error,
 				catch:PROM.prototype.error,
+				always:PROM.prototype.always,
 				_wrapNext:PROM.prototype._wrapNext
 			};
 		},

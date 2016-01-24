@@ -26,6 +26,10 @@
 		}
 		return target;
 	};
+	obj.adopt.setDefaults=function(defaults,param,extend)
+	{
+		return obj.adopt(obj.adopt({},defaults,true),param,extend);
+	};
 	SMOD("adopt",obj.adopt);
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
