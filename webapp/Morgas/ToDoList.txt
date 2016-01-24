@@ -21,3 +21,4 @@ NEW:
 	resource handler
 	translations
 	translated resources
+	NodeJs: add source folder for µ.getModule lookup
