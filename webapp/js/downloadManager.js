@@ -9,13 +9,39 @@
 		gIn:"getInputValues",
 	});
 	
+	var script=document.currentScript;
+		
+	var container=document.createElement("div");
+	container.id="downloadManager";
+	script.parentNode.insertBefore(container,script.nextSibling);
+	container.innerHTML='\
+		<div class="control">\
+		<button data-action="pause">???</button>\
+		<button data-action="removeDone">remove completed downloads</button>\
+		<button data-action="addDownload">add download</button>\
+		<button data-action="listFilenames">list filenames</button>\
+		<select class="activeStyle"></select>\
+	</div>\
+	<div class="stats">\
+		<div>\
+			<span>Downloads:</span>\
+			<span class="downloadCount">???</span>\
+		</div>\
+		<div>\
+			<span>File size:</span>\
+			<span class="fileSize">???</span>\
+		</div>\
+	</div>\
+	<div class="downloads"></div>\
+	';
+	
 	var org=new ORG()
 	.map("ID","ID").
 	sort("orderIndex",ORG.attributeSort(["orderIndex"]));
 
 //********** Control **********
 	
-	var pauseBtn=document.querySelector("[data-action=pause]");
+	var pauseBtn=container.querySelector("[data-action=pause]");
 	var updatePuseBtn=function(pause)
 	{
 		if(pause) pauseBtn.textContent=pauseBtn.dataset.value="continue";
@@ -110,7 +136,7 @@
 			openDialog('<textArea rows="26" cols="100">'+org.getSort("orderIndex").map(p=>p.name).join("\n")+'</textArea>')
 		}
 	};
-	document.getElementById("control").addEventListener("click",function(e)
+	container.querySelector(".control").addEventListener("click",function(e)
 	{
 		if(e.target.dataset.action in controlActions)
 		{
@@ -118,7 +144,7 @@
 		}
 	});
 	
-	var activeStyle=document.getElementById("activeStyle");
+	var activeStyle=container.querySelector(".activeStyle");
 	activeStyle.innerHTML=Array.prototype.map.call(document.querySelectorAll("link[title]"),l=>'<option value="'+l.title+'">'+l.title+'</option>').join("\n");
 	try
 	{
@@ -141,7 +167,7 @@
 	
 //***** actions *****
 	
-	var downloadsContainer=document.getElementById("downloads");
+	var downloadsContainer=container.querySelector(".downloads");
 	downloadsContainer.addEventListener("click",function(e)
 	{
 		var action=e.target.dataset.action;
@@ -250,8 +276,13 @@
 			}
 			else fileSize.total+=parseFileSize(d.size);
 		}
-		document.getElementById("downloadCount").innerHTML=downloads.done+"/"+downloads.total+" ("+downloads.pending+")";
-		document.getElementById("fileSize").innerHTML=formatFileSize(fileSize.done)+"/"+formatFileSize(fileSize.total)+" ("+formatFileSize(fileSize.total-fileSize.done)+")";
+		var downloadCount=downloads.done+"/"+downloads.total+" ("+downloads.pending+")";
+		container.querySelector(".downloadCount").innerHTML=downloadCount;
+		var fileSize=formatFileSize(fileSize.done)+"/"+formatFileSize(fileSize.total)+" ("+formatFileSize(fileSize.total-fileSize.done)+")";
+		container.querySelector(".fileSize").innerHTML=fileSize;
+		
+		if(script.dataset.downloadCount) for(var n of document.querySelectorAll(script.dataset.downloadCount)) n.innerHTML=downloadCount;
+		if(script.dataset.fileSize) for(var n of document.querySelectorAll(script.dataset.fileSize)) n.innerHTML=fileSize;
 	};
 	var es=new EventSource("rest/download/get");
 	es.addEventListener("error",µ.logger.error);

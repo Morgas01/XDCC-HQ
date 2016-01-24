@@ -1,9 +1,34 @@
-#config {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+html,body {
+	padding:0;
+	margin:0;
+	width:100%;
+	height:100%;
 }
-
-#searchForm {
-	text-align: center;
+body {
+	display: flex;
+	flex-direction:column;
+	overflow:hidden;
+}
+body > header {
+	border-bottom:2px solid gray;
+	display:flex;
+	justify-content:space-around;
+	padding-bottom:5px;
+	margin-bottom:5px;
+}
+.views {
+	display:flex;
+	flex-grow:1;
+	height:0;
+}
+.views > *, .views > :target ~ :last-child {
+	transition:flex-basis 500ms;
+	flex-basis:0%;
+	overflow: auto;
+}
+.views > :target, .views > :last-child {
+	flex-basis:100%;
+}
+#config {
+	order:-1;
 }

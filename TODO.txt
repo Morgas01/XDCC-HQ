@@ -1,6 +1,4 @@
 overall
 -	set µ.logger.out to bunyan logger
--	download request timeout
 -	resume support
--	irc client/messages overview
 -	show search results asnyc when too many

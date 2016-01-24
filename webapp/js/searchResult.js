@@ -298,7 +298,7 @@
 				scope:this
 			}).then(function()
 			{
-				openDialog('<div>successfully added packaged to download queue</div><a href="downloadManager.html" target="_blank">go to downloads</a>');
+				openDialog('<div>successfully added packaged to download queue</div><a href="#downloadManager">go to downloads</a>');
 			})
 		}
 	});

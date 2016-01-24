@@ -1,20 +1,16 @@
-html,body {
-	height:100%;
-	margin:0;
-}
-body{
+#downloadManager {
 	display:flex;
 	flex-direction: column;
 }
-#control {
+#downloadManager .control {
 	display: flex;
 	justify-content: space-around;
 }
-#stats {
+#downloadManager .stats {
 	display: flex;
 	justify-content: space-around
 }
-#downloads {
+#downloadManager .downloads {
 	flex-grow:1;
 	padding: 10px 0;
 	display:flex;

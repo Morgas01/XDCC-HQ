@@ -7,20 +7,31 @@
 	});
 	//TODO set µ.logger.out
 	
+	var container=document.createElement("div");
+	container.id="search";
+	document.currentScript.parentNode.insertBefore(container,document.currentScript.nextSibling);
+	var form=document.createElement("form");
+	container.appendChild(form);
+	var search=document.createElement("input");
+	form.appendChild(search);
+	search.name=search.placeholder="search";
+	search.type="text";
+	var list=document.createElement("datalist");
+	form.appendChild(list);
+	search.setAttribute("list",list.id="searchHistory");
 	
 	
 	//search
 	var searchHistory=null;
 	var updateSearchHistory=(function()
 	{
-		var dom=document.getElementById("searchHistory");
 		try
 		{
 			searchHistory=JSON.parse(localStorage.getItem("searchHistory"))||[];
 		}
 		catch(e)
 		{
-			µ.logger.info(dom.innerHTML="localStorage not available");
+			µ.logger.info(list.innerHTML="localStorage not available");
 		}
 		return function(search)
 		{
@@ -34,30 +45,29 @@
 					searchHistory.length=Math.min(searchHistory.length,20);//max count
 					localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
 				}
-				dom.innerHTML=searchHistory.map(s=>'<option value="'+s+'"></option>').join("\n");
+				list.innerHTML=searchHistory.map(s=>'<option value="'+s+'"></option>').join("\n");
 			}
 		}
 	})();
 	
 	var tabContainer=null;
-	document.getElementById("searchForm").addEventListener("submit",function(e)
+	form.addEventListener("submit",function(e)
 	{
 		e.preventDefault();
-		var search=this.search.value;
+		var query=search.value;
 		if(!tabContainer)
 		{
 			tabContainer=new SC.tc();
-			document.getElementById("search").appendChild(tabContainer.domElement);
+			container.appendChild(tabContainer.domElement);
 		}
-		var sr=new SC.sr(search);
+		var sr=new SC.sr(query);
 		tabContainer.add(sr);
-		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:search}).then(function(data)
+		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:query}).then(function(data)
 		{
 			sr.setData(data);
 		},errorlogger);
-		updateSearchHistory(search);
-		this.search.value="";
-		this.search.focus();
+		search.value="";
+		setTimeout(function(){updateSearchHistory(query),1000});
 		return false;
 	});
 	
@@ -71,13 +81,14 @@
 	{
 		if(e.code=="Escape")
 		{
+			window.location.hash="search";
 			window.scrollTo(0,0);
-			document.querySelector("#searchForm input").select();
+			search.select();
 		}
 	},false);
 	
 	//execute
 	updateSearchHistory();
 	
-	document.querySelector("#searchForm [name=search]").select();
+	search.select();
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
