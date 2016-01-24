@@ -46,7 +46,7 @@
 						break;
 					}
 				}
-				if(command===null)return e.target.setCustomValidity("no such command");
+				if(command===null)return event.target.setCustomValidity("no such command");
 			}
 			else command="msg";
 			var data=commands[command](line);
@@ -83,7 +83,7 @@
 	
 	/**** Messages ****/
 	
-	var ircColor=/\x03(\d\d)(?:,(\d\d))?([^\x03]+)\x03/g;
+	var ircColor=/\x03(\d\d?)(?:,(\d\d?))?([^\x03]+)\x03/g;
 	var ircBold=/\x02([^\x02]+)\x02/g;
 	var ircItalic=/\x1D([^\x1D]+)\x1D/g;
 	var ircUnderline=/\x1F([^\x1F]+)\x1F/g;
@@ -114,6 +114,7 @@
 		}
 		
 		var row=document.createElement("div");
+		row.classList.add("row",msg.type);
 		var time=document.createElement("span");
 		time.classList.add("timestamp");
 		time.textContent=new Date(msg.timestamp).toLocaleTimeString();
@@ -124,7 +125,6 @@
 		row.appendChild(nick);
 		var text=document.createElement("span");
 		text.classList.add("text");
-		text.classList.add(msg.type);
 		text.innerHTML=tranformText(msg.text);
 		row.appendChild(text);
 		tab.content.appendChild(row);
@@ -132,13 +132,25 @@
 	
 	var tranformText=function(text)
 	{
-		text=text.replace(ircColor,'<span class="front-$1 back-$2">$3</span>');
+		text=text.replace(ircColor,function(match,front,back,text)
+		{
+			var rtn='<span class="front-';
+			if(front.length!=2)front="0"+front;
+			rtn+=front;
+			if(back!==undefined)
+			{
+				if(back.length!=2)back="0"+back;
+				rtn+=' back-'+back;
+			}
+			rtn+='">'+text+'</span>';
+			return rtn;
+		});
 		text=text.replace(ircBold,'<b>$1</b>');
 		text=text.replace(ircItalic,'<i>$1</i>');
 		text=text.replace(ircUnderline,'<u>$1</u>');
-		text=text.replace(downloadRegEx,'<button data-action="addDownload" data-bot="$1" data-packnumber="$2">add download</button>');
+		text=text.replace(downloadRegEx,'<button title="download" data-action="addDownload" data-bot="$1" data-packnumber="$2">add download</button>');
 		text=text.replace(urlRegEx,t=>'<a target="_blank" href="'+t+'">'+t+'</a>');
-		text=text.replace(/([#$]\w+)/g,'<button data-action="join" data-channel="$1">$1</button>');
+		text=text.replace(/([#$]\w+)/g,'<button title="join" data-action="join" data-channel="$1">$1</button>');
 		return text;
 	}
 	

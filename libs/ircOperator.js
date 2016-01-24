@@ -11,7 +11,7 @@
 	var Operator = exports = module.exports = Object.create(EventEmitter.prototype);
 	
 	var messages=new Map();
-	var MESSAGES_LIMIT=100;
+	var MESSAGES_LIMIT=500;
 	var addMessage=function(msg)
 	{
 		msg.timestamp=Date.now();
@@ -117,7 +117,8 @@
 					server:networkUri,
 					nick:nick||"Global",
 					text:text,
-					target:nick&&target!==c.nick?target:networkUri,
+					//target:nick&&target!==c.nick?target:networkUri,
+					target:!nick||nick.toLowerCase()=="global"||nick.toLowerCase()=="peer"?networkUri:(target!==c.nick?target:nick),
 					type:"notice",
 					message:message
 				});
