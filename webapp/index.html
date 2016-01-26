@@ -18,6 +18,7 @@
 		
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.adopt.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.Progress.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.function.rescope.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.Promise.js"></script>
 		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.Request.js"></script>
@@ -34,18 +35,20 @@
 		<script type="text/javascript" defer="defer" src="js/tabs.js"></script>
 		<script type="text/javascript" defer="defer" src="js/dialog.js"></script>
 		<script type="text/javascript" defer="defer" src="js/searchResult.js"></script>
+		<script type="text/javascript" defer="defer" src="js/shortcuts.js"></script>
 	</head>
 	<body>
 		<header>
-			<a href="#config">config</a>
-			<a href="#search">search</a>
-			<a href="#downloadManager"> download manager</a>
+			<a href="#config" title="CTRL+I">Config</a>
+			<a href="#search" title="CTRL+F">Search</a>
+			<a href="#downloadManager" title="CTRL+M">Download manager</a>
 		</header>
 		<div class="views">
 			<div id="">test</div>
 			<script type="text/javascript" defer="defer" src="js/search.js"></script>
-			<script type="text/javascript" defer="defer" src="js/downloadManager.js"></script>
+			<script type="text/javascript" defer="defer" src="js/downloadManager.js" data-progress=".downloadProgress"></script>
 			<script type="text/javascript" defer="defer" src="js/config.js"></script>
 		</div>
+		<div class="downloadProgress"></div>
 	</body>
 </html>

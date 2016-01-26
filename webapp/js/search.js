@@ -67,7 +67,7 @@
 			sr.setData(data);
 		},errorlogger);
 		search.value="";
-		setTimeout(function(){updateSearchHistory(query),1000});
+		updateSearchHistory(query);
 		return false;
 	});
 	
@@ -77,15 +77,6 @@
 		µ.logger.error(e);
 		throw e;
 	}
-	window.addEventListener("keyup",function(e)
-	{
-		if(e.code=="Escape")
-		{
-			window.location.hash="search";
-			window.scrollTo(0,0);
-			search.select();
-		}
-	},false);
 	
 	//execute
 	updateSearchHistory();

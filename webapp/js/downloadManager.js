@@ -7,6 +7,7 @@
 		rq:"request",
 		xp:"XDCCPackage",
 		gIn:"getInputValues",
+		Prog:"Progress"
 	});
 	
 	var script=document.currentScript;
@@ -240,10 +241,13 @@
 	
 //***** data *****
 	
+	var progress=null;
+	
 	var onAdd=function(download)
 	{
 		//TODO check for data.id in org
 		download=new SC.xp().fromJSON(download);
+		if(progress) download.setProgressCallback(progress.get());
 		org.add([download]);
 		downloadsContainer.appendChild(download.getDom().element);
 	};
@@ -284,6 +288,18 @@
 		if(script.dataset.downloadCount) for(var n of document.querySelectorAll(script.dataset.downloadCount)) n.innerHTML=downloadCount;
 		if(script.dataset.fileSize) for(var n of document.querySelectorAll(script.dataset.fileSize)) n.innerHTML=fileSize;
 	};
+	
+	if(script.dataset.progress)
+	{
+		progress=new SC.Prog({normalize:true});
+		for(var e of document.querySelectorAll(script.dataset.progress))
+		{
+			var p=document.createElement("progress");
+			e.appendChild(p);
+			progress.add(p);
+		}
+	}
+	
 	var es=new EventSource("rest/download/get");
 	es.addEventListener("error",µ.logger.error);
 	es.addEventListener("ping",µ.logger.debug);
@@ -328,6 +344,7 @@
 			{
 				org.remove([original])
 				original.dom.element.remove();
+				if(progress)progress.remove(original.getProgressCallback());
 			}
 		}
 		updateStats();

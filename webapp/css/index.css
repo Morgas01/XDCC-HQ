@@ -12,9 +12,20 @@ body {
 body > header {
 	border-bottom:2px solid gray;
 	display:flex;
-	justify-content:space-around;
-	padding-bottom:5px;
 	margin-bottom:5px;
+}
+body > header a {
+	flex-grow:1;
+	text-decoration:none;
+	text-align: center;
+	line-height:2em;
+	vertical-align:middle;
+	color:black;
+	transition: color 100ms, background-color 100ms;
+}
+body > header a:hover {
+	color:white;
+	background-color:black;
 }
 .views {
 	display:flex;
@@ -22,7 +33,7 @@ body > header {
 	height:0;
 }
 .views > *, .views > :target ~ :last-child {
-	transition:flex-basis 500ms;
+	transition:flex-basis 250ms;
 	flex-basis:0%;
 	overflow: auto;
 }
@@ -31,4 +42,7 @@ body > header {
 }
 #config {
 	order:-1;
+}
+.downloadProgress progress {
+	width:100%;
 }

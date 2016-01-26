@@ -26,7 +26,7 @@
 			this.addField("packnumber",	FIELD.TYPES.INT		,param.packnumber	);
 			this.addField("size",		FIELD.TYPES.STRING	,param.size			);
 			
-			// for downloading
+			//for downloading
 			this.addField("state",			FIELD.TYPES.STRING	,param.state			);
 			this.addField("message",		FIELD.TYPES.JSON	,param.message			);
 			this.addField("progressValue",	FIELD.TYPES.INT		,param.progressValue	);
@@ -38,7 +38,9 @@
 			this.addField("orderIndex",		FIELD.TYPES.INT		,param.orderIndex		);
 			this.addField("crc",			FIELD.TYPES.STRING	,param.crc				);
 			
+			//for client view
 			this.dom=null;
+			this.progressCb=null;
 		},
 		getDom:function()
 		{
@@ -85,6 +87,14 @@
 			this.update();
 			return this.dom;
 		},
+		setProgressCallback:function(fn)
+		{
+			this.progressCb=fn;
+		},
+		getProgressCallback:function()
+		{
+			return this.progressCb;
+		},
 		update:function(param)
 		{
 			this.dom.name.textContent = this.name;
@@ -124,7 +134,9 @@
 				{
 					this.dom.progress.value = this.progressValue;
 					this.dom.progress.max   = this.progressMax;
+					if(this.progressCb) this.progressCb(this.progressValue,this.progressMax);
 				}
+				else if(this.progressCb) this.progressCb(0,100);
 				
 				if(this.network) this.dom.network.textContent = this.network;
 				if(this.channel) this.dom.channel.textContent = this.channel;
