@@ -33,7 +33,7 @@
 			var classNames=Object.keys(sortedObjs);
 			this._open(classNames).then(function(db)
 			{
-				var transactions=SC.it(sortedObjs,SC.prom.pledge(function(tSignal,objects,objectType)
+				var transactions=SC.it(sortedObjs,SC.prom.pledge(function(tSignal,objectType,objects)
 				{
 					var trans=db.transaction(objectType,"readwrite");
 					trans.onerror=function(event)
@@ -50,7 +50,7 @@
 					};
 					
 					var store = trans.objectStore(objectType);
-					SC.it(objects,function(object,i)
+					SC.it(objects,function(i,object)
 					{
 						var obj=object.toJSON(), method="put";
 						if(obj.ID===undefined)
@@ -66,7 +66,7 @@
 							object.setID&&object.setID(req.result);//if (!(object instanceof DBFRIEND)) {object.setID(req.result)} 
 						}
 					});
-				}),false,true);
+				}),true);
 				signal.resolve(new SC.prom(transactions));
 			},signal.reject);
 		},
@@ -98,7 +98,7 @@
 					var store = trans.objectStore(objClass.prototype.objectType);
 					if(typeof pattern.ID==="number"|| (Array.isArray(pattern.ID) && pattern.ID.length>0))
 					{
-						var reqs=SC.it([].concat(pattern.ID),function(ID)
+						var reqs=SC.it([].concat(pattern.ID),function(index,ID)
 						{
 							var req=store.get(ID);
 							req.onerror=function(event)
@@ -209,7 +209,7 @@
 						};
 						var store = trans.objectStore(objectType);
 						
-						var reqs=SC.it(ids,SC.prom.pledge(function(rSignal,ID)
+						var reqs=SC.it(ids,SC.prom.pledge(function(rSignal,index,ID)
 						{
 							var req=store["delete"](ID);
 							req.onerror=function(event)

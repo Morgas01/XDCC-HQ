@@ -25,7 +25,7 @@
 			var sort=[];
 			this.sorts.set(sortName,sort);
 			sort.sortFn=sortFn;
-			SC.it(this.values,(item,index)=>this._addToSort(sort,item,index));
+			SC.it(this.values,(index,item)=>this._addToSort(sort,item,index));
 			return this;
 		},
 		add:function(values)
@@ -33,13 +33,13 @@
 			if(values!=null)
 			{
 				var indexes=[];
-				SC.it(values,item=>
+				SC.it(values,(i,item)=>
 				{
 					var index=this.values.freeIndexes.shift();
 					if(index===undefined)index=this.values.length;
 					this.values[index]=item;
 					indexes.push(index);
-					SC.it(this.sorts,sort=>
+					SC.it(this.sorts,(i,sort)=>
 					{
 						this._addToSort(sort,item,index);
 					});
@@ -66,7 +66,7 @@
 			if(values!=null)
 			{
 				var indexes=[];
-				SC.it(values,item=>
+				SC.it(values,(i,item)=>
 				{
 					var valueIndex=this.values.indexOf(item);
 					if (valueIndex!==-1)
@@ -76,7 +76,7 @@
 						else index=valueIndex;
 						if(index!=null)
 						{
-							SC.it(this.sorts,sort=>
+							SC.it(this.sorts,(i,sort)=>
 							{
 								var orderIndex=sort.indexOf(index);
 								if (orderIndex!==-1) sort.splice(orderIndex,1);
@@ -106,12 +106,12 @@
 			else
 			{
 				var indexes=[];
-				SC.it(values,(item)=>
+				SC.it(values,(i,item)=>
 				{
 					var index=this.values.indexOf(item);
 					if(index!==-1)indexes.push(index);
 				});
-				SC.it(this.sorts,sort=>
+				SC.it(this.sorts,(i,sort)=>
 				{
 					for(var index of indexes)
 					{
@@ -174,7 +174,7 @@
 		clear:function()
 		{
 			this.values.length=this.values.freeIndexes.length=0;
-			SC.it(this.sorts,sort=>sort.length=0);
+			SC.it(this.sorts,(i,sort)=>sort.length=0);
 			return this;
 		},
 		destroy:function()

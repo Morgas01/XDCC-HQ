@@ -8,16 +8,9 @@
 	 * {isObject} declares {any} as a Map or Array. 
 	 */
 	//TODO iterator & Set & Map
-	obj.createIterator=function* (any,backward,isObject)
+	obj.createIterator=function* (any,isObject)
 	{
-		if(any.length>=0&&!isObject)
-		{
-			for(var i=(backward?any.length-1:0);i>=0&&i<any.length;i+=(backward?-1:1))
-			{
-				yield [any[i],i];
-			}
-		}
-		else if (typeof any.next==="function"||typeof any.entries==="function")
+		if (typeof any.next==="function"||typeof any.entries==="function")
 		{
 			if(typeof any.entries==="function")
 			{
@@ -26,19 +19,22 @@
 			var step=null;
 			while(step=any.next(),!step.done)
 			{
-				yield step.value.reverse();
+				yield step.value;
+			}
+		}
+		else if(any.length>=0&&!isObject)
+		{
+			for(var i=0;i>=0&&i<any.length;i++)
+			{
+				yield [i,any[i]];
 			}
 		}
 		else
 		{
 			var k=Object.keys(any);
-			if(backward)
-			{
-				k.revert();
-			}
 			for(var i=0;i<k.length;i++)
 			{
-				yield [any[k[i]],k[i]];
+				yield [k[i],any[k[i]]];
 			}
 		}
 		
@@ -57,18 +53,10 @@
 	 * 
 	 * returns Array of {func} results
 	 */
-	//TODO iterator & Set & Map
-	obj.iterate=function(any,func,backward,isObject,scope)
+	obj.iterate=function(any,func,isObject,scope)
 	{
 		var rtn=[];
-		if(any.length>=0&&!isObject)
-		{//Array like
-			for(var i=(backward?any.length-1:0);i>=0&&i<any.length;i+=(backward?-1:1))
-			{
-				rtn.push(func.call(scope,any[i],i,i,false));
-			}
-		}
-		else if (typeof any.next==="function"||typeof any.entries==="function")
+		if (typeof any.next==="function"||typeof any.entries==="function")
 		{//iterator or iterable
 			if(typeof any.entries==="function")
 			{
@@ -78,20 +66,23 @@
 			while(step=any.next(),!step.done)
 			{
                 isObject=step.value[1]!==step.value[0]&&step.value[0]!==index;
-				rtn.push(func.call(scope,step.value[1],step.value[0],index,isObject));
+				rtn.push(func.call(scope,step.value[0],step.value[1],index,isObject));
                 index++;
+			}
+		}
+		else if(any.length>=0&&!isObject)
+		{//Array like
+			for(var i=0;i<any.length;i++)
+			{
+				rtn.push(func.call(scope,i,any[i],i,false));
 			}
 		}
 		else
 		{//object
 			var k=Object.keys(any);
-			if(backward)
-			{
-				k.revert();
-			}
 			for(var i=0;i<k.length;i++)
 			{
-				rtn.push(func.call(scope,any[k[i]],k[i],i,true));
+				rtn.push(func.call(scope,k[i],any[k[i]],i,true));
 			}
 		}
 		return rtn;

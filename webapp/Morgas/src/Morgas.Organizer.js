@@ -108,11 +108,11 @@
 			if(this.hasMap(mapName))
 			{
 				var rtn={};
-				SC.it(this.getIndexMap(mapName),(index,gIndex)=>
+				SC.it(this.getIndexMap(mapName),(gIndex,index)=>
 				{
 					if(this.library) rtn[gIndex]=this.library[index];
 					else rtn[gIndex]=this.values[index];
-				},false,true,this);
+				},true,this);
 				return rtn;
 			}
 			else return null;
@@ -203,11 +203,11 @@
 		},
 		_add:function(indexes)
 		{
-			SC.it(indexes,index=>
+			SC.it(indexes,(i,index)=>
 			{
-				SC.it(this.filters,child=>this._filter(child,index));
-				SC.it(this.maps,map=>this._map(map,index));
-				SC.it(this.groups,group=>this._group(group,index));
+				SC.it(this.filters,(i,child)=>this._filter(child,index));
+				SC.it(this.maps,(i,map)=>this._map(map,index));
+				SC.it(this.groups,(i,group)=>this._group(group,index));
 			});
 		},
 		remove:function(values)
@@ -222,14 +222,14 @@
 		},
 		_remove:function(indexes)
 		{
-			SC.it(this.filters,child=>child.remove(indexes));
-			SC.it(this.maps,map=>{
+			SC.it(this.filters,(i,child)=>child.remove(indexes));
+			SC.it(this.maps,(i,map)=>{
 				for(var m in map.values)
 				{
 					if(indexes.indexOf(map.values[m])!==-1) delete map.values[m];
 				}
 			});
-			SC.it(this.groups,group=>{
+			SC.it(this.groups,(i,group)=>{
 				for(var g in group.values)
 				{
 					group.values[g].remove(indexes);
@@ -247,9 +247,9 @@
 		},
 		clear:function()
 		{
-			SC.it(this.filters,child=>child.clear());
-			SC.it(this.maps,map=>map.values={});
-			SC.it(this.groups,group=>{
+			SC.it(this.filters,(i,child)=>child.clear());
+			SC.it(this.maps,(i,map)=>map.values={});
+			SC.it(this.groups,(i,group)=>{
 				for(var g in group.values)
 				{
 					group.values[g].clear();
@@ -305,10 +305,10 @@
 		
 		destroy:function()
 		{
-			SC.it(this.filters,child=>child.destroy());
+			SC.it(this.filters,(i,child)=>child.destroy());
 			this.filters.clear();
 			this.maps.clear();
-			SC.it(this.groups,group=>{
+			SC.it(this.groups,(i,group)=>{
 				for(var g in group.values)
 				{
 					group.values[g].destroy();

@@ -12,39 +12,46 @@
 	 * 
 	 * returns: µ.Detached
 	 */
-	obj.iterateAsync=function(any,func,backward,isObject,scope,chunk)
+	obj.iterateAsync=function(any,func,isObject,scope,stepTime)
 	{
-		if(!chunk)
+		var time=Date.now();
+		if(!stepTime)
 		{
-			chunk=obj.iterateAsync.chunk;
+			stepTime=obj.iterateAsync.stepTime;
 		}
 		return new SC.PROM(function(signal)
 		{
-			var it=SC.It(any,backward,isObject);
-			var interval=setInterval(function iterateStep()
+			var it=SC.It(any,isObject);
+			var goStep=function iterateStep()
 			{
-				try
+				if(it!=null)
 				{
-					var step=it.next();
-					for(var i=0;i<chunk&&!step.done;i++,step=it.next())
+					try
 					{
-						func.call(scope,step.value,step.key);
+						var step=it.next();
+						for(var i=0;time+stepTime>Date.now()&&!step.done;i++,step=it.next())
+						{
+							func.call(scope,step.value[0],step.value[1]);
+						}
+						if(step.done)
+						{
+							signal.resolve();
+							return;
+						}
+						time=Date.now();
+						requestAnimationFrame(goStep);
 					}
-					if(step.done)
+					catch (e)
 					{
-						signal.resolve();
-						clearInterval(interval);
+						signal.reject(e);
 					}
 				}
-				catch (e)
-				{
-					signal.reject(e);
-				}
-			},0);
-			signal.onAbort(function(){chunk=0;clearInterval(interval);});
-		});
+			};
+			signal.onAbort(function(){it=null});
+			requestAnimationFrame(goStep);
+		},{scope:scope});
 	};
-	obj.iterateAsync.chunk=1E4;
+	obj.iterateAsync.stepTime=50;
 	
 	SMOD("iterateAsync",obj.iterateAsync);
 	

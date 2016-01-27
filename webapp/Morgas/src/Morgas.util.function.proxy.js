@@ -24,7 +24,7 @@
 				isGetter=true;
 				break;
 		}
-		SC.it(listOrMapping,function(value,key,index,isObject)
+		SC.it(listOrMapping,function(key,value,index,isObject)
 		{
 			var sKey=(isObject?key:value),
 			tKey=value,
