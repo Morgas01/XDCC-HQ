@@ -137,7 +137,7 @@ exports.sayPrivate=function(request)
 };
 exports.whois=function(request)
 {
-	if(request.method!=="POST")return "post as {url,target,text}";
+	if(request.method!=="POST")return "post as {url,target}";
 	else return new Promise(function(resolve,reject)
 	{
 		var param = '';

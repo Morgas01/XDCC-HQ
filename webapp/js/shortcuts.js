@@ -14,7 +14,7 @@ window.addEventListener("keydown",function(e)
 	else if(e.ctrlKey&&e.code=="KeyF"&&(domTarget=document.querySelector("#search input[name=search]")))
 	{
 		window.location.hash="search";
-		window.scrollTo(0,0);
+		document.querySelector("#search").scrollTo(0,0);
 		domTarget.select();
 		e.preventDefault();
 	}

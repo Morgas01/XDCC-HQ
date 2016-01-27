@@ -28,6 +28,10 @@
 #irc .nick {
 	text-align:right;
 	white-space:nowrap;
+	cursor: pointer;
+}
+#irc .nick:hover {
+	text-decoration: underline;
 }
 #irc .text {
 	width:100%;

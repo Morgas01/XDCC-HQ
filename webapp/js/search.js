@@ -1,5 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
+	var searchHistory=GMOD("inputHistory")("searchHistory",20);
+	
 	var SC=SC({
 		req:"request",
 		tc:"TabContainer",
@@ -22,33 +24,10 @@
 	
 	
 	//search
-	var searchHistory=null;
-	var updateSearchHistory=(function()
+	var updateList=function(history)
 	{
-		try
-		{
-			searchHistory=JSON.parse(localStorage.getItem("searchHistory"))||[];
-		}
-		catch(e)
-		{
-			µ.logger.info(list.innerHTML="localStorage not available");
-		}
-		return function(search)
-		{
-			if(searchHistory!=null)
-			{
-				if(search)
-				{
-					var index=searchHistory.indexOf(search);
-					if(index!=-1) searchHistory.splice(index,1);
-					searchHistory.unshift(search);
-					searchHistory.length=Math.min(searchHistory.length,20);//max count
-					localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
-				}
-				list.innerHTML=searchHistory.map(s=>'<option value="'+s+'"></option>').join("\n");
-			}
-		}
-	})();
+		list.innerHTML=history.map(s=>'<option value="'+s+'"></option>').join("\n");
+	};
 	
 	var tabContainer=null;
 	form.addEventListener("submit",function(e)
@@ -65,21 +44,14 @@
 		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:query}).then(function(data)
 		{
 			return sr.setData(data);
-		},errorlogger);
+		});
 		search.value="";
-		updateSearchHistory(query);
+		updateList(searchHistory.update(query));
 		return false;
 	});
 	
-	//utils
-	var errorlogger=function(e)
-	{
-		µ.logger.error(e);
-		throw e;
-	}
-	
 	//execute
-	updateSearchHistory();
+	updateList(searchHistory.history);
 	
 	search.select();
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

@@ -1,5 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 	
+	var ircHistory=GMOD("inputHistory")("ircHistory",20);
+	
 	SC=SC({
 		TabContainer:"TabContainer",
 		Tab:"Tab",
@@ -36,12 +38,14 @@
 		"say":text=>({url:tabContainer.activeTab.server,target:tabContainer.activeTab.target,text:text}),
 		"whois":nick=>({url:tabContainer.activeTab.server,target:nick})
 	};
-	for(var c in commands)
+	var updateIrcCommands=function(history)
 	{
-		var option=document.createElement("option");
-		option.value="/"+c+" ";
-		ircCommands.appendChild(option);
-	}
+		history=history.concat(Object.keys(commands).map(c=>"/"+c+" "));
+		ircCommands.innerHTML=history.map(s=>'<option value="'+s+'"></option>').join("\n");
+	};
+	
+	updateIrcCommands(ircHistory.history);
+	
 	cmd.addEventListener("keydown",function(event)
 	{
 		if(event.code==="Enter")
@@ -64,7 +68,9 @@
 			else command="say";
 			var data=commands[command](line);
 			SC.rq({url:"rest/irc/"+command,data:JSON.stringify(data)});
+			line=event.target.value.trim();
 			event.target.value="";
+			updateIrcCommands(ircHistory.update(line));
 		}
 	},false);
 	
@@ -81,11 +87,15 @@
 			channel:tabContainer.activeTab.target,
 			bot:d.bot,
 			packnumber:d.packnumber
-		}])})
+		}])}),
+		"whois":d=>SC.rq({url:"rest/irc/whois",data:JSON.stringify({
+			url:tabContainer.activeTab.server,
+			target:d.target
+		})}),
 	}
 	tabContainer.domElement.addEventListener("click",function(e)
 	{
-		if(e.target.tagName==="BUTTON"&&e.target.dataset.action)
+		if(e.target.dataset.action)
 		{
 			if(e.target.dataset.action in actions)
 				actions[e.target.dataset.action](e.target.dataset);
@@ -134,7 +144,8 @@
 		row.appendChild(time);
 		var nick=document.createElement("span");
 		nick.classList.add("nick");
-		nick.textContent=msg.nick;
+		nick.dataset.action="whois";
+		nick.textContent=nick.dataset.target=msg.nick;
 		row.appendChild(nick);
 		var text=document.createElement("span");
 		text.classList.add("text");
