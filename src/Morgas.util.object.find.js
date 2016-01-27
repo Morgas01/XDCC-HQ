@@ -15,7 +15,7 @@
 	obj.find=function(source,pattern,onlyValues)
 	{
 		var rtn=[];
-		SC.it(source,function(value,index)
+		SC.it(source,function(index,value)
 		{
 			if(SC.eq(value,pattern))
 			rtn.push(onlyValues?value:{value:value,index:index});

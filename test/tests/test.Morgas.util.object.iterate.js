@@ -22,56 +22,49 @@
 		for(var k in obj){map.set(k,obj[k]);}
 
 		var arrCopy=[];
-		iterate(arr,function(val,index)
+		iterate(arr,function(index,val)
 		{
 			arrCopy.push(val);
 		});
 		deepEqual(arrCopy,arr,"array");
 
-		var arrReveseCopy=[];
-		iterate(arr,function(val,index)
-		{
-			arrReveseCopy.push(val);
-		},true);
-		deepEqual(arrReveseCopy,arr.slice(0).reverse(),"array reverse");
-
 		var arrLikeCopy=[];
-		iterate(obj,function(val,index)
+		iterate(obj,function(index,val)
 		{
 			arrLikeCopy.push(val);
 		});
 		propEqual(arrLikeCopy,[3,1,4],"array like");
 		
 		var objCopy={};
-		iterate(obj,function(val,index)
+		iterate(obj,function(index,val)
 		{
 			objCopy[index]=val;
-		},false,true);
-		deepEqual(objCopy,obj,"object");
+		});
+		assert.propEqual2(obj,objCopy,"object");
 
 		var setCopy=[];
-		iterate(set,function(val,index)
+		iterate(set,function(index,val)
 		{
 			setCopy.push(val);
 		});
-		propEqual(setCopy,[3,1,4,5,9,2,6,8,7,0],"Set");
+		deepEqual(setCopy,[3,1,4,5,9,2,6,8,7,0],"Set");
 		
 		var mapCopy={};
-		iterate(map,function(val,index)
+		iterate(map,function(index,val)
 		{
 			mapCopy[index]=val;
-		},false,true);
+		});
 		deepEqual(mapCopy,obj,"Map");
 	});
 	
 	test("Iterator",function()
 	{
 		var it=Iterator([1]);
-		deepEqual(it.next().value,[1,0],"array 1");
+		deepEqual(it.next().value,[0,1],"array 1");
 		ok(it.next().done===true,"array 2");
 		
 		it=Iterator({"myKey":"myValue"});
-		deepEqual(it.next().value,["myValue","myKey"],"object 1");
+		deepEqual(it.next().value,["myKey","myValue"],"object 1");
 		ok(it.next().done===true,"object 2");
 	});
 	

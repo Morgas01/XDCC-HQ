@@ -132,7 +132,7 @@
 		progressOutput:function(value,max)
 		{
 			this.instance.rl.output.cursorTo(0);
-			this.instance.rl.write((value*100/max).toFixed(0)+"%");
+			this.instance.rl.write((value*100/max).toFixed(2)+"%");
 			this.instance.rl.clearLine(1);
 			this.instance.rl.output.moveCursor(0,-1);
 		}
