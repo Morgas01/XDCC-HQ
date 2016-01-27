@@ -92,7 +92,7 @@
 '</div>';
 			this.content.innerHTML=contentHTML;
 			this.resultList=this.content.querySelector(".resultList");
-			SC.itAs(data.results,function(r,i)
+			SC.itAs(data.results,function(i,r)
 			{
 				this.org.add([r]);
 				var row=document.createElement("div");
