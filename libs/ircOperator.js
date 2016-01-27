@@ -134,6 +134,17 @@
 					message:message
 				});
 			});
+			c.on("whois",function(info)
+			{
+				addMessage({
+					server:networkUri,
+					nick:info.nick,
+					text:JSON.stringify(info,null,"\t"),
+					target:info.nick,
+					type:"whois",
+					message:info
+				});
+			});
 			c.on("error",function(msg)
 			{
 				addMessage({
@@ -193,6 +204,13 @@
 		if(clients.has(networkUri))
 		{
 			clients.get(networkUri).ctcp(target,"privmsg",message);
+		}
+	};
+	Operator.whois=function(networkUri,target)
+	{
+		if(clients.has(networkUri))
+		{
+			clients.get(networkUri).whois(target);
 		}
 	};
 	

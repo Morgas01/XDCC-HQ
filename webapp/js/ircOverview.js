@@ -6,30 +6,43 @@
 		rq:"request"
 	});
 	
+	var container=document.createElement("div");
+	container.id="irc";
+	document.currentScript.parentNode.insertBefore(container,document.currentScript.nextSibling);
+	
+	
 	
 	/**** Tabs ****/
 	
 	var systemTab=new SC.Tab("system");
 	var tabContainer=new SC.TabContainer([systemTab]);
 	var tabs=new Map();
-	document.body.insertBefore(tabContainer.domElement,document.body.firstElementChild);
+	container.appendChild(tabContainer.domElement);
 
 	
 	/**** commands ****/
 	
+	var cmd=document.createElement("input")
+	container.appendChild(cmd);
+	cmd.type="text";
+	cmd.name="cmd";
+	var ircCommands=document.createElement("datalist");
+	container.appendChild(ircCommands);
+	cmd.setAttribute("list",ircCommands.id="ircCommands");
+	
 	var commands={
-		"connect":url=>({path:"connect",url:url}),
-		"join":channel=>({path:"join",url:tabContainer.activeTab.server,channel:channel}),
-		"msg":text=>({path:"say",url:tabContainer.activeTab.server,target:tabContainer.activeTab.target,text:text}),
+		"connect":url=>({url:url}),
+		"join":channel=>({url:tabContainer.activeTab.server,channel:channel}),
+		"say":text=>({url:tabContainer.activeTab.server,target:tabContainer.activeTab.target,text:text}),
+		"whois":nick=>({url:tabContainer.activeTab.server,target:nick})
 	};
-	var dataList=document.getElementById("commands");
 	for(var c in commands)
 	{
 		var option=document.createElement("option");
-		option.value="/"+c;
-		dataList.appendChild(option);
+		option.value="/"+c+" ";
+		ircCommands.appendChild(option);
 	}
-	document.getElementById("cmd").addEventListener("keydown",function(event)
+	cmd.addEventListener("keydown",function(event)
 	{
 		if(event.code==="Enter")
 		{
@@ -48,9 +61,9 @@
 				}
 				if(command===null)return event.target.setCustomValidity("no such command");
 			}
-			else command="msg";
+			else command="say";
 			var data=commands[command](line);
-			SC.rq({url:"rest/irc/"+data.path,data:JSON.stringify(data)});
+			SC.rq({url:"rest/irc/"+command,data:JSON.stringify(data)});
 			event.target.value="";
 		}
 	},false);

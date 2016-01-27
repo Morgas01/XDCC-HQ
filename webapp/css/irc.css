@@ -1,30 +1,23 @@
 
 
 /**** layout ****/
-
-html,body {
-	height:100%;
-	border: 0 none;
-	margin: 0;
-	padding: 0;
-}
-body {
+#irc {
 	display:flex;
 	flex-direction:column;
 }
-.tabContainer {
+#irc .tabContainer {
 	flex-grow:1;
 	overflow:hidden;
 }
-.tabContainer > header.active + * {
+#irc .tabContainer > header.active + * {
 	height: calc(100% - 9px - 2em);
 	width:100%;
 	overflow:auto;
 }
-.tabContainer > header.active + * > * {
+#irc .tabContainer > header.active + * > * {
 	display:table-row;
 }
-.tabContainer > header.active + *> * > * {
+#irc .tabContainer > header.active + *> * > * {
 	display:table-cell;
 	padding:0 5px;
 }
@@ -32,11 +25,11 @@ body {
 
 /**** general ****/
 
-.nick {
+#irc .nick {
 	text-align:right;
 	white-space:nowrap;
 }
-.text {
+#irc .text {
 	width:100%;
 	background-color: lightgray;
 	border: 1px solid white;
@@ -44,14 +37,14 @@ body {
 	font-family:monospace;
 }
 
-.notice .text{
+#irc .notice .text{
 	font-style:italic;
 }
-.privmsg .nick {
+#irc .privmsg .nick {
 	background-color: lightgray;
 	font-weight: bold;
 }
-.error .text {
+#irc .error .text {
 	border-color:black;
 	background-color:red;
 	color:white;
@@ -60,104 +53,104 @@ body {
 
 /**** irc colors ****/
 
-.text .front-00, .text .front-00 * {
+#irc .text .front-00, #irc .text .front-00 * {
 	color:white;
 }
-.text .back-00, .text .back-00 * {
+#irc .text .back-00, #irc .text .back-00 * {
 	background-color:white;
 }
-.text .front-01, .text .front-01 * {
+#irc .text .front-01, #irc .text .front-01 * {
 	color:black;
 }
-.text .back-01, .text .back-01 * {
+#irc .text .back-01, #irc .text .back-01 * {
 	background-color:black;
 }
-.text .front-02, .text .front-02 * {
+#irc .text .front-02, #irc .text .front-02 * {
 	color:navy;
 }
-.text .back-02, .text .back-02 * {
+#irc .text .back-02, #irc .text .back-02 * {
 	background-color:navy;
 }
-.text .front-03, .text .front-03 * {
+#irc .text .front-03, #irc .text .front-03 * {
 	color:green;
 }
-.text .back-03, .text .back-03 * {
+#irc .text .back-03, #irc .text .back-03 * {
 	background-color:green;
 }
-.text .front-04, .text .front-04 * {
+#irc .text .front-04, #irc .text .front-04 * {
 	color:red;
 }
-.text .back-04, .text .back-04 * {
+#irc .text .back-04, #irc .text .back-04 * {
 	background-color:red;
 }
-.text .front-05, .text .front-05 * {
+#irc .text .front-05, #irc .text .front-05 * {
 	color:brown;
 }
-.text .back-05, .text .back-05 * {
+#irc .text .back-05, #irc .text .back-05 * {
 	background-color:brown;
 }
-.text .front-06, .text .front-06 * {
+#irc .text .front-06, #irc .text .front-06 * {
 	color:purple;
 }
-.text .back-06, .text .back-06 * {
+#irc .text .back-06, #irc .text .back-06 * {
 	background-color:purple;
 }
-.text .front-07, .text .front-07 * {
+#irc .text .front-07, #irc .text .front-07 * {
 	color:olive;
 }
-.text .back-07, .text .back-07 * {
+#irc .text .back-07, #irc .text .back-07 * {
 	background-color:olive;
 }
-.text .front-08, .text .front-08 * {
+#irc .text .front-08, #irc .text .front-08 * {
 	color:yellow;
 }
-.text .back-08, .text .back-08 * {
+#irc .text .back-08, #irc .text .back-08 * {
 	background-color:yellow;
 }
-.text .front-09, .text .front-09 * {
+#irc .text .front-09, #irc .text .front-09 * {
 	color:lime;
 }
-.text .back-09, .text .back-09 * {
+#irc .text .back-09, #irc .text .back-09 * {
 	background-color:lime;
 }
-.text .front-10, .text .front-10 * {
+#irc .text .front-10, #irc .text .front-10 * {
 	color:teal;
 }
-.text .back-10, .text .back-10 * {
+#irc .text .back-10, #irc .text .back-10 * {
 	background-color:teal;
 }
-.text .front-11, .text .front-11 * {
+#irc .text .front-11, #irc .text .front-11 * {
 	color:cyan;
 }
-.text .back-11, .text .back-11 * {
+#irc .text .back-11, #irc .text .back-11 * {
 	background-color:cyan;
 }
-.text .front-12, .text .front-12 * {
+#irc .text .front-12, #irc .text .front-12 * {
 	color:blue;
 }
-.text .back-12, .text .back-12 * {
+#irc .text .back-12, #irc .text .back-12 * {
 	background-color:blue;
 }
-.text .front-13, .text .front-13 * {
+#irc .text .front-13, #irc .text .front-13 * {
 	color:pink;
 }
-.text .back-13, .text .back-13 * {
+#irc .text .back-13, #irc .text .back-13 * {
 	background-color:pink;
 }
-.text .front-14, .text .front-14 * {
+#irc .text .front-14, #irc .text .front-14 * {
 	color:gray;
 }
-.text .back-14, .text .back-14 * {
+#irc .text .back-14, #irc .text .back-14 * {
 	background-color:gray;
 }
-.text .front-15, .text .front-15 * {
+#irc .text .front-15, #irc .text .front-15 * {
 	color:silver;
 }
-.text .back-15, .text .back-15 * {
+#irc .text .back-15, #irc .text .back-15 * {
 	background-color:silver;
 }
 
-.row .text a:hover {
+#irc .row .text a:hover {
 	background-color:lightgray;
 	color:blue;
 }

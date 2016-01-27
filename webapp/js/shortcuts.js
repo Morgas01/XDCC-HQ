@@ -17,5 +17,11 @@ window.addEventListener("keydown",function(e)
 		window.scrollTo(0,0);
 		domTarget.select();
 		e.preventDefault();
+	}
+	else if(e.ctrlKey&&e.code=="KeyH"&&(domTarget=document.querySelector("#irc input[name=cmd]")))
+	{
+		window.location.hash="irc";
+		domTarget.select();
+		e.preventDefault();
 	} 
 },false);

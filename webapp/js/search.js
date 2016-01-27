@@ -64,7 +64,7 @@
 		tabContainer.add(sr);
 		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:query}).then(function(data)
 		{
-			sr.setData(data);
+			return sr.setData(data);
 		},errorlogger);
 		search.value="";
 		updateSearchHistory(query);

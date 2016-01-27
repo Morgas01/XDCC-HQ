@@ -7,7 +7,8 @@
 		org:"Organizer",
 		rs:"rescope",
 		rq:"request",
-		it:"iterate"
+		it:"iterate",
+		itAs:"iterateAsync"
 	});
 	
 	var guides={
@@ -50,14 +51,13 @@
 		},
 		setData:function(data)
 		{
-			this.content.classList.remove("pending");
-			this.org.add(data.results);
 			this.errors=data.errors;
 			this.errors.sort(SC.org.sortGetter(goPath.guide("subOffice")));
 			
 			var contentHTML='\
 <div class="errors">\n'+
-	this.errors.map(e=>'<div>\
+	this.errors.map(e=>'\
+	<div>\
 		<span>'+e.subOffice+'</span>\
 		<span>'+e.error.message+'</span>\
 	</div>\
@@ -79,36 +79,59 @@
 		<span class="col-name">name</span>\
 		<span class="col-packnumber">packnumber</span>\
 		<span class="col-size">size</span>\
-	</header>\n'+
-	data.results.map((r,i)=>'<div data-index="'+i+'">'+
-		'<span class="col-network" title="'+r.network+'">'+r.network+'</span>'+
-		'<span class="col-channel" title="'+r.channel+'">'+r.channel+'</span>'+
-		'<span class="col-bot" title="'+r.bot+'">'+r.bot+'</span>'+
-		'<span class="col-name" title="'+r.name+'">'+r.name+'</span>'+
-		'<span class="col-packnumber" title="'+r.packnumber+'">'+r.packnumber+'</span>'+
-		'<span class="col-size" title="'+r.size+'">'+r.size+'</span>'+
-	'</div>').join("\n")+'\
+	</header>\
 </div>\
 <div class="filters">\
-	<label><input type="checkbox" name="uniqueNames">unique names</label>\n';
-	for(var g of groups)
-	{
-		var parts=Object.keys(this.org.getGroup(g)).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
-		contentHTML+='<fieldset><legend>'+g+'</legend><select data-group="'+g+'" multiple="true">'+
-			parts.map(p=>'<option value="'+p+'">'+p+'</option>').join("\n")+
-		'</select></fieldset>';
-	}
-+'</div>';
-
+	<label><input type="checkbox" name="uniqueNames">unique names</label>\n'+
+	groups.map(g=>'\
+	<fieldset>\
+		<legend>'+g+'</legend>\
+		<select data-group="'+g+'" multiple="true"></select>\
+	</fieldset>\
+	').join("\n")+
+'</div>';
 			this.content.innerHTML=contentHTML;
-			this.content.querySelector("form").addEventListener("submit",this._onFilter);
-			this.content.querySelector(".actions").addEventListener("click",this._onAction);
-			this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
 			this.resultList=this.content.querySelector(".resultList");
-			this.resultList.addEventListener("click",this._onListClick);
-			this.resultList.addEventListener("mousedown",this._onListMouseDown);
-			
-			this.sort("name",false);
+			SC.itAs(data.results,function(r,i)
+			{
+				this.org.add([r]);
+				var row=document.createElement("div");
+				row.dataset.index=i;
+				
+				["network","channel","bot","name","packnumber","size"].forEach(k=>{
+					var col=document.createElement("span");
+					col.classList.add("col-"+k);
+					col.title=col.textContent=r[k];
+					row.appendChild(col);
+				});
+				this.resultList.appendChild(row);
+				
+			},false,this).complete(()=>
+			{
+				for(var g of groups)
+				{
+					var container=this.content.querySelector(".filters [data-group="+g+"]");
+					var parts=Object.keys(this.org.getGroup(g)).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
+
+					for(var p of parts)
+					{
+						var option=document.createElement("option");
+						option.value=option.textContent=p;
+						container.appendChild(option);
+					}
+				}
+			}).complete(()=>{
+
+				this.content.classList.remove("pending");
+				this.content.querySelector("form").addEventListener("submit",this._onFilter);
+				this.content.querySelector(".actions").addEventListener("click",this._onAction);
+				this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
+				this.resultList.addEventListener("click",this._onListClick);
+				this.resultList.addEventListener("mousedown",this._onListMouseDown);
+				
+				this.sort("name",false);
+				
+			});
 		},
 		_onFilter:function(e)
 		{

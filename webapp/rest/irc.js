@@ -135,3 +135,25 @@ exports.sayPrivate=function(request)
 	    });
 	});
 };
+exports.whois=function(request)
+{
+	if(request.method!=="POST")return "post as {url,target,text}";
+	else return new Promise(function(resolve,reject)
+	{
+		var param = '';
+	    request.on('data', function (data) {param += data});
+	    request.on('end', function ()
+	    {
+	    	try
+	    	{
+	    		param=JSON.parse(param);
+		    	Operator.whois(param.url,param.target);
+		    	resolve("ok");
+	    	}
+	    	catch(e)
+	    	{
+	    		reject(e);
+	    	}
+	    });
+	});
+};
