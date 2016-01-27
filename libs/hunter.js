@@ -83,10 +83,16 @@ else
 					process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
 				}
 			});
-		}).on("error",function(e)
+		})
+		.on("error",function(e)
 		{
 			logger.error({error:e},"error get data");
 			process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
+		})
+		.setTimeout(10000)
+		.on("timeout",function()
+		{
+			this.abort();
 		});
 	}
 	catch (e)
