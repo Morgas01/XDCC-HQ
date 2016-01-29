@@ -106,7 +106,7 @@
 				});
 				this.resultList.appendChild(row);
 				
-			},false,this).complete(()=>
+			},false,this,200).complete(()=>
 			{
 				for(var g of groups)
 				{

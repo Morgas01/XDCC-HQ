@@ -104,6 +104,7 @@ var getMimeType=function(fileName)
 		case ".html":	return "text/html";
 		case ".css":	return "text/css";
 		case ".js":		return "application/javascript";
+		case ".svg":	return "image/svg+xml";
 		default : 		return "application/octet-stream";
 	}
 }
