@@ -14,7 +14,7 @@
 	 */
 	obj.iterateAsync=function(any,func,isObject,scope,stepTime)
 	{
-		var time=Date.now();
+		var time;
 		if(!stepTime)
 		{
 			stepTime=obj.iterateAsync.stepTime;
@@ -28,8 +28,9 @@
 				{
 					try
 					{
-						var step=it.next();
-						for(var i=0;time+stepTime>Date.now()&&!step.done;i++,step=it.next())
+						var step;
+						time=Date.now();
+						while(time+stepTime>Date.now()&&!(step=it.next()).done)
 						{
 							func.call(scope,step.value[0],step.value[1]);
 						}
@@ -38,7 +39,6 @@
 							signal.resolve();
 							return;
 						}
-						time=Date.now();
 						requestAnimationFrame(goStep);
 					}
 					catch (e)
