@@ -1,5 +1,6 @@
 {
 	"serverPort": 8080,
+	"searchTimeout": 10000,
 	"fileExpiration": 3,
 	"ircNick": "Lt_Dan",
 	"downloadDir": "downloads",
@@ -11,5 +12,13 @@
 	"fileSuffix":".part",
 	"checkName":false,
 	"cleanName": true,
-	"appendCRC": true
+	"appendCRC": true,
+	"notification": {
+		"download_error": true,
+		"download_warning": true,
+		"download_complete": true,
+		"download_allComplete": true,
+		"irc_error": true,
+		"irc_nick": true
+	}
 }

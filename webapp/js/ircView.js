@@ -17,7 +17,8 @@
 	/**** Tabs ****/
 	
 	var systemTab=new SC.Tab("system");
-	var tabContainer=new SC.TabContainer([systemTab]);
+	var tabContainer=new SC.TabContainer(systemTab);
+	tabContainer.setActive(systemTab);
 	var tabs=new Map();
 	container.appendChild(tabContainer.domElement);
 
@@ -151,7 +152,9 @@
 		text.classList.add("text");
 		text.innerHTML=tranformText(msg.text);
 		row.appendChild(text);
+		var autoScroll=tab.content.scrollTop===tab.content.scrollTopMax;
 		tab.content.appendChild(row);
+		if (autoScroll)tab.content.scrollTop=tab.content.scrollTopMax;
 	};
 	
 	var tranformText=function(text)

@@ -331,7 +331,7 @@ var startDownloads=function()
 							net[d.bot].catch(function(error)
 							{
 								logger.error({error:error},"ERROR");
-								d.state="Fail";
+								d.state="Failed";
 								notifyEventSources("update",d);
 							}).then(function()
 							{

@@ -10,9 +10,20 @@ var eventEmitter = new (require('events'))()
 var methods=["on","once","addListener","removeListener","emit"];
 proxy(eventEmitter,methods,exports);
 
+var merge=function(config,target)
+{
+	for(var c in config)
+	{
+		if(typeof config[c]==="object"&&typeof target[c]==="object")
+			merge(config[c],target[c]);
+		else
+			target[c]=config[c];
+	}
+}
+
 exports.add=function(config,noSave)
 {
-	for(var c in config) exports[c]=config[c];
+	merge(config,exports);
 	exports.resolvedDownloadDir=path.resolve(exports.downloadDir);
 	noSave||exports.save();
 	exports.emit("change");

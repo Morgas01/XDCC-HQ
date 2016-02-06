@@ -41,12 +41,13 @@
 		}
 		var sr=new SC.sr(query);
 		tabContainer.add(sr);
+		tabContainer.setActive(sr);
 		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:query}).then(function(data)
 		{
 			return sr.setData(data);
 		});
 		search.value="";
-		updateList(searchHistory.update(query));
+		requestAnimationFrame(()=>updateList(searchHistory.update(query)));
 		return false;
 	});
 	

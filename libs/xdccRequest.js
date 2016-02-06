@@ -183,7 +183,6 @@
 				{
 					ircClient.say(xdccPackage.bot, "XDCC CANCEL");
 				});
-				log.info({resumed:resumed},"connect")
 				if(resumed===false)
 				{
 					xdccPackage.crc=null;
@@ -194,6 +193,7 @@
 					}
 					catch (err){}//TODO handle error
 				}
+				log.info({resumed:resumed,resumePos:offer.resumepos,size:offer.filesize},"connect")
 				
 				xdccPackage.location=offer.location + options.fileSuffix;
 				xdccPackage.progressMax=offer.filesize;

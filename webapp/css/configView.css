@@ -1,0 +1,13 @@
+#config {
+	display:flex;
+	align-items: center;
+	flex-direction:column;
+}
+
+#config legend.default + table,
+#config legend.denied + table {
+	display:none;
+}
+#config legend.granted + table {
+	display:table;
+}

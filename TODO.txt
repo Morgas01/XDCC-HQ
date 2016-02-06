@@ -1,4 +1,21 @@
 overall
 -	set µ.logger.out to bunyan logger
--	resume support
--	show search results asnyc when too many
+-	notification (download error, irc message,...)
+-	close dialogs via "esc" key
+-	plugins
+-	make it chrome compatible
+-	dashboard?
+
+download
+-	fix: abort download and directly start next one from the same bot (xdcc cancel time lag)
+
+irc  
+-	irc user list?
+-	dont always focus new "Tab" (irc messages)
+-	auto scroll
+-	accept xdcc downloads
+
+config
+-	hunter timeout
+-	history max count
+-	accept only requests from localhost

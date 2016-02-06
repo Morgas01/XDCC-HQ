@@ -25,7 +25,6 @@
 				closeBtn.textContent="x";
 				tab.header.appendChild(closeBtn);
 			}
-			this.setActive(tabs[0]);
 		},
 		removeTab:function(tab)
 		{

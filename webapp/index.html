@@ -4,16 +4,16 @@
 		<meta charset="UTF-8">
 		<title>XDCC-HQ</title>
 		
-		<link rel="icon" type="image/svg+xml" href="images/Logo.svg" size="any">
+		<link rel="icon" type="image/svg+xml" href="images/Logo.svg">
 		
 		<link rel="stylesheet" href="css/index.css">
-		<link rel="stylesheet" href="css/config.css">
-		<link rel="stylesheet" href="css/search.css">
-		<link rel="stylesheet" href="css/downloadManager.css">
+		<link rel="stylesheet" href="css/configView.css">
+		<link rel="stylesheet" href="css/searchView.css">
+		<link rel="stylesheet" href="css/downloadView.css">
 		<link rel="stylesheet" href="css/XDCCPackage-core.css">
 		<link rel="stylesheet" href="css/XDCCPackage-default.css" title="default">
 		<link rel="alternate stylesheet" href="css/XDCCPackage-compact.css" title="compact">
-		<link rel="stylesheet" href="css/irc.css">
+		<link rel="stylesheet" href="css/ircView.css">
 		
 		<link rel="stylesheet" href="css/searchResult.css">
 		<link rel="stylesheet" href="css/tabs.css">
@@ -41,6 +41,7 @@
 		<script type="text/javascript" defer="defer" src="js/searchResult.js"></script>
 		<script type="text/javascript" defer="defer" src="js/shortcuts.js"></script>
 		<script type="text/javascript" defer="defer" src="js/inputHistory.js"></script>
+		<script type="text/javascript" defer="defer" src="js/config.js"></script>
 	</head>
 	<body>
 		<header>
@@ -50,11 +51,10 @@
 			<a href="#irc" title="CTRL+H">IRC</a>
 		</header>
 		<div class="views">
-			<div id="">test</div>
-			<script type="text/javascript" defer="defer" src="js/search.js"></script>
-			<script type="text/javascript" defer="defer" src="js/downloadManager.js" data-progress=".downloadProgress"></script>
-			<script type="text/javascript" defer="defer" src="js/ircOverview.js"></script>
-			<script type="text/javascript" defer="defer" src="js/config.js"></script>
+			<script type="text/javascript" defer="defer" src="js/searchView.js"></script>
+			<script type="text/javascript" defer="defer" src="js/downloadView.js" data-progress=".downloadProgress"></script>
+			<script type="text/javascript" defer="defer" src="js/ircView.js"></script>
+			<script type="text/javascript" defer="defer" src="js/configView.js"></script>
 		</div>
 		<div class="downloadProgress"></div>
 	</body>

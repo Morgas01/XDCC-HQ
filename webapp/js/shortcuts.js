@@ -6,9 +6,10 @@ window.addEventListener("keydown",function(e)
 		window.location.hash="config";
 		e.preventDefault();
 	}
-	else if(e.ctrlKey&&e.code=="KeyM"&&(domTarget=document.querySelector("#downloadManager")))
+	else if(e.ctrlKey&&e.code=="KeyM"&&(domTarget=document.querySelector("#downloadManager [data-action=pause]")))
 	{
 		window.location.hash="downloadManager";
+		domTarget.focus();
 		e.preventDefault();
 	}
 	else if(e.ctrlKey&&e.code=="KeyF"&&(domTarget=document.querySelector("#search input[name=search]")))

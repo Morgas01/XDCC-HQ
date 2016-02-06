@@ -7,7 +7,8 @@
 		rq:"request",
 		xp:"XDCCPackage",
 		gIn:"getInputValues",
-		Prog:"Progress"
+		Prog:"Progress",
+		config:"config"
 	});
 	
 	var script=document.currentScript;
@@ -326,6 +327,17 @@
 		if(!original) onAdd(data);
 		else
 		{
+			if(data.state!=original.state)
+			{
+				switch (data.state)
+				{
+					case "Done":
+						SC.config.notify("download_complete","download complete",data.name);
+						break;
+					case "Failed":
+						SC.config.notify("download_error","download complete",data.name);
+				}
+			}
 			original.update(data);
 			org.update([original]);
 		}
