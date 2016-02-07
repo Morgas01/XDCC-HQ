@@ -14,7 +14,9 @@
 	background-color: lightblue;
 }
 .XDCCPackage:not([data-state=Pending]) .actions [data-action=disable],
+.XDCCPackage[data-state=Pending] .actions [data-action=reset],
 .XDCCPackage:not([data-state=Disabled]) .actions [data-action=enable],
+.XDCCPackage[data-state=Disabled] .actions [data-action=reset],
 .XDCCPackage[data-state=Running] .actions [data-action=remove] {
 	display:none;
 }
