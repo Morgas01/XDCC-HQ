@@ -3,8 +3,6 @@ var logger=require("../../logger")("download");
 var XDCCPackage=require("../js/XDCCPackage");
 var Operator=require("../../libs/ircOperator");
 var JsonConnector=µ.getModule("DB/jsonConnector");
-var fork=require("child_process").fork;
-//var downloader=fork(path.join(__dirname,"..","..","libs","downloader"));
 var SC=µ.shortcut({
 	find:"find"
 });
@@ -12,7 +10,7 @@ var SC=µ.shortcut({
 var config=require("../../libs/configManager");
 var downloads=new JsonConnector(path.join(__dirname,"..","..","temp","downloads.json"));
 var pause=!config.autoStartDownloads;
-var active={_count:0};
+var active={_count:0,_map:{}};
 var nextOrderIndex=1;
 var eventSources=[];
 
@@ -206,28 +204,27 @@ exports.reset=function(request,queryParam)
 {
 	if("ID" in queryParam)
 	{
-		return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
+		if(active._map[queryParam.ID])
 		{
-			if(results.length==0)
-				return "no download with ID "+queryParam.ID+" found";
-			/*else if(results[0].state===XDCCPackage.states.RUNNING)
+			active._map[queryParam.ID].abort();
+			return "ok";
+		}
+		else
+		{
+
+			return downloads.load(XDCCPackage,{ID:parseInt(queryParam.ID,10)}).then(function(results)
 			{
-				sendKillDownload(results[0].ID);
-				return "ok";
-			}*/
-			if(active[results[0].network]&&active[results[0].network][results[0].bot])
-			{
-				active[results[0].network][results[0].bot].abort();
-			}
-			/*else
-			{*/
-				results[0].state=XDCCPackage.states.DISABLED;
-				results[0].message={type:"info",text:"reset"};
-				downloads.save(results[0]);
-	    		notifyEventSources("update",results[0]);
-	    		return "ok";
-			//}
-		}).original;
+				if(results.length==0) return "no download with ID "+queryParam.ID+" found";
+				else
+				{
+					results[0].state=XDCCPackage.states.DISABLED;
+					results[0].message={type:"info",text:"reset"};
+					downloads.save(results[0]);
+		    		notifyEventSources("update",results[0]);
+		    		return "ok";
+				}
+			}).original;
+		}
 	}
 	return "no query parameter ID found";
 };
@@ -296,7 +293,7 @@ var startDownloads=function()
 		{
 			downloads.load(XDCCPackage,{state:XDCCPackage.states.PENDING},"orderIndex").then(function(all)
 			{
-				for(var d of all)
+				for(var d of all)(function(d)
 				{
 					if(active._count<config.maxDownloads)
 					{
@@ -310,10 +307,7 @@ var startDownloads=function()
 							logger.info({download:d},"run");
 							logger.info("active %d",active._count);
 							
-				    		/*
-							sendDownload(d);
-							/*/
-							net[d.bot]=Operator.downloadPackage(config.ircNick,d,{
+							active._map[d.ID]=net[d.bot]=Operator.downloadPackage(config.ircNick,d,{
 								path:			config.downloadDir,
 								fileSuffix:		config.fileSuffix,
 								timeout:		config.downloadTimeout,
@@ -332,62 +326,27 @@ var startDownloads=function()
 							{
 								logger.error({error:error},"ERROR");
 								d.state="Failed";
+								if(typeof error==="string")d.message.text=error;
+								else if(error&&typeof error.message==="string")d.message.text=error.message;
 								notifyEventSources("update",d);
-							}).then(function()
+							}).always(function()
 							{
-								net[d.bot]=null;
+								active._map[d.ID]=net[d.bot]=null;
 								active._count--;
 								downloads.save(d);
 								startDownloads();
 							});
-							//*/
 						}
 						else d.message.text="bot cap reached";
 					}
 					else d.message.text="overall download cap reached";
 					downloads.save(d);
 		    		notifyEventSources("update",d);
-				}
+				})(d)
 			}).catch(function(){console.log(arguments)});
 		}
 	}
 };
-/*
-downloader.on("message",function(d)
-{
-	d=JSON.parse(d);
-	downloads.load(XDCCPackage,{ID:d.ID}).then(function(results)
-	{
-		if(results.length>0)
-		{
-			d.orderIndex=results[0].orderIndex; //overwrite orderIndex because it could be an old one
-			d=results[0].fromJSON(d);
-			notifyEventSources("update",d);
-			downloads.save(d);
-			if(d.state!==XDCCPackage.states.RUNNING)
-			{
-				active._count--;
-				active[d.network]._count--;
-				active[d.network][d.bot]--;
-				logger.info({download:d},"end");
-				logger.debug("active %d, networt %s %d, bot %s %d",active._count,d.network,active[d.network]._count,d.bot,active[d.network][d.bot]);
-				startDownloads();
-			}
-		}
-		else logger.error("could not find download with ID %d",d.ID);
-	});
-});
-var sendDownload=function(d)
-{
-	var msg={type:"download",data:d}
-	downloader.send(JSON.stringify(msg));
-};
-var sendKillDownload=function(d)
-{
-	var msg={type:"kill",data:d}
-	downloader.send(JSON.stringify(msg));
-};
-*/
 startDownloads();
 config.on("change",startDownloads);
 
