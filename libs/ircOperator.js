@@ -188,8 +188,17 @@
 		else
 		{
 			var c=clients.get(networkUri);
-			if(channel in clients.get(networkUri).chans) signal.resolve(c);
-			else c.join(channel,function(){signal.resolve(c)});
+			console.log("chans:",c.chans)
+			if(channel in c.chans) signal.resolve(c);
+			else
+			{
+				var timer=setTimeout(function(){signal.reject("join channel timeout")},10000);
+				c.join(channel,function()
+				{
+					clearTimeout(timer);
+					signal.resolve(c)
+				});
+			}
 		}
 	});
 	Operator.sendMessage=function(networkUri,target,message)
