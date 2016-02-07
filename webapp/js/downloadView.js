@@ -340,7 +340,8 @@
 						checkAllComplete=true;
 						break;
 					case "Failed":
-						SC.config.notify("download_error","download complete",data.name);
+						SC.config.notify("download_error","download failed",data.name);
+						break;
 				}
 			}
 			original.update(data);
