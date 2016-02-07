@@ -114,17 +114,17 @@
 					var averageSpeed=(this.progressValue-this.progressStart)/(this.updateTime-this.startTime);
 					this.dom.speed.textContent=averageSpeed.toFixed(0)+" kb/s";
 					
-					var averageRemaining=(this.progressMax-(this.progressValue-this.progressStart))/averageSpeed;
+					var averageRemaining=(this.progressMax-this.progressValue)/averageSpeed;
 					this.dom.remaining.textContent=getTimeString(averageRemaining);
 				
 					this.dom.time.textContent=getTimeString(this.updateTime-this.startTime);
 					
 					if(this.state===XP.states.RUNNING&&this.lastUpdateTime)
 					{
-						var lastSpeed=((this.progressValue-this.progressStart)-this.dom.progress.value)/(this.updateTime-this.lastUpdateTime);
+						var lastSpeed=(this.progressValue-this.dom.progress.value)/(this.updateTime-this.lastUpdateTime);
 						this.dom.speed.textContent+=" ( "+(isFinite(lastSpeed)?lastSpeed.toFixed(0):0)+" kb/s )";
 	
-						var lastRemaining=(this.progressMax-(this.progressValue-this.progressStart))/lastSpeed;	
+						var lastRemaining=(this.progressMax-this.progressValue)/lastSpeed;	
 						this.dom.remaining.textContent+=" ( "+(isFinite(lastRemaining)?getTimeString(lastRemaining):"--:--:--")+" )";
 					}
 					
