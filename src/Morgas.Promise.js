@@ -34,17 +34,19 @@
 			},opts);
 			this.scope=opts.scope;
 			
-			var _rs,abort;
+			var _rs,abortEvent;
 			this.original=new Promise(function(rs,rj)
 			{
 				_rs=rs;
-				abort=rj;
+				abortEvent=new PROM.AbortEvent(rj);
 			});
-			this._abort=abort;
+			this._abort=function()
+			{
+				abortEvent.trigger();
+			};
 			
 			// prepare functions
 			opts.args=[].concat(opts.args);
-			var onAbort=(fn)=>this.original.catch((reason)=>{if(reason==="abort")fn()});
 			fns=[].concat(fns).map((fn)=>
 			{
 				if(typeof fn==="function")return new Promise((rs,rj)=>
@@ -56,7 +58,7 @@
 							resolve:rs,
 							reject:rj,
 							scope:opts.scope,
-							onAbort:onAbort
+							onAbort:abortEvent.add
 						};
 						sArgs.unshift(signal);
 					}
@@ -80,7 +82,14 @@
 				});
 				return fn;
 			});
-			Promise.all(fns).then(_rs,abort);
+			Promise.all(fns).then(_rs,reason=>
+			{
+				if (reason==="abort")
+				{
+					abortEvent.trigger();
+				}
+				else abortEvent.destroy(reason);
+			});
 		},
 		rescopeFn:rescopeApply,// first: apply result of Promise.all | then: only rescope
 		_wrapNext:function(next)
@@ -103,11 +112,13 @@
 		},
 		error:function(efn)
 		{
-			return this._wrapNext(this.original.catch(this.rescopeFn(efn)));
+			return this._wrapNext(this.original.catch(this.rescopeFn(efn,this.scope)));
 		},
 		then:function(fn,efn)
 		{
-			return this._wrapNext(this.original.then(this.rescopeFn(fn,this.scope),this.rescopeFn(efn)));
+			if(fn)fn=this.rescopeFn(fn,this.scope);
+			if(efn)efn=this.rescopeFn(efn,this.scope);
+			return this._wrapNext(this.original.then(fn,efn));
 		},
 		always:function(fn)
 		{
@@ -116,7 +127,7 @@
 		},
 		abort:function()
 		{
-			this._abort("abort");
+			this._abort();
 		},
 		destroy:function()
 		{
@@ -153,7 +164,7 @@
 		fns=fns.map(fn=>
 		{
 			if(fn instanceof PROM) return fn.always(µ.constantFunctions.pass);
-			else if (fn instanceof Promise)return fn.then(µ.constantFunctions.pass);
+			else if (typeof fn.then==="function")return fn.then(µ.constantFunctions.pass);
 			else return new PROM(fn,opts).always(µ.constantFunctions.pass);
 		});
 		return new PROM(fns,opts);
@@ -182,6 +193,42 @@
 		rtn.original=Promise.reject(value);
 		return rtn;
 	};
+	
+	PROM.AbortEvent=function(reject)
+	{
+		var callbacks=[];
+		
+		this.add= cb=>callbacks.push(cb);
+		this.trigger=function()
+		{
+			delete this.add;
+			delete this.trigger;
+			delete this.destroy;
+			
+			this.reason="abort";
+			this.promise=Promise.all(callbacks.map(fn=>
+			{
+				try
+				{
+					return fn();
+				}
+				catch (e)
+				{
+					return e;
+				}
+			}));
+			callbacks.length=0;
+			reject(this);
+		};
+		this.destroy=function(reason)
+		{
+			delete this.add;
+			delete this.trigger;
+			delete this.destroy;
+			callbacks.length=0;
+			reject(reason);
+		}
+	}
 	
 	SMOD("Promise",PROM);
 	

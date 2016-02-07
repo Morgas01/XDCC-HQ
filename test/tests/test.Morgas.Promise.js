@@ -112,7 +112,30 @@
 		});
 		d1.error(function(err)
 		{
-			strictEqual(err,"abort","abort");
+			strictEqual(err.reason,"abort","abort");
+		});
+		d1.abort();
+	});
+	asyncTest("on abort time",function()
+	{	
+		var d1=new PROM(function(signal)
+		{
+			signal.onAbort(function()
+			{
+				return new Promise(function(resolve)
+				{
+					setTimeout(resolve,500);
+				})
+			});
+		});
+		d1.error(function(err)
+		{
+			strictEqual(err.reason,"abort","abort");
+			var abortStart=Date.now();
+			err.promise.then(function()
+			{
+				ok(abortStart+500<Date.now(),"time "+(Date.now()-abortStart)+"ms>500ms");
+			})
 		});
 		d1.abort();
 	});
