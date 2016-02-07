@@ -33,6 +33,20 @@
 #irc .nick:hover {
 	text-decoration: underline;
 }
+#irc .privmsg .nick {
+	background-color: lightgray;
+	font-weight: bold;
+}
+#irc .privmsg .nick::before {
+	content:"«";
+}
+#irc .privmsg .nick::after {
+	content:"»";
+}
+#irc .nickMention .nick {
+	background-color:#DDDDFF;
+	font-weight: bolder;
+}
 #irc .text {
 	width:100%;
 	background-color: lightgray;
@@ -43,10 +57,6 @@
 
 #irc .notice .text{
 	font-style:italic;
-}
-#irc .privmsg .nick {
-	background-color: lightgray;
-	font-weight: bold;
 }
 #irc .error .text {
 	border-color:black;
@@ -136,10 +146,10 @@
 	background-color:blue;
 }
 #irc .text .front-13, #irc .text .front-13 * {
-	color:pink;
+	color:#FF00FF;
 }
 #irc .text .back-13, #irc .text .back-13 * {
-	background-color:pink;
+	background-color:#FF00FF;
 }
 #irc .text .front-14, #irc .text .front-14 * {
 	color:gray;

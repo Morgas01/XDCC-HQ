@@ -39,7 +39,8 @@
 	
 	var org=new ORG()
 	.map("ID","ID").
-	sort("orderIndex",ORG.attributeSort(["orderIndex"]));
+	sort("orderIndex",ORG.attributeSort(["orderIndex"]))
+	.group("state","state");
 
 //********** Control **********
 	
@@ -176,9 +177,11 @@
 		if(action)
 		{
 			var downloadID=e.target.parentNode.parentNode.dataset.downloadId;
+			e.target.disabled=true;
 			SC.rq("rest/download/"+action+"?ID="+downloadID).always(function(result)
 			{
 				if(result!="ok") openDialog('<div>'+result+'</div>');
+				e.target.disabled=false;
 			});
 		}
 	});
@@ -327,12 +330,14 @@
 		if(!original) onAdd(data);
 		else
 		{
+			var checkAllComplete=false;
 			if(data.state!=original.state)
 			{
 				switch (data.state)
 				{
 					case "Done":
 						SC.config.notify("download_complete","download complete",data.name);
+						checkAllComplete=true;
 						break;
 					case "Failed":
 						SC.config.notify("download_error","download complete",data.name);
@@ -340,6 +345,15 @@
 			}
 			original.update(data);
 			org.update([original]);
+			if(checkAllComplete==true)
+			{
+				var states=org.getGroup("state");
+				if((!states.Running||states.Running.values.length==0)
+					&& (pauseBtn.dataset.value!="continue"||!states.Pending||states.Pending.values.length==0))
+				{
+					SC.config.notify("download_allComplete"," all downloads complete");
+				}
+			}
 		}
 		updateStats();
 	});

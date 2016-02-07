@@ -5,7 +5,8 @@
 	SC=SC({
 		TabContainer:"TabContainer",
 		Tab:"Tab",
-		rq:"request"
+		rq:"request",
+		config:"config"
 	});
 	
 	var container=document.createElement("div");
@@ -118,7 +119,7 @@
 	es.addEventListener("error",µ.logger.error);
 	es.addEventListener("ping",µ.logger.debug);
 	
-	var onMessage=function(msg)
+	var onMessage=function(msg,noNotify)
 	{
 		µ.logger.info(msg);
 		var target=msg.target||msg.server;
@@ -155,6 +156,19 @@
 		var autoScroll=tab.content.scrollTop===tab.content.scrollTopMax;
 		tab.content.appendChild(row);
 		if (autoScroll)tab.content.scrollTop=tab.content.scrollTopMax;
+		
+		if(!noNotify)
+		{
+			if(msg.type==="error")
+			{
+				SC.config.notify("irc_error","irc error: "+target,msg.text);
+			}
+			else if(msg.text.indexOf(SC.config.data.ircNick)!=-1)
+			{
+				row.classList.add("nickMention")
+				SC.config.notify("irc_nick","irc nick: "+target,msg.text);
+			}
+		}
 	};
 	
 	var tranformText=function(text)
@@ -183,12 +197,14 @@
 	
 	
 	/**** Data ****/
-	
-	es.addEventListener("list",function onList (listEvent)
+	SC.config.promise.then(()=>
 	{
-		for(var d of JSON.parse(listEvent.data)) onMessage(d);
+		es.addEventListener("list",function onList (listEvent)
+		{
+			for(var d of JSON.parse(listEvent.data)) onMessage(d,true);
+		});
+		es.addEventListener("message",e=>onMessage(JSON.parse(e.data)));
+		window.addEventListener("beforeunload",function(){es.close()});
 	});
-	es.addEventListener("message",e=>onMessage(JSON.parse(e.data)));
-	window.addEventListener("beforeunload",function(){es.close()})
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

@@ -7,7 +7,7 @@
 .XDCCPackage[data-state=Running] {
 	background-color: lightgreen;
 }
-.XDCCPackage[data-state=Fail] {
+.XDCCPackage[data-state=Failed] {
 	background-color: red;
 }
 .XDCCPackage[data-state=Done] {

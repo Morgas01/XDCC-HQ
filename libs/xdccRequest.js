@@ -114,6 +114,7 @@
 		                    				log.info("end download");
 		                    				xdccPackage.state="Failed";
 		                        			options.update(xdccPackage);
+		                        			ircClient.say(xdccPackage.bot, "XDCC CANCEL");
 		                    				signal.reject("wrong name");
 		                        			return;
 		                        		}
