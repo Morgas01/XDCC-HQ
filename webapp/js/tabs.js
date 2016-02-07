@@ -53,8 +53,18 @@
 			if(this.tabs.indexOf(tab)!==-1)
 			{
 				if(this.activeTab)this.activeTab.header.classList.remove("active");
+				var activeOld=this.activeTab;
 				this.activeTab=tab;
 				this.activeTab.header.classList.add("active");
+				this.domElement.dispatchEvent(new CustomEvent("tabChange",{
+					bubbles:true,
+					cancelable:true,
+					detail:{
+						tabContainer:this,
+						newTab:this.activeTab,
+						oldTab:activeOld
+					}
+				}));
 			}
 		},
 		_onMousedown:function(e)
@@ -75,6 +85,10 @@
 			{
 				this.setActive(this.tabs[Array.indexOf(this.domElement.childNodes,e.target)/2]);
 			} 
+		},
+		onTabChange:function(fn,phase)
+		{
+			this.domElement.addEventListener("tabChange",fn,phase);
 		}
 	});
 	SMOD("TabContainer",TabContainer);

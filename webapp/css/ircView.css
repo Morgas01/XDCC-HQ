@@ -9,6 +9,9 @@
 	flex-grow:1;
 	overflow:hidden;
 }
+#irc .tabContainer .unread {
+	animation: unread ease-out 1s 3 forwards;
+}
 #irc .tabContainer > header.active + * {
 	height: calc(100% - 9px - 2em);
 	width:100%;

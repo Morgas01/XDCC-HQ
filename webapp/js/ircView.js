@@ -22,6 +22,10 @@
 	tabContainer.setActive(systemTab);
 	var tabs=new Map();
 	container.appendChild(tabContainer.domElement);
+	tabContainer.onTabChange(function(event)
+	{
+		event.detail.newTab.header.classList.remove("unread");
+	})
 
 	
 	/**** commands ****/
@@ -119,7 +123,7 @@
 	es.addEventListener("error",µ.logger.error);
 	es.addEventListener("ping",µ.logger.debug);
 	
-	var onMessage=function(msg,noNotify)
+	var onMessage=function(msg,fromList)
 	{
 		µ.logger.info(msg);
 		var target=msg.target||msg.server;
@@ -156,9 +160,10 @@
 		var autoScroll=tab.content.scrollTop===tab.content.scrollTopMax;
 		tab.content.appendChild(row);
 		if (autoScroll)tab.content.scrollTop=tab.content.scrollTopMax;
-		
-		if(!noNotify)
+
+		if(!fromList)
 		{
+			if(tab!=tabContainer.activeTab)tab.header.classList.add("unread");
 			if(msg.type==="error")
 			{
 				SC.config.notify("irc_error","irc error: "+target,msg.text);

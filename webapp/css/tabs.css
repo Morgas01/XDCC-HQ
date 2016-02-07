@@ -39,3 +39,12 @@
 	font-size: 50%;
 	margin-left:2px;
 }
+
+@keyframes unread {
+	0% {
+		background-color:#FFFFFF;
+	}
+	100% {
+		background-color:#FFDD66;
+	}
+}
