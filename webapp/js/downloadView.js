@@ -344,13 +344,25 @@
 						break;
 				}
 			}
+			if(data.message.type!=original.message.type)
+			{
+				switch(data.message.type)
+				{
+					case "warning":
+						SC.config.notify("download_warning","warning",data.message.text);
+						break;
+					case "error":
+						SC.config.notify("download_warning","error",data.message.text);
+						break;
+				}
+			}
 			original.update(data);
 			org.update([original]);
 			if(checkAllComplete==true)
 			{
 				var states=org.getGroup("state");
 				if((!states.Running||states.Running.values.length==0)
-					&& (pauseBtn.dataset.value!="continue"||!states.Pending||states.Pending.values.length==0))
+					&& (pauseBtn.dataset.value=="continue"||!states.Pending||states.Pending.values.length==0))
 				{
 					SC.config.notify("download_allComplete"," all downloads complete");
 				}
