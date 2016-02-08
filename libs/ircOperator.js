@@ -188,7 +188,6 @@
 		else
 		{
 			var c=clients.get(networkUri);
-			console.log("chans:",c.chans)
 			if(channel in c.chans) signal.resolve(c);
 			else
 			{
