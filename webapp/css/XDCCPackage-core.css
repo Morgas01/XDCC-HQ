@@ -22,6 +22,7 @@
 }
 .XDCCPackage .message[data-type="warning"] {
 	background-color: yellow;
+	margin-bottom: 2px;
 }
 .XDCCPackage .message[data-type="error"] {
 	background-color: red;
