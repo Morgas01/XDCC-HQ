@@ -34,5 +34,27 @@
 			};
 		return error
 	};
+	
+	var coreLogger=module.exports("core");
+	
+	µ.logger.out=function(level,msg)
+	{
+		var fn;
+		switch(level)
+		{
+			case µ.logger.LEVEL.error:
+				fn=coreLogger.error;
+				break;
+			case µ.logger.LEVEL.warn:
+				fn=coreLogger.warn;
+				break;
+			case µ.logger.LEVEL.info:
+				fn=coreLogger.info;
+				break;
+			default:
+				fn=coreLogger.debug;
+		}
+		fn.apply(coreLogger,msg);
+	}
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
