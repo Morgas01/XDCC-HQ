@@ -30,8 +30,10 @@
 	
 	/**** commands ****/
 	
-	var cmd=document.createElement("input")
-	container.appendChild(cmd);
+	var cmdForm=document.createElement("form");
+	container.appendChild(cmdForm);
+	var cmd=document.createElement("input");
+	cmdForm.appendChild(cmd);
 	cmd.type="text";
 	cmd.name="cmd";
 	var ircCommands=document.createElement("datalist");
@@ -39,44 +41,71 @@
 	cmd.setAttribute("list",ircCommands.id="ircCommands");
 	
 	var commands={
-		"connect":url=>({url:url}),
-		"join":channel=>({url:tabContainer.activeTab.server,channel:channel}),
-		"say":text=>({url:tabContainer.activeTab.server,target:tabContainer.activeTab.target,text:text}),
-		"whois":nick=>({url:tabContainer.activeTab.server,target:nick})
+		"connect":{
+			desc:"&lt;uri&gt;",
+			pattern:"\\S+",
+			exec:url=>({url:url}),
+		},
+		"join":{
+			desc:"#|&amp;&lt;channel name&gt;",
+			pattern:"[#&]\\w",
+			exec:channel=>({url:tabContainer.activeTab.server,channel:channel}),
+		},
+		"say":{
+			exec:text=>({url:tabContainer.activeTab.server,target:tabContainer.activeTab.target,text:text}),
+		},
+		"whois":{
+			desc:"&lt;username&gt;",
+			exec:nick=>({url:tabContainer.activeTab.server,target:nick})
+		}
 	};
 	var updateIrcCommands=function(history)
 	{
-		history=history.concat(Object.keys(commands).map(c=>"/"+c+" "));
-		ircCommands.innerHTML=history.map(s=>'<option value="'+s+'"></option>').join("\n");
+		var html=history.map(s=>'<option value="'+s+'"></option>').join("\n");
+		for(var c of Object.keys(commands))
+		{
+			html+='<option value="/'+c+' ">/'+c+' '+(commands[c].desc||"")+'</option>\n';
+		}
+		ircCommands.innerHTML=html;
 	};
 	
 	updateIrcCommands(ircHistory.history);
 	
-	cmd.addEventListener("keydown",function(event)
+	cmdForm.addEventListener("submit",function(event)
 	{
-		if(event.code==="Enter")
+		event.preventDefault();
+		var line=cmd.value.trim();
+		var command=null;
+		if(line[0]=="/")
 		{
-			var line=event.target.value.trim();
-			var command=null;
-			if(line[0]=="/")
+			for(var c in commands)
 			{
-				for(var c in commands)
+				if(line.indexOf("/"+c)==0)
 				{
-					if(line.indexOf("/"+c)==0)
-					{
-						line=line.slice(c.length+1).trim();
-						command=c;
-						break;
-					}
+					line=line.slice(c.length+1).trim();
+					command=c;
+					break;
 				}
-				if(command===null)return event.target.setCustomValidity("no such command");
 			}
-			else command="say";
-			var data=commands[command](line);
-			SC.rq({url:"rest/irc/"+command,data:JSON.stringify(data)});
-			line=event.target.value.trim();
-			event.target.value="";
-			updateIrcCommands(ircHistory.update(line));
+			if(command===null)return cmd.setCustomValidity("no such command");
+		}
+		else command="say";
+		var data=commands[command].exec(line);
+		SC.rq({url:"rest/irc/"+command,data:JSON.stringify(data)});
+		line=cmd.value.trim();
+		cmd.value="";
+		updateIrcCommands(ircHistory.update(line));
+	},false);
+	
+	var commandRegExp=new RegExp("/("+Object.keys(commands).join("|")+")","i");
+	cmd.addEventListener("input",function(event)
+	{
+		cmd.removeAttribute("pattern");
+		var match=cmd.value.match(commandRegExp);
+		if(match)
+		{
+			var c=commands[match[1]];
+			c.pattern&&cmd.setAttribute("pattern","\\"+match[0]+"\\s+"+c.pattern);
 		}
 	},false);
 	

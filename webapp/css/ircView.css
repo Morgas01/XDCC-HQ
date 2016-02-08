@@ -24,6 +24,10 @@
 	display:table-cell;
 	padding:0 5px;
 }
+#irc > form {
+	display:flex;
+	flex-direction:column;
+}
 
 
 /**** general ****/
