@@ -318,7 +318,6 @@ var startDownloads=function()
 								appendCRC:		config.appendCRC,
 								update:			function(dUpdate)
 								{
-									d=dUpdate;
 									notifyEventSources("update",d);
 								}
 							});
@@ -326,8 +325,10 @@ var startDownloads=function()
 							{
 								logger.error({error:error},"ERROR");
 								d.state="Failed";
-								if(typeof error==="string")d.message.text=error;
-								else if(error&&typeof error.message==="string")d.message.text=error.message;
+								var errorText;
+								if(typeof error==="string")errorText=error;
+								else if(error&&typeof error.message==="string")errorText=error.message;
+								d.message.text+="\n"+errorText;
 								notifyEventSources("update",d);
 							}).always(function()
 							{

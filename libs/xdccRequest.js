@@ -54,7 +54,7 @@
 		options=SC.adopt(SC.adopt({},DEFAULTS,true),options);
 		xdccPackage.message={type:"info",text:"starting"};
 		xdccPackage.state="Running";
-		options.update(xdccPackage);
+		options.update();
 		var log=logger.child({filename:xdccPackage.name,packID:xdccPackage.ID});
 		log.info({xdccPackage:xdccPackage,options:options},"start");
 		
@@ -113,12 +113,12 @@
 		                    				ircClient.removeListener("ctcp-privmsg", onPrivmsg);
 		                    				log.info("end download");
 		                    				xdccPackage.state="Failed";
-		                        			options.update(xdccPackage);
+		                        			options.update();
 		                        			ircClient.say(xdccPackage.bot, "XDCC CANCEL");
 		                    				signal.reject("wrong name");
 		                        			return;
 		                        		}
-	                        			options.update(xdccPackage);
+	                        			options.update();
 		                        	}
 	
 			                        // Get the download location
@@ -201,7 +201,7 @@
 				xdccPackage.progressValue=xdccPackage.progressStart=offer.resumepos;
 				xdccPackage.startTime=new Date();
 				xdccPackage.updateTime=null;
-				options.update(xdccPackage);
+				options.update();
 				
 				var stream = fs.createWriteStream(xdccPackage.location, {flags: 'a'});
 				stream.on("open", function ()
@@ -219,13 +219,13 @@
 		                {
 		                	xdccPackage.progressValue=received;
 		                	xdccPackage.updateTime=new Date();
-		                    options.update(xdccPackage);
+		                    options.update();
 		                },options.progressInterval);
 						var text="connected";
 		                log.info(text);
 						if(xdccPackage.message.type!=="info") text=xdccPackage.message.text+"\n"+text;
 						xdccPackage.message.text=text;
-		                options.update(xdccPackage);
+		                options.update();
 		            });
 	
 		            // Callback for data
@@ -284,7 +284,7 @@
 	                		xdccPackage.message.text=text;
             				xdccPackage.state="Done";
 		                    fs.rename(xdccPackage.location, xdccPackage.location=path.resolve(options.path,offer.filename));
-                			options.update(xdccPackage);
+                			options.update();
                 			options.update=µ.constantFunctions.ndef();
 		                    signal.resolve();
 		                }
@@ -303,7 +303,7 @@
 	                		xdccPackage.message.text=text;
 	                		xdccPackage.message.type="error";
             				xdccPackage.state="Failed";
-                			options.update(xdccPackage);
+                			options.update();
                 			options.update=µ.constantFunctions.ndef();
 	                		signal.reject(text);
 		                }
@@ -324,7 +324,7 @@
                 		else xdccPackage.message.text=error.message;
                 		xdccPackage.message.type="error";
         				xdccPackage.state="Failed";
-            			options.update(xdccPackage);
+            			options.update();
             			options.update=µ.constantFunctions.ndef();
 		                signal.reject(error.message);
 		                // Destroy the connection
@@ -343,7 +343,7 @@
             		else xdccPackage.message.text=error.message;
             		xdccPackage.message.type="error";
     				xdccPackage.state="Failed";
-        			options.update(xdccPackage);
+        			options.update();
         			options.update=µ.constantFunctions.ndef();
 	                signal.reject(error.message);
 		        });
@@ -362,7 +362,7 @@
         		
 				xdccPackage.message.text="request timeout";
         		xdccPackage.message.type="error";
-    			options.update(xdccPackage);
+    			options.update();
     			options.update=µ.constantFunctions.ndef();
 				signal.reject("request timeout");
 				
