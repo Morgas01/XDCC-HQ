@@ -125,6 +125,16 @@ exports.removeDone=function(request)
 	}).original;
 };
 
+exports.removeDisabled=function(request)
+{
+	return downloads.load(XDCCPackage,{state:XDCCPackage.states.DISABLED}).then(function(toDelete)
+	{
+		downloads.delete(XDCCPackage,toDelete);
+		notifyEventSources("remove",toDelete.map(d=>d.ID));
+		return "ok";
+	}).original;
+};
+
 //download actions
 exports.disable=function(request,queryParam)
 {
@@ -293,7 +303,7 @@ var startDownloads=function()
 		{
 			downloads.load(XDCCPackage,{state:XDCCPackage.states.PENDING},"orderIndex").then(function(all)
 			{
-				for(var d of all)(function(d)
+				for(var i=0;i<all.length;i++)(function(d)
 				{
 					if(active._count<config.maxDownloads)
 					{
@@ -306,6 +316,23 @@ var startDownloads=function()
 							
 							logger.info({download:d},"run");
 							logger.info("active %d",active._count);
+							
+							var sameName;
+							if(config.disableByName)
+							{
+								sameName=SC.find(all,{name:d.name})
+								.filter(a=>a.value!=d)
+								.reverse()
+								.map(a=>
+								{
+									a.value.state=XDCCPackage.states.DISABLED;
+									notifyEventSources("update",a.value);
+									all.splice(a.index,1);
+									if(a.index<=i)i--;
+									return a.value;
+								});
+								downloads.save(sameName);
+							}
 							
 							active._map[d.ID]=net[d.bot]=Operator.downloadPackage(config.ircNick,d,{
 								path:			config.downloadDir,
@@ -330,10 +357,17 @@ var startDownloads=function()
 								else if(error&&typeof error.message==="string")errorText=error.message;
 								d.message.text+="\n"+errorText;
 								notifyEventSources("update",d);
+								sameName.forEach(a=>
+								{
+									a.state=XDCCPackage.states.PENDING;
+									notifyEventSources("update",a);
+								});
+								downloads.save(sameName);
 							}).always(function()
 							{
 								active._map[d.ID]=net[d.bot]=null;
 								active._count--;
+								logger.info("active %d",active._count);
 								downloads.save(d);
 								startDownloads();
 							});
@@ -343,8 +377,8 @@ var startDownloads=function()
 					else d.message.text="overall download cap reached";
 					downloads.save(d);
 		    		notifyEventSources("update",d);
-				})(d)
-			}).catch(function(){console.log(arguments)});
+				})(all[i]);
+			}).catch(function(e){logger.error({error:e},"failed to load pending downloads")});
 		}
 	}
 };

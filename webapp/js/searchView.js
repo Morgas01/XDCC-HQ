@@ -10,13 +10,16 @@
 	//TODO set µ.logger.out
 	
 	var container=document.createElement("div");
-	container.id="search";
+	container.id="searchView";
 	document.currentScript.parentNode.insertBefore(container,document.currentScript.nextSibling);
 	var form=document.createElement("form");
 	container.appendChild(form);
 	var search=document.createElement("input");
-	form.appendChild(search);
 	search.name=search.placeholder="search";
+	form.appendChild(search);
+	var searchBtn=document.createElement("button");
+	searchBtn.textContent="\uD83D\uDD0D"
+	form.appendChild(searchBtn);
 	search.type="text";
 	var list=document.createElement("datalist");
 	form.appendChild(list);

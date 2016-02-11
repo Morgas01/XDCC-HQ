@@ -1,60 +1,62 @@
 
 
 /**** layout ****/
-#irc {
+#ircView {
 	display:flex;
 	flex-direction:column;
 }
-#irc .tabContainer {
+#ircView .tabContainer {
 	flex-grow:1;
 	overflow:hidden;
 }
-#irc .tabContainer .unread {
+#ircView .tabContainer .unread {
 	animation: unread ease-out 1s 3 forwards;
 }
-#irc .tabContainer > header.active + * {
+#ircView .tabContainer > header.active + * {
 	height: calc(100% - 9px - 2em);
 	width:100%;
 	overflow:auto;
 }
-#irc .tabContainer > header.active + * > * {
+#ircView .tabContainer > header.active + * > * {
 	display:table-row;
 }
-#irc .tabContainer > header.active + *> * > * {
+#ircView .tabContainer > header.active + *> * > * {
 	display:table-cell;
 	padding:0 5px;
 }
-#irc > form {
+#ircView > form {
 	display:flex;
-	flex-direction:column;
+}
+#ircView > form input {
+	flex-grow:1;
 }
 
 
 /**** general ****/
 
-#irc .nick {
+#ircView .nick {
 	text-align:right;
 	white-space:nowrap;
 	cursor: pointer;
 }
-#irc .nick:hover {
+#ircView .nick:hover {
 	text-decoration: underline;
 }
-#irc .privmsg .nick {
+#ircView .privmsg .nick {
 	background-color: lightgray;
 	font-weight: bold;
 }
-#irc .privmsg .nick::before {
+#ircView .privmsg .nick::before {
 	content:"«";
 }
-#irc .privmsg .nick::after {
+#ircView .privmsg .nick::after {
 	content:"»";
 }
-#irc .nickMention .nick {
+#ircView .nickMention .nick {
 	background-color:#DDDDFF;
 	font-weight: bolder;
 }
-#irc .text {
+#ircView .text {
 	width:100%;
 	background-color: lightgray;
 	border: 1px solid white;
@@ -62,10 +64,10 @@
 	font-family:monospace;
 }
 
-#irc .notice .text{
+#ircView .notice .text{
 	font-style:italic;
 }
-#irc .error .text {
+#ircView .error .text {
 	border-color:black;
 	background-color:red;
 	color:white;
@@ -74,104 +76,104 @@
 
 /**** irc colors ****/
 
-#irc .text .front-00, #irc .text .front-00 * {
+#ircView .text .front-00, #ircView .text .front-00 * {
 	color:white;
 }
-#irc .text .back-00, #irc .text .back-00 * {
+#ircView .text .back-00, #ircView .text .back-00 * {
 	background-color:white;
 }
-#irc .text .front-01, #irc .text .front-01 * {
+#ircView .text .front-01, #ircView .text .front-01 * {
 	color:black;
 }
-#irc .text .back-01, #irc .text .back-01 * {
+#ircView .text .back-01, #ircView .text .back-01 * {
 	background-color:black;
 }
-#irc .text .front-02, #irc .text .front-02 * {
+#ircView .text .front-02, #ircView .text .front-02 * {
 	color:navy;
 }
-#irc .text .back-02, #irc .text .back-02 * {
+#ircView .text .back-02, #ircView .text .back-02 * {
 	background-color:navy;
 }
-#irc .text .front-03, #irc .text .front-03 * {
+#ircView .text .front-03, #ircView .text .front-03 * {
 	color:green;
 }
-#irc .text .back-03, #irc .text .back-03 * {
+#ircView .text .back-03, #ircView .text .back-03 * {
 	background-color:green;
 }
-#irc .text .front-04, #irc .text .front-04 * {
+#ircView .text .front-04, #ircView .text .front-04 * {
 	color:red;
 }
-#irc .text .back-04, #irc .text .back-04 * {
+#ircView .text .back-04, #ircView .text .back-04 * {
 	background-color:red;
 }
-#irc .text .front-05, #irc .text .front-05 * {
+#ircView .text .front-05, #ircView .text .front-05 * {
 	color:brown;
 }
-#irc .text .back-05, #irc .text .back-05 * {
+#ircView .text .back-05, #ircView .text .back-05 * {
 	background-color:brown;
 }
-#irc .text .front-06, #irc .text .front-06 * {
+#ircView .text .front-06, #ircView .text .front-06 * {
 	color:purple;
 }
-#irc .text .back-06, #irc .text .back-06 * {
+#ircView .text .back-06, #ircView .text .back-06 * {
 	background-color:purple;
 }
-#irc .text .front-07, #irc .text .front-07 * {
+#ircView .text .front-07, #ircView .text .front-07 * {
 	color:olive;
 }
-#irc .text .back-07, #irc .text .back-07 * {
+#ircView .text .back-07, #ircView .text .back-07 * {
 	background-color:olive;
 }
-#irc .text .front-08, #irc .text .front-08 * {
+#ircView .text .front-08, #ircView .text .front-08 * {
 	color:yellow;
 }
-#irc .text .back-08, #irc .text .back-08 * {
+#ircView .text .back-08, #ircView .text .back-08 * {
 	background-color:yellow;
 }
-#irc .text .front-09, #irc .text .front-09 * {
+#ircView .text .front-09, #ircView .text .front-09 * {
 	color:lime;
 }
-#irc .text .back-09, #irc .text .back-09 * {
+#ircView .text .back-09, #ircView .text .back-09 * {
 	background-color:lime;
 }
-#irc .text .front-10, #irc .text .front-10 * {
+#ircView .text .front-10, #ircView .text .front-10 * {
 	color:teal;
 }
-#irc .text .back-10, #irc .text .back-10 * {
+#ircView .text .back-10, #ircView .text .back-10 * {
 	background-color:teal;
 }
-#irc .text .front-11, #irc .text .front-11 * {
+#ircView .text .front-11, #ircView .text .front-11 * {
 	color:cyan;
 }
-#irc .text .back-11, #irc .text .back-11 * {
+#ircView .text .back-11, #ircView .text .back-11 * {
 	background-color:cyan;
 }
-#irc .text .front-12, #irc .text .front-12 * {
+#ircView .text .front-12, #ircView .text .front-12 * {
 	color:blue;
 }
-#irc .text .back-12, #irc .text .back-12 * {
+#ircView .text .back-12, #ircView .text .back-12 * {
 	background-color:blue;
 }
-#irc .text .front-13, #irc .text .front-13 * {
+#ircView .text .front-13, #ircView .text .front-13 * {
 	color:#FF00FF;
 }
-#irc .text .back-13, #irc .text .back-13 * {
+#ircView .text .back-13, #ircView .text .back-13 * {
 	background-color:#FF00FF;
 }
-#irc .text .front-14, #irc .text .front-14 * {
+#ircView .text .front-14, #ircView .text .front-14 * {
 	color:gray;
 }
-#irc .text .back-14, #irc .text .back-14 * {
+#ircView .text .back-14, #ircView .text .back-14 * {
 	background-color:gray;
 }
-#irc .text .front-15, #irc .text .front-15 * {
+#ircView .text .front-15, #ircView .text .front-15 * {
 	color:silver;
 }
-#irc .text .back-15, #irc .text .back-15 * {
+#ircView .text .back-15, #ircView .text .back-15 * {
 	background-color:silver;
 }
 
-#irc .row .text a:hover {
+#ircView .row .text a:hover {
 	background-color:lightgray;
 	color:blue;
 }

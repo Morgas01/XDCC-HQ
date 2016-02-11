@@ -1,28 +1,28 @@
 window.addEventListener("keydown",function(e)
 {
 	var domTarget=null;
-	if(e.ctrlKey&&e.code=="KeyI"&&(domTarget=document.querySelector("#config")))
+	if(e.ctrlKey&&e.code=="KeyI"&&(domTarget=document.querySelector("#configView")))
 	{
-		window.location.hash="config";
 		e.preventDefault();
+		window.location.hash="configView";
 	}
-	else if(e.ctrlKey&&e.code=="KeyM"&&(domTarget=document.querySelector("#downloadManager [data-action=pause]")))
+	else if(e.ctrlKey&&e.code=="KeyM"&&(domTarget=document.querySelector("#downloadView [data-action=pause]")))
 	{
-		window.location.hash="downloadManager";
+		window.location.hash="downloadView";
 		domTarget.focus();
 		e.preventDefault();
 	}
-	else if(e.ctrlKey&&e.code=="KeyF"&&(domTarget=document.querySelector("#search input[name=search]")))
+	else if(e.ctrlKey&&e.code=="KeyF"&&(domTarget=document.querySelector("#searchView input[name=search]")))
 	{
-		window.location.hash="search";
-		document.querySelector("#search").scrollTo(0,0);
-		domTarget.select();
 		e.preventDefault();
+		window.location.hash="searchView";
+		document.querySelector("#searchView").scrollTo(0,0);
+		domTarget.select();
 	}
-	else if(e.ctrlKey&&e.code=="KeyH"&&(domTarget=document.querySelector("#irc input[name=cmd]")))
+	else if(e.ctrlKey&&e.code=="KeyH"&&(domTarget=document.querySelector("#ircView input[name=cmd]")))
 	{
-		window.location.hash="irc";
-		domTarget.select();
 		e.preventDefault();
+		window.location.hash="ircView";
+		domTarget.select();
 	} 
 },false);

@@ -129,14 +129,17 @@
 					}
 					
 				}
-				
-				if(this.progressMax)
+				if(this.state===XP.states.PENDING||this.state===XP.states.RUNNING||this.state===XP.states.DONE)
 				{
-					this.dom.progress.value = this.progressValue;
-					this.dom.progress.max   = this.progressMax;
-					if(this.progressCb) this.progressCb(this.progressValue,this.progressMax);
+					if(this.progressMax)
+					{
+						this.dom.progress.value = this.progressValue;
+						this.dom.progress.max   = this.progressMax;
+						if(this.progressCb) this.progressCb(this.progressValue,this.progressMax);
+					}
+					else if(this.progressCb) this.progressCb(0,100);
 				}
-				else if(this.progressCb) this.progressCb(0,100);
+				else if(this.progressCb) this.progressCb(0,0);
 				
 				if(this.network) this.dom.network.textContent = this.network;
 				if(this.channel) this.dom.channel.textContent = this.channel;

@@ -14,12 +14,13 @@
 	var script=document.currentScript;
 		
 	var container=document.createElement("div");
-	container.id="downloadManager";
+	container.id="downloadView";
 	script.parentNode.insertBefore(container,script.nextSibling);
 	container.innerHTML='\
 		<div class="control">\
 		<button data-action="pause">???</button>\
 		<button data-action="removeDone">remove completed downloads</button>\
+		<button data-action="removeDisabled">remove disabled downloads</button>\
 		<button data-action="addDownload">add download</button>\
 		<button data-action="listFilenames">list filenames</button>\
 		<select class="activeStyle"></select>\
@@ -61,6 +62,13 @@
 		removeDone:function()
 		{
 			SC.rq("rest/download/removeDone").always(function(result)
+			{
+				if(result!="ok") openDialog('<div>'+result+'</div>');
+			});
+		},
+		removeDisabled:function()
+		{
+			SC.rq("rest/download/removeDisabled").always(function(result)
 			{
 				if(result!="ok") openDialog('<div>'+result+'</div>');
 			});
@@ -271,12 +279,14 @@
 	var updateStats=function()
 	{
 		var values=org.getValues();
-		var downloads={total:values.length,done:0,pending:0}, fileSize={total:0,done:0};
+		var downloads={total:0,done:0,pending:0}, fileSize={total:0,done:0};
 		for(var d of values)
 		{
 			if(d.state===SC.xp.states.DONE) downloads.done++;
-			if(d.state===SC.xp.states.PENDING) downloads.pending++;
+			else if(d.state===SC.xp.states.PENDING) downloads.pending++;
+			else continue;
 			
+			downloads.total++;
 			if(d.progressMax)
 			{
 				fileSize.total+=d.progressMax;

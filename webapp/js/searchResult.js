@@ -311,6 +311,17 @@
 				
 				dialog.remove();
 			});
+			
+			var allBtn=document.createElement("button");
+			dialog.firstElementChild.insertBefore(allBtn,dialog.firstElementChild.lastElementChild);
+			allBtn.textContent="select All";
+			allBtn.addEventListener("click",()=>
+			{
+				Array.prototype.map.call(dialog.querySelectorAll("option"),e=>e.value)
+				.forEach(i=>this.content.querySelector('[data-index="'+i+'"]').classList.add("selected"));
+				
+				dialog.remove();
+			});
 		},
 		download:function()
 		{

@@ -10,7 +10,7 @@
 	});
 	
 	var container=document.createElement("div");
-	container.id="irc";
+	container.id="ircView";
 	document.currentScript.parentNode.insertBefore(container,document.currentScript.nextSibling);
 	
 	
@@ -39,6 +39,9 @@
 	var ircCommands=document.createElement("datalist");
 	container.appendChild(ircCommands);
 	cmd.setAttribute("list",ircCommands.id="ircCommands");
+	var cmdBtn=document.createElement("button");
+	cmdBtn.textContent="\u2936";
+	cmdForm.appendChild(cmdBtn);
 	
 	var commands={
 		"connect":{

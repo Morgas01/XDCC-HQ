@@ -10,9 +10,8 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "axdcc": "git+https://github.com/Morgas01/node-axdcc.git#feature",
     "bunyan": "^1.4.0",
-    "irc": "^0.3.12"
+    "irc": "^0.4.1"
   },
   "scripts": {
     "start": "node server.js | bunyan"

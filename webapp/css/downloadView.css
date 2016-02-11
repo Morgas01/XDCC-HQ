@@ -1,16 +1,16 @@
-#downloadManager {
+#downloadView {
 	display:flex;
 	flex-direction: column;
 }
-#downloadManager .control {
+#downloadView .control {
 	display: flex;
 	justify-content: space-around;
 }
-#downloadManager .stats {
+#downloadView .stats {
 	display: flex;
 	justify-content: space-around
 }
-#downloadManager .downloads {
+#downloadView .downloads {
 	flex-grow:1;
 	padding: 10px 0;
 	display:flex;

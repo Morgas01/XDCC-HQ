@@ -21,17 +21,31 @@ module.exports=function(request)
 	    	{
 	    		var searchJobs=fs.readdirSync(path.join(__dirname,"..","..","subOffices"));
 	    		logger.info({subOffices:searchJobs});
-	    		var promises=searchJobs.map(function(subOffice)
+	    		var promises=searchJobs.slice().map(function(subOffice)
 	    		{
-	    			var promise=doSearch(subOffice,search);
-	    			promise.then(data=>
+	    			if(!config.subOffices||!(subOffice.slice(0,-3) in config.subOffices)||config.subOffices[subOffice.slice(0,-3)])
 	    			{
+		    			var promise=doSearch(subOffice,search);
+		    			promise.then(data=>
+		    			{
+		    				var i=searchJobs.indexOf(subOffice);
+		    				if(i==-1) logger.error("unknown job has finished: %s",subOffice);
+		    				else searchJobs.splice(i,1);
+		    				logger.info({remainingJobs:searchJobs},"%d jobs remaining",searchJobs.length);
+		    			});
+		    			return promise;
+	    			}
+	    			else
+	    			{
+	    				logger.info("not searching in %s",subOffice);
+
 	    				var i=searchJobs.indexOf(subOffice);
 	    				if(i==-1) logger.error("unknown job has finished: %s",subOffice);
 	    				else searchJobs.splice(i,1);
 	    				logger.info({remainingJobs:searchJobs},"%d jobs remaining",searchJobs.length);
-	    			})
-	    			return promise;
+	    				
+	    				return Promise.resolve({results:[]});
+	    			}
 	    		});
 	    		Promise.all(promises).then(filterResults).then(function(filteredResults)
 	    		{
@@ -47,7 +61,7 @@ var doSearch=function(subOffice,search)
 	return new Promise(function (resolve)
 	{
 		logger.info({search:search,fileExpiration:config.fileExpiration},"start hunting in subOffice %s",subOffice);
-		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search,config.fileExpiration]);
+		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search,config.fileExpiration,config.searchTimeout]);
 		hunter.on("message",function(data)
 		{
 			data=JSON.parse(data);

@@ -1,6 +1,7 @@
 var subOfficeName=process.argv[2];
 var search=process.argv[3];
 var fileExpiration=process.argv[4];
+var searchTimeout=parseInt(process.argv[5])||10000;
 
 var url=require("url");
 var path=require("path");
@@ -89,7 +90,7 @@ else
 			logger.error({error:e},"error get data");
 			process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
 		})
-		.setTimeout(10000)
+		.setTimeout(searchTimeout)
 		.on("timeout",function()
 		{
 			this.abort();

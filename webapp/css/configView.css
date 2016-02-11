@@ -1,13 +1,20 @@
-#config {
-	display:flex;
-	align-items: center;
-	flex-direction:column;
+#configView {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	justify-content: center;
 }
 
-#config legend.default + table,
-#config legend.denied + table {
+#configView > fieldset {
+	flex-basis: 30%;
+	box-sizing: border-box;
+	flex-grow: 1;
+}
+
+#configView legend.default + table,
+#configView legend.denied + table {
 	display:none;
 }
-#config legend.granted + table {
+#configView legend.granted + table {
 	display:table;
 }

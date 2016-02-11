@@ -10,16 +10,16 @@ var eventEmitter = new (require('events'))()
 var methods=["on","once","addListener","removeListener","emit"];
 proxy(eventEmitter,methods,exports);
 
-var merge=function(config,target)
+var merge=function(config,target,asDefault)
 {
 	for(var c in config)
 	{
 		if(typeof config[c]==="object"&&typeof target[c]==="object")
-			merge(config[c],target[c]);
-		else
+			merge(config[c],target[c],asDefault);
+		else if(!asDefault||target[c]==null)
 			target[c]=config[c];
 	}
-}
+};
 
 exports.add=function(config,noSave)
 {
@@ -27,7 +27,12 @@ exports.add=function(config,noSave)
 	exports.resolvedDownloadDir=path.resolve(exports.downloadDir);
 	noSave||exports.save();
 	exports.emit("change");
-}
+};
+exports.addDefault=function(config)
+{
+	merge(config,exports,true);
+	exports.emit("change");
+};
 
 exports.save=function()
 {
