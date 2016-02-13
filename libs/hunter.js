@@ -11,6 +11,13 @@ var logger=require("../logger")(subOfficeName);
 var errorSerializer=require("../logger").errorSerializer
 
 
+process.on("uncaughtException",function(e)
+{
+	process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
+	process.exit();
+});
+
+
 var SC=µ.shortcut({
 	ef:"enshureFolder"
 });

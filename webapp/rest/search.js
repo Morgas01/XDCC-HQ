@@ -10,47 +10,47 @@ var uniquify=µ.getModule("uniquify");
 
 module.exports=function(request)
 {
-	if(request.method!=="POST")return "post a string to search for";
+	if(request.method!=="POST")return "post a json like {query'queryString'[,subOffices:['subofficeName'...]]}";
 	else return new Promise(function(resolve,reject)
 	{
-		var search = '';
-	    request.on('data', function (data) {search += data});
+		var post = '';
+	    request.on('data', function (data) {post += data});
 	    request.on('end', function () {
-	    	if (search.length==0) reject("empty search string");
-	    	else
+	    	try
 	    	{
-	    		var searchJobs=fs.readdirSync(path.join(__dirname,"..","..","subOffices"));
+	    		post=JSON.parse(post);
+	    		
+	    		var searchJobs;
+	    		if(post.subOffices&&post.subOffices.length>0)
+	    			searchJobs=post.subOffices;
+	    		else
+	    		{
+	    			searchJobs=fs.readdirSync(path.join(__dirname,"..","..","subOffices"));
+	    			if(config.subOffices)
+	    				searchJobs=searchJobs.filter(subOffice=>!(subOffice.slice(0,-3) in config.subOffices)||config.subOffices[subOffice.slice(0,-3)]);
+	    		}
+	    		
 	    		logger.info({subOffices:searchJobs});
 	    		var promises=searchJobs.slice().map(function(subOffice)
 	    		{
-	    			if(!config.subOffices||!(subOffice.slice(0,-3) in config.subOffices)||config.subOffices[subOffice.slice(0,-3)])
+	    			var promise=doSearch(subOffice,post.query);
+	    			promise.then(data=>
 	    			{
-		    			var promise=doSearch(subOffice,search);
-		    			promise.then(data=>
-		    			{
-		    				var i=searchJobs.indexOf(subOffice);
-		    				if(i==-1) logger.error("unknown job has finished: %s",subOffice);
-		    				else searchJobs.splice(i,1);
-		    				logger.info({remainingJobs:searchJobs},"%d jobs remaining",searchJobs.length);
-		    			});
-		    			return promise;
-	    			}
-	    			else
-	    			{
-	    				logger.info("not searching in %s",subOffice);
-
 	    				var i=searchJobs.indexOf(subOffice);
 	    				if(i==-1) logger.error("unknown job has finished: %s",subOffice);
 	    				else searchJobs.splice(i,1);
 	    				logger.info({remainingJobs:searchJobs},"%d jobs remaining",searchJobs.length);
-	    				
-	    				return Promise.resolve({results:[]});
-	    			}
+	    			});
+	    			return promise;
 	    		});
 	    		Promise.all(promises).then(filterResults).then(function(filteredResults)
 	    		{
 	    			resolve(filteredResults);
 	    		},reject)
+	    	}
+	    	catch(e)
+	    	{
+	    		reject(e);
 	    	}
 	    });
 	});

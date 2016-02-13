@@ -30,69 +30,90 @@
 	{
 		return this.values.map(i=>this.getValue(i).name).indexOf(item.name)==-1;
 	};
+	var getErrorHtml=function(e,i)
+	{
+		return '\
+		<div data-index="'+i+'">\
+			<span>'+e.subOffice+'</span>\
+			<span>'+e.error.message+'</span>\
+		</div>\
+		<pre>'+e.error.stack+'</pre>\
+		';
+	}
 	
 	var SR=µ.Class(Tab,{
 		init:function(header)
 		{
+			this.query=header;
 			this.mega(header);
-			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters"]);
+			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters","_retrySobOffice"]);
 			
 			this.org=new SC.org();
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
 			for(var g of groups) this.org.group(g,guides[g]);
 			this.org.filter("uniqueNames",uniqueNames);
-			this.errors=[];
+			this.errors=null;
 			
 			this.sortColumn=null;
 			this.desc=false;
 			this.filterExp=null;
 			
+			this.content.innerHTML='\
+			<div class="errors"></div>\
+			<div class="control">\
+				<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
+				<div class="actions">\
+					<button data-action="showSelected">show selected</button>\
+					<button data-action="selectBots">change bot for selected</button>\
+					<button data-action="download">download</button>\
+				</div>\
+			</div>\
+			<div class="resultList">\
+				<header style="order:-1;">\
+					<span class="col-network">network</span>\
+					<span class="col-channel">channel</span>\
+					<span class="col-bot">bot</span>\
+					<span class="col-name">name</span>\
+					<span class="col-packnumber">packnumber</span>\
+					<span class="col-size">size</span>\
+				</header>\
+			</div>\
+			<div class="filters">\
+				<label><input type="checkbox" name="uniqueNames">unique names</label>\n'+
+				groups.map(g=>'\
+				<fieldset>\
+					<legend>'+g+'</legend>\
+					<select data-group="'+g+'" multiple="true"></select>\
+				</fieldset>\
+				').join("\n")+
+			'</div>';
+			this.resultList=this.content.querySelector(".resultList");
+			this.errorDom=this.content.querySelector(".errors");
+			this.search();
+		},
+		search:function(subOffices)
+		{
 			this.content.classList.add("searchResult","pending");
+			var request=SC.rq.json({
+				urls:["rest/search"],
+				data:JSON.stringify({
+					query:this.query,
+					subOffices:subOffices
+				})
+			},this);
+			request.then(this.setData);
+			return request;
 		},
 		setData:function(data)
 		{
-			this.errors=data.errors;
-			this.errors.sort(SC.org.sortGetter(goPath.guide("subOffice")));
+			if(!this.errors)
+			{
+				this.errors=data.errors;
+				this.errors.sort(SC.org.sortGetter(goPath.guide("subOffice")));
+				this.errorDom.innerHTML=this.errors.map((e,i)=>getErrorHtml(e,i)).join("\n");
+			}
 			
-			var contentHTML='\
-<div class="errors">\n'+
-	this.errors.map(e=>'\
-	<div>\
-		<span>'+e.subOffice+'</span>\
-		<span>'+e.error.message+'</span>\
-	</div>\
-	<pre>'+e.error.stack+'</pre>').join("\n")+'\
-</div>\
-<div class="control">\
-	<form><input type="text" name="filter" placeholder="filter"><button type="submit">filter</button></form>\
-	<div class="actions">\
-		<button data-action="showSelected">show selected</button>\
-		<button data-action="selectBots">change bot for selected</button>\
-		<button data-action="download">download</button>\
-	</div>\
-</div>\
-<div class="resultList">\
-	<header style="order:-1;">\
-		<span class="col-network">network</span>\
-		<span class="col-channel">channel</span>\
-		<span class="col-bot">bot</span>\
-		<span class="col-name">name</span>\
-		<span class="col-packnumber">packnumber</span>\
-		<span class="col-size">size</span>\
-	</header>\
-</div>\
-<div class="filters">\
-	<label><input type="checkbox" name="uniqueNames">unique names</label>\n'+
-	groups.map(g=>'\
-	<fieldset>\
-		<legend>'+g+'</legend>\
-		<select data-group="'+g+'" multiple="true"></select>\
-	</fieldset>\
-	').join("\n")+
-'</div>';
-			this.content.innerHTML=contentHTML;
-			this.resultList=this.content.querySelector(".resultList");
-			SC.itAs(data.results,function(i,r)
+			return SC.itAs(data.results,function(i,r)
 			{
 				this.org.add([r]);
 				var row=document.createElement("div");
@@ -125,6 +146,7 @@
 				this.content.classList.remove("pending");
 				this.content.querySelector("form").addEventListener("submit",this._onFilter);
 				this.content.querySelector(".actions").addEventListener("click",this._onAction);
+				this.content.querySelector(".errors").addEventListener("click",this._retrySobOffice);
 				this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
 				this.resultList.addEventListener("click",this._onListClick);
 				this.resultList.addEventListener("mousedown",this._onListMouseDown);
@@ -334,6 +356,31 @@
 			{
 				openDialog('<div>successfully added packaged to download queue</div><a href="#downloadManager">go to downloads</a>');
 			})
+		},
+		_retrySobOffice:function(event)
+		{
+			var element=event.target;
+			while(element!=event.currentTarget&&!("index" in element.dataset))
+			{
+				element=element.parentNode;
+			}
+			if(element!=event.currentTarget)
+			{
+				this.search([this.errors[element.dataset.index].subOffice]).then(function(data)
+				{
+					if(data.errors.length>0)
+					{
+						this.errors[element.dataset.index]=data.errors[0];
+						element.outerHTML=getErrorHtml(data.errors[0],element.dataset.index);
+					}
+					else
+					{
+						this.errors[element.dataset.index]=null;
+						element.nextElementSibling.remove();
+						element.remove();
+					}
+				});
+			}
 		}
 	});
 	

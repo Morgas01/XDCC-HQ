@@ -1,14 +1,10 @@
 overall
 -	close dialogs via "esc" key
 -	plugins
--	make it chrome compatible
 -	dashboard?
 
-search
--	retry failed subOffice individual
-
 download
--	fix: abort download and directly start next one from the same bot (xdcc cancel time lag)
+-	fix: abort download and directly start next one from the same bot (xdcc cancel time lag) ?
 -	clean name: don't replace period between numbers
 
 irc  

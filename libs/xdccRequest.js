@@ -27,12 +27,12 @@
 		update:µ.constantFunctions.ndef()
 	};
 	var extractChecksum=/[\[\(]([0-9A-Z]{8})[\)\]]\./;
-    var cleanName=function(name)
+	var cleanName=function(name)
     {
     	if((name.indexOf("%20")!==-1&&name.indexOf(" ")===-1)||(name.indexOf("%5B")!==-1&&name.indexOf("[")===-1))
     		name=decodeURIComponent(name);
     	name=name.replace(/_/g," ");
-    	name=name.replace(/\.(?![^\.]+$)/g," ");
+    	name=name.replace(/([\d\.]+)(?=[\.\d])|\.(?![^\.]+$)/g,($0,$1)=>$1||" "); //keep dots between numbers and last one
     	return name;
     };
 

@@ -3,7 +3,6 @@
 	var searchHistory=GMOD("inputHistory")("searchHistory",20);
 	
 	var SC=SC({
-		req:"request",
 		tc:"TabContainer",
 		sr:"SearchResult",
 	});
@@ -16,6 +15,7 @@
 	container.appendChild(form);
 	var search=document.createElement("input");
 	search.name=search.placeholder="search";
+	search.pattern="\\S.*";
 	form.appendChild(search);
 	var searchBtn=document.createElement("button");
 	searchBtn.textContent="\uD83D\uDD0D"
@@ -45,10 +45,6 @@
 		var sr=new SC.sr(query);
 		tabContainer.add(sr);
 		tabContainer.setActive(sr);
-		if(this.checkValidity())SC.req.json({urls:["rest/search"],data:query}).then(function(data)
-		{
-			return sr.setData(data);
-		});
 		search.value="";
 		requestAnimationFrame(()=>updateList(searchHistory.update(query)));
 		return false;
