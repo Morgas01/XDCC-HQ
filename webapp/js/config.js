@@ -21,7 +21,7 @@
 		{
 			if(config.data&&config.data.notification&&config.data.notification[type])
 			{
-				new Notification(title,{tag:type,icon:"images/Logo.svg",body:text});
+				return new Notification(title,{tag:type,icon:"images/Logo.svg",body:text});
 			}
 		}
 	};

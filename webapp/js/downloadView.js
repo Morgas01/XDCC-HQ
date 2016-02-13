@@ -340,14 +340,13 @@
 		if(!original) onAdd(data);
 		else
 		{
-			var checkAllComplete=false;
+			var doneNotification=null;
 			if(data.state!=original.state)
 			{
 				switch (data.state)
 				{
 					case "Done":
-						SC.config.notify("download_complete","download complete",data.name);
-						checkAllComplete=true;
+						doneNotification=SC.config.notify("download_complete","download complete",data.name)||true;
 						break;
 					case "Failed":
 						SC.config.notify("download_error","download failed",data.name);
@@ -368,13 +367,15 @@
 			}
 			original.update(data);
 			org.update([original]);
-			if(checkAllComplete==true)
+			if(doneNotification)
 			{
 				var states=org.getGroup("state");
 				if((!states.Running||states.Running.values.length==0)
 					&& (pauseBtn.dataset.value=="continue"||!states.Pending||states.Pending.values.length==0))
 				{
-					SC.config.notify("download_allComplete"," all downloads complete");
+					var show=()=>SC.config.notify("download_allComplete"," all downloads complete");
+					if(doneNotification===true) show();
+					else doneNotification.onshow=show;
 				}
 			}
 		}
