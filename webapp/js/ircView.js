@@ -51,7 +51,7 @@
 		},
 		"join":{
 			desc:"#|&amp;&lt;channel name&gt;",
-			pattern:"[#&]\\w",
+			pattern:"[#&]\\w+",
 			exec:channel=>({url:tabContainer.activeTab.server,channel:channel}),
 		},
 		"say":{
