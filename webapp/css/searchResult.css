@@ -33,6 +33,7 @@ div.searchResult.pending > * {
 }
 .searchResult .errors div {
 	flex-basis: 0;
+	cursor: pointer;
 }
 .searchResult .errors div:hover {
 	background-color:#FF9999;

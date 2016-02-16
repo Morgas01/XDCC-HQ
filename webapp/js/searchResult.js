@@ -33,7 +33,7 @@
 	var getErrorHtml=function(e,i)
 	{
 		return '\
-		<div data-index="'+i+'">\
+		<div data-index="'+i+'" title="retry">\
 			<span>'+e.subOffice+'</span>\
 			<span>'+e.error.message+'</span>\
 		</div>\
@@ -132,6 +132,7 @@
 				for(var g of groups)
 				{
 					var container=this.content.querySelector(".filters [data-group="+g+"]");
+					while(container.firstChild)container.firstChild.remove();
 					var parts=Object.keys(this.org.getGroup(g)).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
 
 					for(var p of parts)

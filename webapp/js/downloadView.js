@@ -8,7 +8,8 @@
 		xp:"XDCCPackage",
 		gIn:"getInputValues",
 		Prog:"Progress",
-		config:"config"
+		config:"config",
+		unique:"uniquify"
 	});
 	
 	var script=document.currentScript;
@@ -144,7 +145,12 @@
 		},
 		listFilenames:function()
 		{
-			openDialog('<textArea rows="26" cols="100">'+org.getSort("orderIndex").map(p=>p.name).join("\n")+'</textArea>')
+			var downloadNames=org.getSort("orderIndex");
+			if(SC.config.data.disableByName)
+			{
+				downloadNames=SC.unique(downloadNames,SC.gp.guide("name"));
+			}
+			openDialog('<textArea rows="26" cols="100">'+downloadNames.map(p=>p.name).join("\n")+'</textArea>')
 		}
 	};
 	container.querySelector(".control").addEventListener("click",function(e)

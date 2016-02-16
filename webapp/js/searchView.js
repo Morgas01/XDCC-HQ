@@ -16,6 +16,7 @@
 	var search=document.createElement("input");
 	search.name=search.placeholder="search";
 	search.pattern="\\S.*";
+	search.required=true;
 	form.appendChild(search);
 	var searchBtn=document.createElement("button");
 	searchBtn.textContent="\uD83D\uDD0D"
