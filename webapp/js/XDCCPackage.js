@@ -27,20 +27,32 @@
 			this.addField("size",		FIELD.TYPES.STRING	,param.size			);
 			
 			//for downloading
+			this.addField("location",		FIELD.TYPES.STRING	,param.location			);
+			this.addField("filename",		FIELD.TYPES.STRING	,param.filename			);
 			this.addField("state",			FIELD.TYPES.STRING	,param.state			);
 			this.addField("message",		FIELD.TYPES.JSON	,param.message			);
-			this.addField("progressValue",	FIELD.TYPES.INT		,param.progressValue	);
 			this.addField("progressStart",	FIELD.TYPES.INT		,param.progressStart	);
+			this.addField("progressValue",	FIELD.TYPES.INT		,param.progressValue	);
 			this.addField("progressMax",	FIELD.TYPES.INT		,param.progressMax		);
-			this.addField("location",		FIELD.TYPES.STRING	,param.location			);
 			this.addField("startTime",		FIELD.TYPES.DATE	,param.startTime		);
 			this.addField("updateTime",		FIELD.TYPES.DATE	,param.updateTime		);
 			this.addField("orderIndex",		FIELD.TYPES.INT		,param.orderIndex		);
 			this.addField("crc",			FIELD.TYPES.STRING	,param.crc				);
 			
+			//util
+			Object.defineProperty(this,"cleanName",{
+				configurable:false,
+				enumerable:true,
+				get:()=>XP.cleanName(this.name),
+			});
+			
 			//for client view
 			this.dom=null;
 			this.progressCb=null;
+		},
+		getPackageHash:function()
+		{
+			return this.network+"|"+this.bot+"|"+this.packnumber+"|"+this.name;
 		},
 		getDom:function()
 		{
@@ -61,6 +73,7 @@
 <span class="bot"></span>\
 <span class="packnumber"></span>\
 <span class="location"></span>\
+<span class="filename"></span>\
 <span class="message"></span>\
 <span class="time"></span>\
 <span class="speed"></span>\
@@ -79,6 +92,7 @@
 				this.dom.bot		= this.dom.element.querySelector(".bot");
 				this.dom.packnumber	= this.dom.element.querySelector(".packnumber");
 				this.dom.location	= this.dom.element.querySelector(".location");
+				this.dom.filename	= this.dom.element.querySelector(".filename");
 				this.dom.message	= this.dom.element.querySelector(".message");
 				this.dom.time		= this.dom.element.querySelector(".time");
 				this.dom.speed		= this.dom.element.querySelector(".speed");
@@ -146,6 +160,7 @@
 				if(this.bot) this.dom.bot.textContent = this.bot;
 				if(this.packnumber) this.dom.packnumber.textContent = this.packnumber;
 				if(this.location) this.dom.location.textContent = this.location;
+				if(this.filename) this.dom.filename.textContent = this.filename;
 	
 				if(this.message)
 				{
@@ -162,6 +177,14 @@
 		DONE:"Done",
 		FAILED:"Failed"
 	};
+	XP.cleanName=function(name)
+    {
+    	if((name.indexOf("%20")!==-1&&name.indexOf(" ")===-1)||(name.indexOf("%5B")!==-1&&name.indexOf("[")===-1))
+    		name=decodeURIComponent(name);
+    	name=name.replace(/_/g," ");
+    	name=name.replace(/([\d\.]+)(?=[\.\d])|\.(?![^\.]+$)/g,($0,$1)=>$1||" "); //keep dots between numbers and last one
+    	return name;
+    };
 	
 	SMOD("XDCCPackage",XP);
 	if(typeof module!=="undefined")module.exports=XP;

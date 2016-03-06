@@ -14,6 +14,3 @@ irc
 config
 -	history max count
 -	accept only requests from localhost
-
-subOffices
--	file as subOffice source (xdcc listing via bot xdcc send -1)

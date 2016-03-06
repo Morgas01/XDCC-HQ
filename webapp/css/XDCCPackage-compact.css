@@ -13,7 +13,8 @@
 .network, .channel, .bot, .packnumber {
 	order: -1;
 }
-.XDCCPackage .location {
+.XDCCPackage .location,
+.XDCCPackage .filename {
 	display:none;
 }
 .XDCCPackage progress {

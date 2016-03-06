@@ -24,7 +24,7 @@ var merge=function(config,target,asDefault)
 exports.add=function(config,noSave)
 {
 	merge(config,exports);
-	exports.resolvedDownloadDir=path.resolve(exports.downloadDir);
+	exports.resolvedDownloadDir=path.resolve(__dirname,"..",exports.downloadDir);
 	noSave||exports.save();
 	exports.emit("change");
 };

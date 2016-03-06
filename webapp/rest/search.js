@@ -61,7 +61,12 @@ var doSearch=function(subOffice,search)
 	return new Promise(function (resolve)
 	{
 		logger.info({search:search,fileExpiration:config.fileExpiration},"start hunting in subOffice %s",subOffice);
-		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[subOffice,search,config.fileExpiration,config.searchTimeout]);
+		var hunter=fork(path.join(__dirname,"..","..","libs","hunter"),[JSON.stringify({
+			subOfficeName:subOffice,
+			search:search,
+			fileExpiration:config.fileExpiration,
+			searchTimeout:config.searchTimeout
+		})]);
 		hunter.on("message",function(data)
 		{
 			data=JSON.parse(data);

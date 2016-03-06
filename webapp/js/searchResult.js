@@ -47,6 +47,8 @@
 			this.query=header;
 			this.mega(header);
 			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters","_retrySobOffice"]);
+
+			this.content.classList.add("searchResult");
 			
 			this.org=new SC.org();
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
@@ -93,7 +95,7 @@
 		},
 		search:function(subOffices)
 		{
-			this.content.classList.add("searchResult","pending");
+			this.content.classList.add("pending");
 			var request=SC.rq.json({
 				urls:["rest/search"],
 				data:JSON.stringify({
@@ -106,6 +108,7 @@
 		},
 		setData:function(data)
 		{
+			this.content.classList.add("rendering");
 			if(!this.errors)
 			{
 				this.errors=data.errors;
@@ -144,7 +147,7 @@
 				}
 			}).complete(()=>{
 
-				this.content.classList.remove("pending");
+				this.content.classList.remove("pending","rendering");
 				this.content.querySelector("form").addEventListener("submit",this._onFilter);
 				this.content.querySelector(".actions").addEventListener("click",this._onAction);
 				this.content.querySelector(".errors").addEventListener("click",this._retrySobOffice);
@@ -355,7 +358,7 @@
 				scope:this
 			}).then(function()
 			{
-				openDialog('<div>successfully added packaged to download queue</div><a href="#downloadManager">go to downloads</a>');
+				openDialog('<div>successfully added packaged to download queue</div><a href="#downloadView">go to downloads</a>');
 			})
 		},
 		_retrySobOffice:function(event)
@@ -367,20 +370,40 @@
 			}
 			if(element!=event.currentTarget)
 			{
-				this.search([this.errors[element.dataset.index].subOffice]).then(function(data)
+				var error=this.errors[element.dataset.index];
+				if(error.error.type==="missingList")
 				{
-					if(data.errors.length>0)
+					error.error.type=null;
+					element.nextElementSibling.textContent="retry";
+
+					error.error.subOffice=error.subOffice;
+					SC.rq({
+						urls:["rest/download/addBotList"],
+						contentType:"application/json",
+						data:JSON.stringify(error.error),
+						scope:this
+					}).then(function()
 					{
-						this.errors[element.dataset.index]=data.errors[0];
-						element.outerHTML=getErrorHtml(data.errors[0],element.dataset.index);
-					}
-					else
+						openDialog('<div>successfully added packaged to download queue</div><a href="#downloadView">go to downloads</a>');
+					});
+				}
+				else
+				{
+					this.search([error.subOffice]).then(function(data)
 					{
-						this.errors[element.dataset.index]=null;
-						element.nextElementSibling.remove();
-						element.remove();
-					}
-				});
+						if(data.errors.length>0)
+						{
+							this.errors[element.dataset.index]=data.errors[0];
+							element.outerHTML=getErrorHtml(data.errors[0],element.dataset.index);
+						}
+						else
+						{
+							this.errors[element.dataset.index]=null;
+							element.nextElementSibling.remove();
+							element.remove();
+						}
+					});
+				}
 			}
 		}
 	});

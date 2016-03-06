@@ -1,13 +1,10 @@
-var subOfficeName=process.argv[2];
-var search=process.argv[3];
-var fileExpiration=process.argv[4];
-var searchTimeout=parseInt(process.argv[5])||10000;
+var param=JSON.parse(process.argv[2]);
 
 var url=require("url");
 var path=require("path");
 var fs=require("fs");
 require("../webapp/Morgas/src/NodeJs/Morgas.NodeJs");
-var logger=require("../logger")(subOfficeName);
+var logger=require("../logger")(param.subOfficeName);
 var errorSerializer=require("../logger").errorSerializer
 
 
@@ -22,38 +19,69 @@ var SC=µ.shortcut({
 	ef:"enshureFolder"
 });
 var targetDir=path.join(__dirname,"..","temp");
-var targetFilePath=path.join(targetDir,subOfficeName+"on");
-var subOffice=require("../subOffices/"+subOfficeName);
+var targetFilePath=path.join(targetDir,param.subOfficeName+"on");
+var subOffice=require("../subOffices/"+param.subOfficeName);
+
+var checkFile=function(filePath)
+{
+	if(fs.existsSync(filePath))
+	{
+		var age=(Date.now()-fs.statSync(filePath).mtime)/864E5; //in days
+		if(age>param.fileExpiration)
+		{
+			logger.info("not using file %s because it's too old (%s days)",path.parse(filePath).base,age.toFixed(1));
+			return false;
+		}
+		return true
+	}
+	logger.info("file %s does not exist",path.parse(filePath).base);
+	return false;
+};
 
 var filterResults=function(results)
 {
-	var exp=new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
+	var exp=new RegExp(param.search.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
 	return results.filter(function(p){return exp.test(p.name)});
-}
+};
 
-var useFile=false;
-if(subOffice.type==="FILE"&&fs.existsSync(targetFilePath))
-{
-	useFile=true;
-	var age=(Date.now()-fs.statSync(targetFilePath).mtime)/864E5; //in days
-	if(age>fileExpiration)
-	{
-		logger.info("not using file because it's too old (%s days)",age.toFixed(1));
-		useFile=false;
-	}
-}
-if(useFile)
+if((subOffice.type==="FILE"||subOffice.type==="BOT")&&checkFile(targetFilePath))
 {
 	logger.info("hunt from existing file");
 	var results=require(targetFilePath);
 	results=filterResults(results);
 	process.send(JSON.stringify({results:results,error:null}));
 }
+else if (subOffice.type==="BOT")
+{
+	targetFilePath=targetFilePath.slice(0,-4)+"txt";
+	if(checkFile(targetFilePath))
+	{
+		logger.info("parse list into json");
+		var data=""+fs.readFileSync(targetFilePath);
+		var results=subOffice.parse(data);
+		fs.writeFileSync(targetFilePath.slice(0,-3)+"json",JSON.stringify(results));
+		logger.info("hunt from list");
+		results=filterResults(results);
+		process.send(JSON.stringify({results:results,error:null}));
+		fs.unlinkSync(targetFilePath);
+	}
+	else
+	{
+		process.send(JSON.stringify({results:[],error:{
+			type:"missingList",
+			message:"List from bot is missing",
+			stack:"download list",
+			network:subOffice.network,
+			channel:subOffice.channel,
+			bot:subOffice.bot,
+		}}));
+	}
+}
 else
 {
 	try
 	{
-		var getUrl=subOffice.getUrl(search);
+		var getUrl=subOffice.getUrl(param.search);
 		logger.info({url:getUrl},"hunt from url");
 		var protocol=require(url.parse(getUrl).protocol.slice(0,-1)||"http");
 		protocol.get(getUrl,function(response)
@@ -97,7 +125,7 @@ else
 			logger.error({error:e},"error get data");
 			process.send(JSON.stringify({results:[],error:errorSerializer(e)}));
 		})
-		.setTimeout(searchTimeout)
+		.setTimeout(param.searchTimeout)
 		.on("timeout",function()
 		{
 			this.abort();

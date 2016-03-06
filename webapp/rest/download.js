@@ -240,7 +240,7 @@ exports.reset=function(request,queryParam)
 };
 exports.setOrder=function(request)
 {
-	if(request.method!=="POST")return "post json like {ID:number,beforeID:number}";
+	if(request.method!=="POST")return "post json like {ID:number,beforeID:number} OR {ID:number,orderIndex:number}";
 	else return new Promise(function(resolve,reject)
 	{
 		var post = '';
@@ -256,20 +256,8 @@ exports.setOrder=function(request)
 		    		if(toOrder.length>0)
 		    		{
 		    			toOrder=toOrder[0];
-			    		if(post.beforeID==null)
-			    		{
-			    			if(all[all.length-1]!=toOrder.value)
-			    			{
-			    				all.splice(toOrder.index,1);
-			    				all.push(toOrder.value);
-			    				toOrder.value.orderIndex=nextOrderIndex++;
-			    				downloads.save(toOrder.value);
-						    	notifyEventSources("update",toOrder.value);
-			    			}
-			    			//else is already last one
-		    				resolve("ok");
-			    		}
-			    		else
+			    		
+			    		if (post.beforeID!=null)
 			    		{
 			    			var before=SC.find(all,{ID:post.beforeID});
 			    			if(before.length>0)
@@ -283,9 +271,64 @@ exports.setOrder=function(request)
 			    			}
 			    			else resolve("no download found with ID "+post.beforeID);
 			    		}
+			    		else if (post.orderIndex!=null)
+			    		{
+		    				all.splice(toOrder.index,1);
+		    				all.splice(post.orderIndex-1,0,toOrder.value);
+		    				cleanOrderIndexes(all);
+					    	for(var i=0;i<all.length;i++) notifyEventSources("update",all[i]);
+		    				resolve("ok");
+			    		}
+			    		else
+			    		{
+			    			if(all[all.length-1]!=toOrder.value)
+			    			{
+			    				all.splice(toOrder.index,1);
+			    				all.push(toOrder.value);
+			    				toOrder.value.orderIndex=nextOrderIndex++;
+			    				downloads.save(toOrder.value);
+						    	notifyEventSources("update",toOrder.value);
+			    			}
+			    			//else is already last one
+		    				resolve("ok");
+			    		}
 		    		}
 		    		else resolve("no download found with ID "+post.ID);
 		    	},reject);
+	    	}
+	    	catch(e)
+	    	{
+	    		reject(e);
+	    	}
+	    });
+	});
+};
+exports.addBotList=function(request)
+{
+	if(request.method!=="POST")return "post json like {subOffice:string,network:string,channel:string,bot:string}";
+	else return new Promise(function(resolve,reject)
+	{
+		var post = '';
+	    request.on('data', function (data) {post += data});
+	    request.on('end', function ()
+	    {
+	    	try
+	    	{
+		    	post=JSON.parse(post);
+		    	post.packnumber=-1;
+		    	post.location="temp";
+		    	post.filename=post.subOffice.slice(0,-2)+"txt";
+	    		post.state=XDCCPackage.states.PENDING;
+	    		post.message={type:"info",text:"pending"};
+		    	post=new XDCCPackage(post);
+		    	downloads.load(XDCCPackage,{},"orderIndex").then(function(all)
+				{
+		    		all.unshift(post);
+    				cleanOrderIndexes(all);
+			    	for(var i=0;i<all.length;i++) notifyEventSources("update",all[i]);
+    		    	resolve("ok");
+    		    	startDownloads();
+				});
 	    	}
 	    	catch(e)
 	    	{
@@ -372,9 +415,9 @@ var startDownloads=function()
 								startDownloads();
 							});
 						}
-						else d.message.text="bot cap reached";
+						else d.message.text="already downloading from bot";
 					}
-					else d.message.text="overall download cap reached";
+					else d.message.text="download cap reached";
 					downloads.save(d);
 		    		notifyEventSources("update",d);
 				})(all[i]);

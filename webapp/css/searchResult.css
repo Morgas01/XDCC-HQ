@@ -9,6 +9,9 @@
 	background-image: linear-gradient(45deg, lightgray 25%, gray 25%, gray 50%, lightgray 50%, lightgray 75%, gray 75%, gray);
 	animation: animate-stripes 2s linear infinite;
 }
+.searchResult.pending.rendering {
+	background-image: linear-gradient(45deg, lightskyblue 25%, cornflowerblue 25%, cornflowerblue 50%, lightskyblue 50%, lightskyblue 75%, cornflowerblue 75%, cornflowerblue);
+}
 div.searchResult.pending > * {
 	display:none;
 }
