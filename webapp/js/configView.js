@@ -64,6 +64,7 @@
 	var updateDom=function(data)
 	{
 		SC.sIn(container.querySelectorAll("input"),data);
+		container.querySelector("input[name=resolvedDownloadDir]").title=data.resolvedDownloadDir
 	};
 	
 	
