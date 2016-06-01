@@ -1,8 +1,12 @@
 .XDCCPackage[data-state=Disabled] {
-	background-image: repeating-linear-gradient(45deg, grey, grey 10px, lightgray 10px, lightgray 20px);
+	background-image: repeating-linear-gradient(45deg, grey, grey 10px, lightgrey 10px, lightgrey 20px);
 }
 .XDCCPackage[data-state=Pending] {
-	background-color: lightgray;
+	background-color: lightgrey;
+}
+.XDCCPackage[data-state=Pending]:nth-child(even) {
+	background-color: grey;
+	color:white;
 }
 .XDCCPackage[data-state=Running] {
 	background-color: lightgreen;
