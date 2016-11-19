@@ -24,20 +24,12 @@
 			if(m)return m[1];
 			return "no subber found";
 		},
-		resolution: p =>{
-			var l = (goPath.guide("name"))(p);
-			if(parser == undefined){
-				var m=p.name.match(/(\d+x\d+|\d+p)/);
-				if (m==null){
-					return "unknown"
-				}
-			  else if (m[0].includes('x')){
-					return m[0].replace(/*x.*/,"p");
-				}
-				else{
-					return m[0];
-				}
-			}
+		resolution: p=>
+		{
+			var m=p.name.match(/(\d+x\d+|\d+p)/);
+			if (m==null) return "unknown";
+			return m.slice(1).join("")+"p";
+		}
 	};
 	var groups=["subber","bot","resolution","network"];
 	var uniqueNames=function(item)
