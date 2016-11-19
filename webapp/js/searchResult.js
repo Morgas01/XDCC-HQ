@@ -1,8 +1,8 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
-	
+
 	var Tab=GMOD("Tab");
 	var goPath=GMOD("goPath");
-	
+
 	SC=SC({
 		org:"Organizer",
 		rs:"rescope",
@@ -10,7 +10,7 @@
 		it:"iterate",
 		itAs:"iterateAsync"
 	});
-	
+
 	var guides={
 		network:goPath.guide("network"),
 		channel:goPath.guide("channel"),
@@ -23,9 +23,23 @@
 			var m=p.name.match(/^\[([^\]]+)/);
 			if(m)return m[1];
 			return "no subber found";
-		}
+		},
+		resolution: p =>{
+			var l = (goPath.guide("name"))(p);
+			if(parser == undefined){
+				var m=p.name.match(/(\d+x\d+|\d+p)/);
+				if (m==null){
+					return "unknown"
+				}
+			  else if (m[0].includes('x')){
+					return m[0].replace(/*x.*/,"p");
+				}
+				else{
+					return m[0];
+				}
+			}
 	};
-	var groups=["subber","bot","network"];
+	var groups=["subber","bot","resolution","network"];
 	var uniqueNames=function(item)
 	{
 		return this.values.map(i=>this.getValue(i).name).indexOf(item.name)==-1;
@@ -40,7 +54,7 @@
 		<pre>'+e.error.stack+'</pre>\
 		';
 	}
-	
+
 	var SR=µ.Class(Tab,{
 		init:function(header)
 		{
@@ -49,17 +63,17 @@
 			SC.rs.all(this,["_onFilter","_onListClick","_onListMouseDown","_onAction","updateFilters","_retrySobOffice"]);
 
 			this.content.classList.add("searchResult");
-			
+
 			this.org=new SC.org();
 			for(var g in guides) this.org.sort(g,SC.org.sortGetter(guides[g]));
 			for(var g of groups) this.org.group(g,guides[g]);
 			this.org.filter("uniqueNames",uniqueNames);
 			this.errors=null;
-			
+
 			this.sortColumn=null;
 			this.desc=false;
 			this.filterExp=null;
-			
+
 			this.content.innerHTML='\
 			<div class="errors"></div>\
 			<div class="control">\
@@ -115,13 +129,13 @@
 				this.errors.sort(SC.org.sortGetter(goPath.guide("subOffice")));
 				this.errorDom.innerHTML=this.errors.map((e,i)=>getErrorHtml(e,i)).join("\n");
 			}
-			
+
 			return SC.itAs(data.results,function(i,r)
 			{
 				this.org.add([r]);
 				var row=document.createElement("div");
 				row.dataset.index=i;
-				
+
 				["network","channel","bot","name","packnumber","size"].forEach(k=>{
 					var col=document.createElement("span");
 					col.classList.add("col-"+k);
@@ -129,7 +143,7 @@
 					row.appendChild(col);
 				});
 				this.resultList.appendChild(row);
-				
+
 			},false,this,200).complete(()=>
 			{
 				for(var g of groups)
@@ -154,9 +168,9 @@
 				this.content.querySelector(".filters").addEventListener("change",this.updateFilters);
 				this.resultList.addEventListener("click",this._onListClick);
 				this.resultList.addEventListener("mousedown",this._onListMouseDown);
-				
+
 				this.sort("name",false);
-				
+
 			});
 		},
 		_onFilter:function(e)
@@ -216,7 +230,7 @@
 						var selected=this.resultList.querySelectorAll(".selected");
 						for(var i=0;i<selected.length;i++)selected[i].classList.remove("selected");
 						row.classList.add("selected");
-						
+
 						var onMouseOver=overEvent=>
 						{
 							var hoverRow=overEvent.target;
@@ -230,7 +244,7 @@
 						};
 						this.resultList.addEventListener("mouseover",onMouseOver);
 						this.resultList.addEventListener("mouseup",onMouseUp);
-						
+
 						moveEvent.preventDefault();
 						return false;
 					};
@@ -268,7 +282,7 @@
 		{
 			var c=this.org.combine(false,this.sortColumn);
 			if(this.filterExp) c.filter(this.filterExp);
-			if(this.content.querySelector('.filters [name="uniqueNames"]:checked')) c.filter("uniqueNames")	;			
+			if(this.content.querySelector('.filters [name="uniqueNames"]:checked')) c.filter("uniqueNames")	;
 			Array.forEach(this.content.querySelectorAll(".filters select"),s=>
 			{
 				var options=s.querySelectorAll(":checked");
@@ -321,7 +335,7 @@
 				html+='<tr><td>'+s.name+'<td><td><select>'+this.org.getGroupPart("uniqueNames",s.name).getValues().sort()
 				.map(i=>'<option value="'+this.org.values.indexOf(i)+'" '+(selected.indexOf(i)!=-1?'selected >':'>')+i.bot+'</option>')+
 				'</select></td></tr>';
-				
+
 			}
 			html+='</table>';
 			var dialog=openDialog(html);
@@ -334,10 +348,10 @@
 				Array.prototype.forEach.call(this.content.querySelectorAll(".selected"),e=>e.classList.remove("selected"));
 				Array.prototype.map.call(dialog.querySelectorAll(":checked"),e=>e.value)
 				.forEach(i=>this.content.querySelector('[data-index="'+i+'"]').classList.add("selected"));
-				
+
 				dialog.remove();
 			});
-			
+
 			var allBtn=document.createElement("button");
 			dialog.firstElementChild.insertBefore(allBtn,dialog.firstElementChild.lastElementChild);
 			allBtn.textContent="select All";
@@ -345,7 +359,7 @@
 			{
 				Array.prototype.map.call(dialog.querySelectorAll("option"),e=>e.value)
 				.forEach(i=>this.content.querySelector('[data-index="'+i+'"]').classList.add("selected"));
-				
+
 				dialog.remove();
 			});
 		},
@@ -407,7 +421,7 @@
 			}
 		}
 	});
-	
+
 	SMOD("SearchResult",SR);
-	
+
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
