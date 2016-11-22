@@ -1,0 +1,117 @@
+.searchResult {
+	border:thick outset;
+	border-radius: 5px;
+	padding:5px;
+}
+.searchResult.pending {
+	min-height: 50px;
+	background-size: 100px 100px;
+	background-image: linear-gradient(45deg, lightgray 25%, gray 25%, gray 50%, lightgray 50%, lightgray 75%, gray 75%, gray);
+	animation: animate-stripes 2s linear infinite;
+}
+.searchResult.pending.rendering {
+	background-image: linear-gradient(45deg, lightskyblue 25%, cornflowerblue 25%, cornflowerblue 50%, lightskyblue 50%, lightskyblue 75%, cornflowerblue 75%, cornflowerblue);
+}
+div.searchResult.pending > * {
+	display:none;
+}
+@keyframes animate-stripes {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 100px 0;
+	}
+}
+.tabContainer > header.active + .searchResult {
+	/*override tab*/
+	display:flex;
+	flex-wrap:wrap;
+}
+.searchResult .errors {
+	background-color:#FF7777;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+}
+.searchResult .errors div {
+	flex-basis: 0;
+	cursor: pointer;
+}
+.searchResult .errors div:hover {
+	background-color:#FF9999;
+}
+.searchResult .errors pre {
+	display:none;
+	background-color:#FF9999;
+	height:100%;
+	order: 2;
+	margin:0;
+}
+.searchResult .errors :hover+pre,
+.searchResult .errors pre:hover {
+	display:block;
+	padding-left: 5px;
+}
+.searchResult .control {
+	position:sticky;
+	top:0;
+	background-color: white;
+	height:30px;
+	width:100%;
+}
+.searchResult .filters {
+	align-self:flex-start;
+	position: sticky;
+	top: 0;
+}
+.searchResult .filters select {
+	width: 100%;
+	height: 120px;
+}
+.searchResult form,.searchResult .actions {
+    display: inline;
+}
+.searchResult .resultList {
+	display:flex;
+	flex-direction:column;
+	flex-grow:1;
+}
+.searchResult .resultList > * {
+	display:flex;
+	flex-direction:row;
+	cursor: pointer;
+}
+.searchResult .resultList > header {
+	background-color: #FFA;
+	cursor: ns-resize;
+	position:sticky;
+	top:30px;
+}
+.searchResult .resultList div.selected {
+	background-color: #AAAAFF;
+}
+.searchResult .resultList div.hidden {
+	display:none;
+}
+.searchResult .resultList span {
+	border-top: 1px solid gray;
+	padding: 5px;
+	width:0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.searchResult .resultList .col-bot {
+	flex-basis:10%;
+}
+.searchResult .resultList .col-channel,
+.searchResult .resultList .col-packnumber,
+.searchResult .resultList .col-size {
+	flex-basis:5%;
+}
+.searchResult .resultList .col-network {
+	flex-basis:10%
+}
+.searchResult .resultList .col-name {
+	flex-grow:1;
+}

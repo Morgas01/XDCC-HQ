@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>XDCC-HQ Downloads</title>
+		<link rel="stylesheet" href="css/downloadManager.css">
+		<link rel="stylesheet" href="css/dialog.css">
+		<link rel="stylesheet" href="css/XDCCPackage-core.css">
+		<link rel="stylesheet" href="css/XDCCPackage-default.css" title="default">
+		<link rel="alternate stylesheet" href="css/XDCCPackage-compact.css" title="compact">
+		
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.adopt.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.function.rescope.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.Promise.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.Request.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.goPath.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.inputValues.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.function.proxy.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.equals.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.util.object.iterate.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.SortedArray.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src/Morgas.Organizer.js"></script>
+		<script type="text/javascript" defer="defer" src="Morgas/src//DB/Morgas.DB.js"></script>
+		
+		<script type="text/javascript" defer="defer" src="js/XDCCPackage.js"></script>
+		<script type="text/javascript" defer="defer" src="js/downloadManager.js"></script>
+		<script type="text/javascript" defer="defer" src="js/dialog.js"></script>
+	</head>
+	<body>
+	<div id="control">
+		<button data-action="pause">???</button>
+		<button data-action="removeDone">remove completed downloads</button>
+		<button data-action="addDownload">add download</button>
+		<button data-action="listFilenames">list filenames</button>
+		<select id="activeStyle"></select>
+	</div>
+	<div id="stats">
+		<div>
+			<span>Downloads:</span>
+			<span id="downloadCount">???</span>
+		</div>
+		<div>
+			<span>File size:</span>
+			<span id="fileSize">???</span>
+		</div>
+	</div>
+	<div id="downloads"></div>
+	</body>
+</html>
