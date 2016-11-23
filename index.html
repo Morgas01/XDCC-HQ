@@ -5,19 +5,21 @@
 		<title>XDCC-HQ</title>
 		
 		<link rel="icon" type="image/svg+xml" href="images/Logo.svg">
-		
-		<link rel="stylesheet" href="css/index.less">
-
 		<link rel="stylesheet" href="/morgas/gui/css/form.less">
 
 		<script defer src="/morgas/Morgas.js"></script>
 		<script defer src="/morgas/Morgas.Config.js"></script>
 		<script defer src="/morgas/gui/form.js"></script>
+		<script defer src="/morgas/Morgas.util.object.inputValues.js"></script>
+		<script defer src="/morgas/Morgas.util.object.goPath.js"></script>
 
+
+		<link rel="stylesheet" href="css/index.less">
 		<script type="text/javascript" defer="defer" src="js/index.js"></script>
 
 	</head>
 	<body>
-		<button id="searchBtn">&#128269;</button>
+		<button id="searchBtn" title="go!">&#128269;</button>
+		<iframe id="searchFrame" src="searchView.html"></iframe>
 	</body>
 </html>

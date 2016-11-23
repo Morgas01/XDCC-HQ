@@ -1,5 +1,20 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
+	SC=SC({
+		tabs:"gui.tabs"
+	});
+	var tabs=SC.tabs([]);
+	document.body.appendChild(tabs)
+	window.addEventListener("message", function(event)
+	{
+		tabs.addTab(e=>e.innerHTML=String.raw
+`
+<span>${event.data}</span>
+<botton data-action="closeTab">&#10060;</button>
+`
+		,JSON.stringify(event.data,null,"\t"),true);
 
+	},false);
+/*
 	var searchHistory=GMOD("inputHistory")("searchHistory",20);
 	
 	var SC=SC({
@@ -55,4 +70,5 @@
 	updateList(searchHistory.history);
 	
 	search.select();
+*/
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

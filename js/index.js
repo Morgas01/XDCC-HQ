@@ -19,7 +19,11 @@
 
 	document.getElementById("searchBtn").addEventListener("click",function()
 	{
-	    alert("valid:"+searchForm.isValid());
+	    if(searchForm.isValid())
+	    {
+	        var terms=searchForm.getConfig().get();
+	        document.getElementById("searchFrame").contentWindow.postMessage(terms,"*");
+	    }
 	})
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

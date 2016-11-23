@@ -1,3 +1,25 @@
-#searchView > form {
-	text-align:center;
+html,body {
+	padding:0;
+	margin:0;
+	width:100%;
+	height:100%;
+}
+body {
+	display: flex;
+	flex-direction:column;
+}
+.tabs {
+	flex-grow:1;
+	header {
+		font-weight:bold;
+			[data-action] {
+			color:red;
+			transition:all 1s;
+			display:inline-block;
+			margin-left:.5em;
+			&:hover {
+				transform:rotate(90deg) scale(1.5);
+			}
+		}
+	}
 }
