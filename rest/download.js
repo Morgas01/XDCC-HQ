@@ -3,7 +3,8 @@ var SC=µ.shortcut({
 	FileUtils:"File.util",
 	DBC:"DB/jsonConnector",
 	XDCCdownload:require.bind(null,"../js/XDCCdownload"),
-	DBObject:"DBObject"
+	DBObject:"DBObject",
+	es:"errorSerializer"
 });
 
 var rotationErrors=null;
@@ -16,7 +17,7 @@ var dbConnector=SC.FileUtils.enshureDir("storage").then(function()
 {
 	if(result.others)
 	{
-		rotationErrors=result.others.map(other=>({error:worker.errorSerializer(other.error),file:other.file.getAbsolutePath()}));
+		rotationErrors=result.others.map(other=>({error:SC.es(other.error),file:other.file.getAbsolutePath()}));
 		rotationErrors.push({file:result.file,error:"loaded"});
 		µ.logger.warn({errors:errors},"errors loading file "+file.getAbsolutePath());
 	}

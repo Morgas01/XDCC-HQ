@@ -40,8 +40,9 @@ var config=SC.Config.parse({
 module.exports=worker.configManager(config);
 module.exports.config=config;
 
-new SC.File("../subOffices").listFiles().then(function(subOfficeList)
+new SC.File("subOffices").listFiles().then(function(subOfficeList)
 {
+
 	var searchSources=config.get("search sources");
 	for(var subOffice of subOfficeList)
 	{

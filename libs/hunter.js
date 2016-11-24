@@ -20,11 +20,13 @@ worker.init=function(param)
 }
 worker.search=null;
 
+//TODO logs
+
 var searches={
 	"SEARCH":function(query)
 	{
-		var getUrl=subOffice.getUrl(param.search);
-		logger.info({url:getUrl},"hunt from url");
+		var getUrl=subOffice.getUrl(query);
+		µ.logger.info({url:getUrl},"hunt from url");
 		return requestUrl(getUrl)
 		.then(function(data)
 		{
@@ -57,7 +59,7 @@ var searches={
 				.then(()=>jsonData) //return json data
 			});
 		})
-		.then(filterResults);
+		.then(r=>filterResults(r,query));
 	},
 	"BOT":function(query)
 	{
@@ -90,7 +92,7 @@ var searches={
 				.then(()=>jsonData) //return json data
 			});
 		})
-		.then(filterResults);
+		.then(r=>filterResults(r,query));
 	}
 }
 var requestUrl=SC.Promise.pledge(function(signal,url)
@@ -116,15 +118,16 @@ var requestUrl=SC.Promise.pledge(function(signal,url)
 	{
 		signal.reject(e)
 	})
-	.setTimeout(param.searchTimeout)
+	.setTimeout(searchTimeout)
 	.on("timeout",function()
 	{
 		this.abort();
 		this.reject("timeout");
 	});
 });
-var filterResults=function(results)
+var filterResults=function(results,query)
 {
-	var exp=new RegExp(param.search.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
+	//TODO FuzzySearch?
+	var exp=new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
 	return results.filter(function(p){return exp.test(p.name)});
 };

@@ -3,7 +3,9 @@ var SC=µ.shortcut({
 	itAs:"iterateAsync",
 	File:"File",
 	Promise:"Promise",
-	Worker:"nodeWorker"
+	Worker:"nodeWorker",
+	uniquify:"uniquify",
+	es:"errorSerializer"
 });
 
 
@@ -11,17 +13,17 @@ module.exports=function(request)
 {
 	if(request.method!=="POST"||!request.data||!request.data.query)
 	{
-		return
+		return String.raw
 `post as json like this:
 	{String|String[]} query
 	{String|String[]} [sources=null]
 `		;
 	}
-	else SC.File(__dirnname).changePath("../subOffices").listFiles().then(function(subOfficeList)
+	return new SC.File("subOffices").listFiles().then(function(subOfficeList)
 	{
-		if(param.data.sources)
+		if(request.data.sources)
 		{
-			return subOfficeList.filter(s=>param.data.sources.indexOf(s)!=-1);
+			return subOfficeList.filter(s=>request.data.sources.indexOf(s)!=-1);
 		}
 		searchSources=SC.config.get("search sources");
 		return subOfficeList.filter(s=>
@@ -42,19 +44,20 @@ module.exports=function(request)
 };
 var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 {
-	logger.info({subOffice:subOffice,queries:queries},`start hunting in subOffice ${subOffice}`);
+	µ.logger.info({subOffice:subOffice,queries:queries},`start hunting in subOffice ${subOffice}`);
 
-	return SC.Worker("libs/hunter",{
+	new SC.Worker("libs/hunter",{
 		subOffice:subOffice,
-		fileExpiration:config.get("file expiration"),
-		searchTimeout:config.get("search timeout")
+		fileExpiration:SC.config.get("file expiration"),
+		searchTimeout:SC.config.get("search timeout")
 	}).ready()
-	.then(function(worker)
+	.then(function()
 	{
+		var hunter=this;
 		var p= SC.itAs(queries,function(index,query)
 		{
-			logger.info({search:search},`hunt in ${subOffice} for ${query} [${index}/${queries.length}]`);
-			return worker.request("search",query,config.get("search timeout")*2);
+			µ.logger.info({query:query},`hunt in ${subOffice} for ${query} [${index}/${queries.length}]`);
+			return hunter.request("search",query,SC.config.get("search timeout")*2);
 		})
 		.then(results=>({results:Array.prototype.concat.apply([],results)}),
 		function(results)
@@ -71,18 +74,19 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 
 		p.always(function(result)
 		{
-			logger.info({
+			µ.logger.info({
 					subOffice:subOffice,
 					queries:queries,
 					results:result.results.length,
-					error:result.error
+					error:SC.es(result.error)
 				},
 				`hunting ended in subOffice ${subOffice}`
 			);
-			worker.destroy();
+			hunter.destroy();
 		});
 		return p;
-	});
+	})
+	.then(signal.resolve,signal.reject);
 });
 var filterResults=function(huntResults)
 {
@@ -95,6 +99,7 @@ var filterResults=function(huntResults)
 		rtn.results=rtn.results.concat(huntResults[i].results);
 		if(huntResults[i].error) rtn.errors.push({subOffice:huntResults[i].subOffice,error:huntResults[i].error});
 	}
-	rtn.results=uniquify(rtn.results,function(p){return p.network+p.bot+p.packnumber+p.name});
+	//TODO merge sources
+	rtn.results=SC.uniquify(rtn.results,function(p){return p.network+p.bot+p.packnumber+p.name});
 	return rtn;
 }

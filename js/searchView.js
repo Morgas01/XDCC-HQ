@@ -1,17 +1,32 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 	SC=SC({
-		tabs:"gui.tabs"
+		tabs:"gui.tabs",
+		rq:"request"
 	});
 	var tabs=SC.tabs([]);
 	document.body.appendChild(tabs)
 	window.addEventListener("message", function(event)
 	{
+		var container=null;
 		tabs.addTab(e=>e.innerHTML=String.raw
 `
-<span>${event.data}</span>
+<span>${event.data.query}</span>
 <botton data-action="closeTab">&#10060;</button>
 `
-		,JSON.stringify(event.data,null,"\t"),true);
+		,e=>container=e,true);
+
+		container.dataset.state="request";
+		SC.rq.json({
+			urls:["rest/search"],
+			data:JSON.stringify(event.data)
+		})
+		.then(function(data)
+		{
+			container.dataset.state="response";
+			var resultTable=SC.resultTable(data);
+			container.appendChild(resultTable);
+			container.dataset.state="done";
+		});
 
 	},false);
 /*

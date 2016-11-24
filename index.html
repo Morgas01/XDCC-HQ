@@ -12,6 +12,10 @@
 		<script defer src="/morgas/gui/form.js"></script>
 		<script defer src="/morgas/Morgas.util.object.inputValues.js"></script>
 		<script defer src="/morgas/Morgas.util.object.goPath.js"></script>
+		<script defer src="/morgas/Morgas.util.Request.js"></script>
+		<script defer src="/morgas/Morgas.Promise.js"></script>
+		<script defer src="/morgas/Morgas.util.object.adopt.js"></script>
+		<script defer src="/morgas/Morgas.util.function.rescope.js"></script>
 
 
 		<link rel="stylesheet" href="css/index.less">
@@ -19,7 +23,9 @@
 
 	</head>
 	<body>
-		<button id="searchBtn" title="go!">&#128269;</button>
+		<div id="searchWrapper">
+			<button id="searchBtn" title="go!">&#128269;</button>
+		</div>
 		<iframe id="searchFrame" src="searchView.html"></iframe>
 	</body>
 </html>

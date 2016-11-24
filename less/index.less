@@ -9,11 +9,15 @@ body {
 	flex-direction:column;
 	align-items:center;
 }
+#searchWrapper {
+	display:flex;
+	flex-direction:column;
+    align-self:center;
+}
 #searchForm {
     order:1;
 
     padding:1em;
-    align-self:center;
 	display:flex;
 	flex-direction:row;
 	flex-wrap:wrap;
@@ -36,11 +40,68 @@ body {
         left:2.25em;
     }
 }
+#searchSources {
+	order:2;
+	flex-direction:row;
+	flex-wrap:wrap;
+	white-space:nowrap;
+	legend {
+		cursor:pointer;
+		&::after {
+			content:"\2796";
+			display: inline-block;
+			border: 1px solid;
+			border-radius:.25em;
+			line-height:.8em;
+			margin:0 .1em;
+			padding:.1em;
+			font-weight:bold;
+		}
+	}
+	&.hidden {
+		padding-top:0;
+		padding-bottom:0;
+		legend::after {
+			content:"\2795";
+		}
+		 label {
+			display:none;
+		}
+	}
+	label {
+		margin:.1em 1em;
+		flex-basis:~"calc(20% - 2em)";
+		@media screen and (max-width:60em) {
+			flex-basis:~"calc(25% - 2em)";
+		}
+		@media screen and (max-width:40em) {
+			flex-basis:~"calc(50% - 2em)";
+		}
+		@media screen and (max-width:20em) {
+			flex-basis:100%;
+		}
+		cursor:pointer;
+		&:hover {
+			font-weight:bold;
+
+			input {
+				transform:scale(1.1);
+			}
+		}
+	}
+	.label {
+		width:0;
+		margin-right:0;
+	}
+	input {
+		flex-grow:0;
+	}
+}
 #searchBtn {
-    order:2;
+    order:3;
+    font-size:2em;
 }
 #searchFrame {
-	order:3;
 	flex-grow:1;
 	align-self:stretch;
 	border:0;
