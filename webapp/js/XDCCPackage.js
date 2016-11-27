@@ -147,7 +147,7 @@
 				{
 					if(this.progressMax)
 					{
-						this.dom.progress.value = this.progressValue;
+						this.dom.progress.value = this.progressValue||0;
 						this.dom.progress.max   = this.progressMax;
 						if(this.progressCb) this.progressCb(this.progressValue,this.progressMax);
 					}
