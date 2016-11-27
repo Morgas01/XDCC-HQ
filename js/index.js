@@ -3,7 +3,8 @@
 	var SC=SC({
 	    Config:"Config",
 	    form:"gui.form",
-	    rq:"request"
+	    rq:"request",
+	    dialog:"gui.dialog"
 	});
 
 	var searchWrapper=document.getElementById("searchWrapper");
@@ -34,11 +35,11 @@
 		searchSources.id="searchSources";
 		searchSources.classList.add("hidden");
 		searchWrapper.appendChild(searchSources);
-		searchSources.firstChild.addEventListener("click",function()
+		searchSources.firstElementChild.addEventListener("click",function()
 		{
 			searchSources.classList.toggle("hidden")
 		})
-	})
+	});
 
 	document.getElementById("searchBtn").addEventListener("click",function()
 	{
@@ -52,6 +53,37 @@
 	        }
 	        document.getElementById("searchFrame").contentWindow.postMessage(data,"*");
 	    }
-	})
+	});
+
+	document.getElementById("configBtn").addEventListener("click",function()
+	{
+	    SC.dialog(function(element)
+	    {
+	    	element.id="configDialog";
+	    	element.classList.add("request");
+	    	SC.rq.json({
+	    		method:"OPTIONS",
+	    		url:"rest/config"
+			}).then(function(data)
+			{
+				element.classList.remove("request");
+				element.appendChild(SC.form(data.description,data.value));
+				element.addEventListener("FormChange",function(event)
+				{
+					SC.rq({
+						url:"rest/config",
+						data:JSON.stringify({
+							key:[event.detail.path,event.detail.key],
+							value:event.detail.value
+						})
+					})
+				});
+				var closeBtn=document.createElement("button");
+				closeBtn.textContent="ok";
+				closeBtn.dataset.action="close";
+				element.appendChild(closeBtn);
+			});
+	    })
+	});
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
