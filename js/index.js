@@ -83,7 +83,7 @@
 				closeBtn.dataset.action="close";
 				element.appendChild(closeBtn);
 			});
-	    })
+	    },{modal:true});
 	});
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

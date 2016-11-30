@@ -1,5 +1,158 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
-	
+
+	var goPath=GMOD("goPath");
+
+	SC=SC({
+		TableData:"gui.TableData",
+		selectionTable:"gui.selectionTable",
+		form:"gui.form",
+		action:"gui.actionize",
+		org:"Organizer",
+		dlg:"gui.dialog"
+	});
+
+	var helper=document.createDocumentFragment();
+
+	var filterGroups={
+		subber:p=>
+		{
+			var m=p.name.match(/^\[([^\]]+)/);
+			if(m)return m[1];
+			return "no subber found";
+		},
+		bot:goPath.guide("bot"),
+		resolution: p=>
+		{
+			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
+			if (m==null) return "unknown";
+			return m.slice(1).join("")+"p";
+		},
+		network:goPath.guide("network"),
+	}
+
+	var searchResult=function(container,data)
+	{
+		container.classList.add("searchResult");
+		container.innerHTML=String.raw
+`
+<div class="errors"></div>
+<div class="actions">
+	<input type="text" placeholder="filter"> <button data-action="filter">filter</button>
+	<button data-action="showIrcCmd">show irc command</button>
+	<button data-action="download">download</button>
+</div>
+<div class="results">
+	<div class="tableWrapper"></div>
+</div>
+`		;
+		var results=container.children[2];
+		var tableWrapper=results.children[0];
+		var table=SC.selectionTable(new SC.TableData(data.results,["name","filesize","packnumber","bot","channel","network"]));
+		table.noInput=true;
+		SC.selectionTable.selectionControl(table);
+		tableWrapper.appendChild(table);
+
+		var tableBody=table.children[1];
+		var rows=Array.from(tableBody.children);
+
+		var organizer=new SC.org(data.results);
+		var manualFilter=null;
+
+		var filtersConfig={
+			uniqueNames:{
+				type:"boolean",
+				default:false
+			}
+		};
+
+		for(var group in filterGroups)
+		{
+			organizer.group(group,filterGroups[group]);
+
+			filtersConfig[group]={
+				type:"select",
+				multiple:true,
+				default:[],
+				values:Object.keys(organizer.getGroup(group)).sort()
+			};
+		}
+
+		var filters=SC.form(filtersConfig,undefined,"filters");
+
+		var updateFilter=function()
+		{
+			var filterValues=filters.getConfig().get();
+			var filtered=organizer.combine(false);
+
+			if(manualFilter) filtered=filtered.filter(manualFilter);
+
+			for(var group in filterGroups)
+			{
+				filterValues[group].forEach(part=>filtered.group(group,part));
+			}
+
+			filtered.getIndexes().forEach(index=>helper.appendChild(rows[index]));
+
+			while(tableBody.firstChild) tableBody.removeChild(tableBody.firstChild);
+			tableBody.appendChild(helper);
+
+		}
+
+		filters.addEventListener("change",updateFilter);
+		results.appendChild(filters);
+
+		SC.action({
+        	filter:function(e)
+        	{
+        		var manualFilterValue=e.previousSibling.value;
+        		if(manualFilterValue)
+        		{
+					if(!organizer.hasFilter(manualFilterValue))
+					{
+						//TODO
+						manualFilterValue=null;
+					}
+					manualFilter=manualFilterValue;
+				}
+				else manualFilter=null;
+				updateFilter();
+        	},
+        	showIrcCmd:function()
+        	{
+        		var networks=new SC.org(table.getSelected())
+        		.group("network","network",child=>child.group("channel","channel",child=>child.group("bot","bot"))).getGroup("network");
+
+				var content="<pre>";
+				for(var n in networks)
+				{
+					var channels=networks[n].getGroup("channel");
+					for(var c in channels)
+					{
+						var channel=channels[c];
+						content+=n+"/"+c+"\n";
+						var bots=channel.getGroupValues("bot");
+						for(var b in bots)
+						{
+							var bot=bots[b];
+							content+="/msg "+b+" XDCC BATCH "+bot.map(p=>p.packnumber).join(",")+"\n";
+						}
+						content+="\n";
+					}
+				}
+				content+='</pre><button data-action="close">ok</button>';
+        		SC.dlg(content,{modal:true,target:container});
+        	},
+        	download:function()
+        	{
+        	},
+		},container.querySelector(".actions"))
+
+		return container;
+	}
+
+	SMOD("searchResult",searchResult);
+
+	/*
 	var Tab=GMOD("Tab");
 	var goPath=GMOD("goPath");
 	
@@ -408,6 +561,7 @@
 		}
 	});
 	
-	SMOD("SearchResult",SR);
+	SMOD("searchResult",searchResult);
+	*/
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
