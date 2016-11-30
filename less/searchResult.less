@@ -22,7 +22,15 @@
 			flex-grow:1;
 			header div {
 				background-color:lighten(spin(@secondaryColor,90),20%);
-				cursor:pointer;
+				cursor:ns-resize;
+				&.ASC::after {
+					content:"\2303";
+					margin-left:1em;
+				}
+				&.DESC::after {
+					content:"\2304";
+					margin-left:1em;
+				}
 			}
 			.name {
 				width:100%;

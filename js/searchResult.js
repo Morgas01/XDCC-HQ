@@ -8,7 +8,8 @@
 		form:"gui.form",
 		action:"gui.actionize",
 		org:"Organizer",
-		dlg:"gui.dialog"
+		dlg:"gui.dialog",
+		fuzzy:"fuzzySearch"
 	});
 
 	var helper=document.createDocumentFragment();
@@ -25,7 +26,7 @@
 		{
 			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
 			if (m==null) return "unknown";
-			return m.slice(1).join("")+"p";
+			return m.slice(-2).join("")+"p";
 		},
 		network:goPath.guide("network"),
 	}
@@ -47,7 +48,8 @@
 `		;
 		var results=container.children[2];
 		var tableWrapper=results.children[0];
-		var table=SC.selectionTable(new SC.TableData(data.results,["name","filesize","packnumber","bot","channel","network"]));
+		var tableData=new SC.TableData(data.results,["name","filesize","packnumber","bot","channel","network"]);
+		var table=SC.selectionTable(tableData);
 		table.noInput=true;
 		SC.selectionTable.selectionControl(table);
 		tableWrapper.appendChild(table);
@@ -57,6 +59,7 @@
 
 		var organizer=new SC.org(data.results);
 		var manualFilter=null;
+		var sort=null;
 
 		var filtersConfig={
 			uniqueNames:{
@@ -82,13 +85,18 @@
 		var updateFilter=function()
 		{
 			var filterValues=filters.getConfig().get();
-			var filtered=organizer.combine(false);
+			var filtered=organizer.combine(false,sort);
 
-			if(manualFilter) filtered=filtered.filter(manualFilter);
+			if(manualFilter) filtered.filter(manualFilter);
 
 			for(var group in filterGroups)
 			{
-				filterValues[group].forEach(part=>filtered.group(group,part));
+				if(filterValues[group].length>0)
+				{
+					var groupFiltered=organizer.combine(true);
+					filterValues[group].forEach(part=>groupFiltered.group(group,part));
+					filtered.combine(groupFiltered);
+				}
 			}
 
 			filtered.getIndexes().forEach(index=>helper.appendChild(rows[index]));
@@ -102,17 +110,26 @@
 		results.appendChild(filters);
 
 		SC.action({
-        	filter:function(e)
+        	filter:function(event,target)
         	{
-        		var manualFilterValue=e.previousSibling.value;
+        		var manualFilterValue=target.previousElementSibling.value;
         		if(manualFilterValue)
         		{
 					if(!organizer.hasFilter(manualFilterValue))
 					{
-						//TODO
-						manualFilterValue=null;
+						var scorer=SC.fuzzy.scoreFunction(manualFilterValue);
+						var helperMap=new Map();
+						var getScore=function(d)
+						{
+							if(!helperMap.has(d)) helperMap.set(d,scorer(d.name));
+							return helperMap.get(d);
+						}
+						organizer.filter(manualFilterValue,d=>getScore(d).reduce((a,b)=>a+b)>0);
+						organizer.sort(manualFilterValue,(a,b)=>SC.fuzzy.sortScore(getScore(a),getScore(b)));
 					}
-					manualFilter=manualFilterValue;
+					manualFilter=sort=manualFilterValue;
+					for(var c of table.querySelectorAll(".ASC")) c.classList.remove("ASC");
+					for(var c of table.querySelectorAll(".DESC")) c.classList.remove("DESC");
 				}
 				else manualFilter=null;
 				updateFilter();
@@ -145,7 +162,35 @@
         	download:function()
         	{
         	},
-		},container.querySelector(".actions"))
+		},container.querySelector(".actions"));
+
+		var tableHeader=table.children[0];
+		tableHeader.addEventListener("click",function(event)
+		{
+			if(event.target.dataset.translation)
+			{
+				var column=event.target;
+				if(column.classList.contains("ASC"))
+				{
+					column.classList.remove("ASC");
+					column.classList.add("DESC");
+					sort="!"+column.dataset.translation;
+					if(!organizer.hasSort(sort)) organizer.sort(sort,SC.org.attributeSort([column.dataset.translation],true));
+				}
+				else if(column.classList.contains("DESC"))
+				{
+					column.classList.remove("DESC");
+					sort=null;
+				}
+				else
+				{
+					column.classList.add("ASC");
+					sort=column.dataset.translation;
+					if(!organizer.hasSort(sort)) organizer.sort(sort,SC.org.attributeSort([column.dataset.translation],false));
+				}
+				updateFilter();
+			}
+		})
 
 		return container;
 	}
@@ -325,7 +370,7 @@
 				this.filterExp=filter.toUpperCase();
 				if(!this.org.hasFilter(this.filterExp))
 				{
-					var exp=new RegExp(this.filterExp.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
+					var exp=new RegExp(this.filterExp.replace(/[.*+?^${}()|[\]\\]/g,"\\$1").replace(/\s+/g,".*"),"i");
 					this.org.filter(this.filterExp,a=>exp.test(a.name));
 				}
 			}
