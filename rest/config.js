@@ -26,6 +26,7 @@ var config=SC.Config.parse({
 	"search timeout":{
 		type:"number",
 		min:500,
+		max:50000,
 		default:15000
 	},
 	"search sources":{

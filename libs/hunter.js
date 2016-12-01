@@ -122,7 +122,7 @@ var requestUrl=SC.Promise.pledge(function(signal,url)
 	.on("timeout",function()
 	{
 		this.abort();
-		this.reject("timeout");
+		signal.reject("timeout");
 	});
 });
 var filterResults=function(results,query)

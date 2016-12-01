@@ -56,6 +56,13 @@
 
 		var tableBody=table.children[1];
 		var rows=Array.from(tableBody.children);
+		table.addEventListener("select",function()
+		{
+			for(var row of rows)
+			{
+				if(!row.parentNode) row.children[0].checked=false;
+			}
+		});
 
 		var organizer=new SC.org(data.results);
 		var manualFilter=null;

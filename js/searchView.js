@@ -25,8 +25,7 @@
 		.then(function(data)
 		{
 			container.dataset.state="response";
-			var searchResult=SC.searchResult(data);
-			container.appendChild(searchResult);
+			var searchResult=SC.searchResult(container,data);
 			container.dataset.state="done";
 		});
 

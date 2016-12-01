@@ -57,7 +57,7 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		var p= SC.itAs(queries,function(index,query)
 		{
 			µ.logger.info({query:query},`hunt in ${subOffice} for ${query} [${index}/${queries.length}]`);
-			return hunter.request("search",query,SC.config.get("search timeout")*2);
+			return hunter.request("search",query,50000);
 		})
 		.then(results=>({results:Array.prototype.concat.apply([],results)}),
 		function(results)
