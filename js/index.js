@@ -68,12 +68,12 @@
 			{
 				element.classList.remove("request");
 				element.appendChild(SC.form(data.description,data.value));
-				element.addEventListener("FormChange",function(event)
+				element.addEventListener("formChange",function(event)
 				{
 					SC.rq({
 						url:"rest/config",
 						data:JSON.stringify({
-							key:[event.detail.path,event.detail.key],
+							key:event.detail.path.concat(event.detail.key),
 							value:event.detail.value
 						})
 					})
