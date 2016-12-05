@@ -33,4 +33,12 @@ body {
 			}
 		}
 	}
+	[data-state="request"] {
+		.stripes(@secondaryColor);
+		.animate-stripes();
+	}
+	[data-state="response"] {
+		.stripes(@ternaryColor);
+		.animate-stripes();
+	}
 }

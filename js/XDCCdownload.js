@@ -56,21 +56,21 @@
 				filesize=parseFloat(match[1]);
 				switch (match[2])
 				{
-					case:"P":
-					case:"p":
+					case "P":
+					case "p":
 						filesize*=1E3;
-					case:"T":
-					case:"t":
+					case "T":
+					case "t":
 						filesize*=1E3;
-					case:"G":
-					case:"g":
+					case "G":
+					case "g":
 						filesize*=1E3;
-					case:"M":
-					case:"m":
+					case "M":
+					case "m":
 					default:
 						filesize*=1E3;
-					case:"K":
-					case:"k":
+					case "K":
+					case "k":
 						filesize*=1E3;
 				}
 			}

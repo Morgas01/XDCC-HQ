@@ -45,7 +45,6 @@
 	{
 	    if(searchForm.isValid())
 	    {
-
 	        var data={query:searchForm.getConfig().get()};
 	        if(!searchSources.classList.contains("hidden"))
 	        {

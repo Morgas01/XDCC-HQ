@@ -21,7 +21,7 @@ exports.parse=function(data)
 			bot:match[1],
 			name:match[4],
 			packnumber:match[2],
-			size:match[3]+"M"
+			filesize:match[3]+"M"
 		});
 	}
 	return rtn;

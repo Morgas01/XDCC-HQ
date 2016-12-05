@@ -31,7 +31,8 @@ var searches={
 		.then(function(data)
 		{
 			return subOffice.parse(data);
-		});
+		})
+		.then(appendSubOffice);
 	},
 	"FILE":function(query)
 	{
@@ -59,7 +60,8 @@ var searches={
 				.then(()=>jsonData) //return json data
 			});
 		})
-		.then(r=>filterResults(r,query));
+		.then(r=>filterResults(r,query))
+		.then(appendSubOffice);
 	},
 	"BOT":function(query)
 	{
@@ -92,7 +94,8 @@ var searches={
 				.then(()=>jsonData) //return json data
 			});
 		})
-		.then(r=>filterResults(r,query));
+		.then(r=>filterResults(r,query))
+		.then(appendSubOffice);
 	}
 }
 var requestUrl=SC.Promise.pledge(function(signal,url)
@@ -131,3 +134,11 @@ var filterResults=function(results,query)
 	var exp=new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
 	return results.filter(function(p){return exp.test(p.name)});
 };
+var appendSubOffice=function(results)
+{
+	for(var result of results)
+	{
+		result.subOffice=subOfficeName;
+	}
+	return results;
+}

@@ -4,8 +4,9 @@ var SC=µ.shortcut({
 	File:"File",
 	Promise:"Promise",
 	Worker:"nodeWorker",
-	uniquify:"uniquify",
-	es:"errorSerializer"
+	Org:"Organizer",
+	es:"errorSerializer",
+	XDCCdownload:require.bind(null,"../js/XDCCdownload"),
 });
 
 
@@ -39,7 +40,7 @@ module.exports=function(request)
 		var queries=[].concat(request.data.query);
 
 		return Promise.all(filteredList.map(s=>doSearch(s,queries)))
-		.then(filterResults);
+		.then(combineResults);
 	});
 };
 var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
@@ -64,12 +65,8 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		{
 			var rtn={results:null,error:results.pop()};
 			rtn.results=Array.prototype.concat.apply([],results);
+			rtn.error.subOffice=subOffice;
 			return rtn;
-		})
-		.then(function(result)
-		{
-			result.source=subOffice;
-			return result;
 		});
 
 		p.always(function(result)
@@ -88,18 +85,44 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 	})
 	.then(signal.resolve,signal.reject);
 });
-var filterResults=function(huntResults)
+var combineResults=function(huntResults)
 {
 	var rtn={
 		results:[],
-		errors:[]
+		errors:huntResults.reduce((a,h)=>(h.error&&a.push(h.error),a),[])
 	};
-	for(var i=0;i<huntResults.length;i++)
+
+	var org = new SC.Org(huntResults.reduce((a,hr)=>(a.push.apply(a,hr.results),a),[]));
+	org.group("names",r=>r.name,function(subGroup)
 	{
-		rtn.results=rtn.results.concat(huntResults[i].results);
-		if(huntResults[i].error) rtn.errors.push({subOffice:huntResults[i].subOffice,error:huntResults[i].error});
+		subGroup.group("sources",r=>String.raw`{"network":"${r.network}","channel":"${r.channel}","bot":"${r.bot}","packnumber":${r.packnumber||"null"}}`,
+		subsubGroup=>subsubGroup.group("subOffices","subOffice"));
+	});
+
+	var nameGroups=org.getGroup("names");
+	for(var name in nameGroups)
+	{
+		var pack={
+			name:name,
+			filesize:null,
+			sources:[]
+		};
+		var sourceGroups=nameGroups[name].getGroup("sources");
+		for(var sourceKey in sourceGroups)
+		{
+			var source=JSON.parse(sourceKey);
+			source.subOffices=Object.keys(sourceGroups[sourceKey].getGroup("subOffices"));
+			pack.sources.push(source);
+		}
+		var filesizes=[];
+		for(var result of nameGroups[name].getValues())
+		{
+			var size=SC.XDCCdownload.parseFilesize(result.filesize);
+			if(size>0) filesizes.push(size);
+		}
+		pack.filesize=filesizes.reduce((a,b)=>a+b,0)/(filesizes.length||1);
+		rtn.results.push(pack);
+
 	}
-	//TODO merge sources
-	rtn.results=SC.uniquify(rtn.results,function(p){return p.network+p.bot+p.packnumber+p.name});
 	return rtn;
 }

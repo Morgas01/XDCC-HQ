@@ -34,7 +34,29 @@
 			}
 			.name {
 				width:100%;
+			}
+			.name,.filesize {
 				white-space:nowrap;
+				vertical-align:middle;
+			}
+			.sources {
+				word-break:keep-all;
+				position:relative;
+				&:hover::after {
+					content:attr(data-title);
+					.background();
+					color:@textColor;
+					border:1px solid;
+					.border-color();
+					border-radius:1em;
+					position:absolute;
+					z-index:1;
+					top:~"calc(100% + .5em)";
+					right:1em;
+					padding:.5em;
+					.boxShadow();
+					white-space:pre;
+				}
 			}
 		}
 		.form {
@@ -56,9 +78,9 @@
 				margin:0;
 				white-space:nowrap;
 			}
-			label:nth-child(n + 3) {
+			label {
 				flex-direction:column;
-				margin-top:.5em;
+				margin-bottom:.5em;
 			}
 		}
 	}

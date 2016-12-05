@@ -15,7 +15,7 @@ exports.parse=function(data)
 			bot:d.botname,
 			name:d.filename.trim(),
 			packnumber:d.packnum,
-			size:d.size
+			filesize:d.size
 		};
 	});
 	return rtn;

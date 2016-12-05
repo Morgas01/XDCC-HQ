@@ -22,7 +22,7 @@ exports.parse=function(data)
 			bot:exports.bot,
 			name:match[3],
 			packnumber:match[1],
-			size:match[2]
+			filesize:match[2]
 		});
 	}
 	return rtn;
