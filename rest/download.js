@@ -85,7 +85,17 @@ module.exports={
 			return dbConnector.then(function(dbc)
 			{
 				return dbc.save(param.data.map(d=>new SC.XDCCdownload(d)));
-			}).then(()=>({result:true}));
+			}).then(function(){
+				dbErrors.length=0;
+				return true;
+			},
+			function(error)
+			{
+				error={error:SC.es(error),file:this.file.getAbsolutePath()};
+				µ.logger.error(error,"failed to add downloads");
+				dbErrors.push(error);
+				return Promise.reject(error);
+			});
 		}
 	}
 }
