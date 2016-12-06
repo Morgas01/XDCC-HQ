@@ -4,43 +4,88 @@ var SC=µ.shortcut({
 	DBC:"DB/jsonConnector",
 	XDCCdownload:require.bind(null,"../js/XDCCdownload"),
 	DBObject:"DBObject",
-	es:"errorSerializer"
+	es:"errorSerializer",
+	Promise:"Promise"
 });
 
-var rotationErrors=null;
+var dbErrors=[];
+var rotateErrorMapper=rotateError=>({error:SC.es(rotateError.error),file:rotateError.file.getAbsolutePath()});
 
 var dbConnector=SC.FileUtils.enshureDir("storage").then(function()
 {
-	return new SC.DBC(this.changePath("downloads.json")).open()
-})
-.then(function(result)
-{
-	if(result.others)
+	return new SC.DBC(this.changePath("downloads.json")).open
+	.then(function(result)
 	{
-		rotationErrors=result.others.map(other=>({error:SC.es(other.error),file:other.file.getAbsolutePath()}));
-		rotationErrors.push({file:result.file,error:"loaded"});
-		µ.logger.warn({errors:errors},"errors loading file "+file.getAbsolutePath());
-	}
-	return this;
+		if(result.others.length>0)
+		{
+			dbErrors=result.others.map(rotateErrorMapper);
+			dbErrors.push({file:result.file.getAbsolutePath(),error:"loaded"});
+			µ.logger.warn({errors:dbErrors},"errors loading file "+result.file.getAbsolutePath());
+		}
+		return this;
+	},
+	function(errors)
+	{
+		if(errors.length>0)
+		{
+			Array.prototype.push.apply(dbErrors,errors.map(rotateErrorMapper));
+			dbErrors.push({file:null,error:"could not load any DB file"});
+			µ.logger.warn({errors:dbErrors},"could not load any DB file");
+		}
+		return this;
+	});
+});
+dbConnector.catch(function(error)
+{
+	dbErrors.push(SC.es(error));
+	µ.logger.error({error:error},"error opening downloads DB");
 });
 
+var concat=Array.prototype.concat.bind(Array.prototype);
 
 module.exports={
 	errors:function()
 	{
-		return rotationErrors;
+		return dbErrors;
 	},
 	list:function()
 	{
 		return dbConnector.then(function(dbc)
 		{
 			return new SC.Promise([dbc.load(SC.XDCCdownload),dbc.load(SC.XDCCdownload.Package)])
-			.then(function(downloads,packages)
-			{
-				var all=downloads.concat(packages);
-				SC.DBObject.connectObjects(all);
-				return all.filter(o=>o.packageID==null);
-			})
+			.then(concat);
 		});
+	},
+	add:function(param)
+	{
+		if (param.method!=="POST"||!param.data||!param.data.length)
+		{
+			return String.raw
+`post as json like this:
+[
+	{
+		"name":"packageName",
+		"sources":[
+			{
+				"network":"ircServer",
+				"channel":"ircChannel",
+				"bot":"xdccBot",
+				"packnumber":number
+			}
+			(,...)
+		]
+	}
+	(,...)
+]
+`
+			;
+		}
+		else
+		{
+			return dbConnector.then(function(dbc)
+			{
+				return dbc.save(param.data.map(d=>new SC.XDCCdownload(d)));
+			}).then(()=>({result:true}));
+		}
 	}
 }

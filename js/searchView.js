@@ -5,6 +5,9 @@
 		searchResult:"searchResult",
 		dlg:"gui.dialog"
 	});
+
+	//TODO check DB errors and queue searches
+
 	var tabs=SC.tabs([]);
 	document.body.appendChild(tabs)
 	window.addEventListener("message", function(event)

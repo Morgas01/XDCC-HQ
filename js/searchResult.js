@@ -10,7 +10,8 @@
 		org:"Organizer",
 		dlg:"gui.dialog",
 		fuzzy:"fuzzySearch",
-		XDCCdownload:"Download"
+		XDCCdownload:"Download",
+		rq:"request"
 	});
 
 	var helper=document.createDocumentFragment();
@@ -178,8 +179,27 @@
 				content+='</pre><button data-action="close">ok</button>';
         		SC.dlg(content,{modal:true,target:container});
         	},
-        	download:function()
+        	download:function(event,button)
         	{
+        		button.disabled=true;
+        		SC.rq({
+        			url:"rest/download/add",
+        			data:JSON.stringify(table.getSelected())
+        		})
+        		.then(function()
+        		{
+        			SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close">ok</button>',
+        				{modal:true,target:container}
+					);
+        		},
+        		function(e)
+        		{
+        			µ.logger.error(e);
+        			SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding downloads:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
+        				{modal:true,target:container}
+					);
+        		})
+        		.always(()=>button.disabled=false);
         	},
 		},container.querySelector(".actions"));
 

@@ -31,11 +31,7 @@
 				get:()=>DOWNLOAD.formatFileSize(this.filesize),
 			});
 
-			this.addField("network",	FIELD.TYPES.STRING	,param.network);
-			this.addField("channel",	FIELD.TYPES.STRING	,param.channel);
-			this.addField("bot",		FIELD.TYPES.STRING	,param.bot);
-			this.addField("packnumber",	FIELD.TYPES.INT		,param.packnumber);
-			this.addField("sources",	FIELD.TYPES.JSON	,param.bot);
+			this.addField("sources",	FIELD.TYPES.JSON	,param.sources);
 
 		}
 	});

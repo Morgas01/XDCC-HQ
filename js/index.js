@@ -18,6 +18,10 @@
 	   default:[""]
 	}, undefined,"Search");
 	searchForm.id="searchForm";
+	var firstInput=searchForm.querySelector("input")
+	firstInput.accessKey="F";
+	firstInput.title="AccessKey F";
+	firstInput.autofocus=true;
 	searchWrapper.appendChild(searchForm);
 
 	var searchSources;
