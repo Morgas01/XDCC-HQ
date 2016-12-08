@@ -11,7 +11,8 @@
 		dlg:"gui.dialog",
 		fuzzy:"fuzzySearch",
 		XDCCdownload:"Download",
-		rq:"request"
+		rq:"request",
+		menu:"gui.menu"
 	});
 
 	var helper=document.createDocumentFragment();
@@ -48,8 +49,13 @@
 	<div class="tableWrapper"></div>
 </div>
 `		;
+		var errors=container.children[0];
+		var actions=container.children[1]
 		var results=container.children[2];
 		var tableWrapper=results.children[0];
+
+		createErrorMenu(errors,data.errors)
+
 		var tableData=new SC.TableData(data.results,[
 			"name",
 			{
@@ -124,7 +130,7 @@
 			while(tableBody.firstChild) tableBody.removeChild(tableBody.firstChild);
 			tableBody.appendChild(helper);
 
-		}
+		};
 
 		filters.addEventListener("change",updateFilter);
 		results.appendChild(filters);
@@ -201,7 +207,7 @@
         		})
         		.always(()=>button.disabled=false);
         	},
-		},container.querySelector(".actions"));
+		},actions);
 
 		var tableHeader=table.children[0];
 		tableHeader.addEventListener("click",function(event)
@@ -232,9 +238,30 @@
 				updateFilter();
 			}
 		});
+		tableHeader.querySelector("[data-translation=name]").click();
 
 		return container;
-	}
+	};
+
+	createErrorMenu=function(container,errors)
+	{
+		if(errors.length>0)
+		{
+			errors=errors.map(e=>({
+				html:e.subOffice,
+				children:[
+					{
+						html:'<div>'+e.message+'</div><div class="stack">'+(e.stack||"")+'</div>'
+					}
+				]
+			}));
+			errors=[{
+				html:errors.length+" errors",
+				children:errors
+			}];
+			container.appendChild(SC.menu(errors,(e,d)=>e.innerHTML=d.html));
+		}
+	};
 
 	SMOD("searchResult",searchResult);
 	

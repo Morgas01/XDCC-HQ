@@ -4,6 +4,27 @@
 	flex-direction:column;
 	padding-top:.5em;
 
+	.errors {
+		&:not(:empty) {
+			margin-bottom:1em;
+		}
+		li {
+			background-color:red;
+			color:white;
+			li:hover, li:hover li {
+				background-color:lighten(red,20%);
+				color:black;
+			}
+		}
+		.menu > li > ul {
+			top:100%;
+			left:0;
+		}
+		.stack {
+			white-space:pre;
+		}
+	}
+
 	.actions {
 		padding-bottom:.5em;
 		 button {

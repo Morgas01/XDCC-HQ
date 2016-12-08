@@ -32,7 +32,7 @@
 		{
 			sourcesConfig[sourceName]={
 				type:"boolean",
-				default:data["search sources"][sourceName]
+				default:false
 			};
 		}
 		searchSources=SC.form(sourcesConfig,undefined,"Sources");

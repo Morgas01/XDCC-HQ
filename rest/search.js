@@ -64,6 +64,7 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		function(results)
 		{
 			var rtn={results:null,error:results.pop()};
+			if(rtn.error==="timeout") rtn.error={message:rtn.error};
 			rtn.results=Array.prototype.concat.apply([],results);
 			rtn.error.subOffice=subOffice;
 			return rtn;
