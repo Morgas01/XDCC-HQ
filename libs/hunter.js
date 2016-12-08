@@ -36,7 +36,7 @@ var searches={
 	},
 	"FILE":function(query)
 	{
-		var parsedFile=new SC.File(__dirname).changePath("../temp").changePath(subOfficeName);
+		var parsedFile=new SC.File(__dirname).changePath("../storage").changePath(subOfficeName+"on");
 		return parsedFile.exists()
 		.then(function()
 		{
@@ -45,19 +45,19 @@ var searches={
 		})
 		.then(function()
 		{
+			µ.logger.info("hunt from file");
 			return parsedFile.read().then(JSON.parse);
 		},
 		function()
 		{
-			return requestUrl(subOffice.getUrl())
-			.then(function(data)
-			{
-				return subOffice.parse(data);
-			})
+			var getUrl=subOffice.getUrl();
+			µ.logger.info({url:getUrl},"hunt from url");
+			return requestUrl(getUrl)
+			.then(subOffice.parse)
 			.then(function(jsonData)
 			{
-				return parsedFile.write(jsonData)
-				.then(()=>jsonData) //return json data
+				return parsedFile.write(JSON.stringify(jsonData))
+				.always(()=>jsonData) //return json data
 			});
 		})
 		.then(r=>filterResults(r,query))
@@ -65,8 +65,8 @@ var searches={
 	},
 	"BOT":function(query)
 	{
-		var downloadedFile=new SC.File(__dirname).changePath("../temp").changePath(subOfficeName+".txt");
-		var parsedFile=new SC.File(__dirname).changePath("../temp").changePath(subOfficeName+".json");
+		var downloadedFile=new SC.File(__dirname).changePath("../storage").changePath(subOfficeName+".txt");
+		var parsedFile=new SC.File(__dirname).changePath("../storage").changePath(subOfficeName+".json");
 		return parsedFile.exists()
 		.then(function()
 		{
@@ -79,7 +79,7 @@ var searches={
 		},
 		function()
 		{
-			return downloadedFile.exist()
+			var p=downloadedFile.exist()
 			.then(subOffice.parse,
 			function()
 			{
@@ -87,12 +87,13 @@ var searches={
 					//TODO error for downloading bot listing
 				)
 			})
-			.then(function(jsonData)
+			then(function(jsonData)
 			{
-				return parsedFile.write(jsonData)
-				.then(()=>downloadedFile.remove().catch(µ.constantFunctions.pass)) //ignore error from removing file
-				.then(()=>jsonData) //return json data
+				return parsedFile.write(JSON.stringify(jsonData))
+				.then(()=>downloadedFile.remove())
+				.always(()=>jsonData); //return json Data
 			});
+			return p;
 		})
 		.then(r=>filterResults(r,query))
 		.then(appendSubOffice);
@@ -125,12 +126,11 @@ var requestUrl=SC.Promise.pledge(function(signal,url)
 	.on("timeout",function()
 	{
 		this.abort();
-		signal.reject("timeout");
+		signal.reject({message:"searchTimeout"});
 	});
 });
 var filterResults=function(results,query)
 {
-	//TODO FuzzySearch?
 	var exp=new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,".*"),"i");
 	return results.filter(function(p){return exp.test(p.name)});
 };
