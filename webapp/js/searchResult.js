@@ -26,9 +26,9 @@
 		},
 		resolution: p=>
 		{
-			var m=p.name.match(/(\d+x\d+|\d+p)/);
+			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
 			if (m==null) return "unknown";
-			return m.slice(1).join("")+"p";
+			return m.slice(-2).join("")+"p";
 		}
 	};
 	var groups=["subber","bot","resolution","network"];
