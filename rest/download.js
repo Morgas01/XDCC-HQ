@@ -41,20 +41,21 @@ dbConnector.catch(function(error)
 	µ.logger.error({error:error},"error opening downloads DB");
 });
 
+var notify=function(event,data)
+{
+	dbConnector.then(function(dbc)
+	{
+		worker.event("downloads",dbc.db.getValues(),event,data);
+	});
+};
+notify("init",null);
+
 var concat=Array.prototype.concat.bind(Array.prototype);
 
 module.exports={
 	errors:function()
 	{
 		return dbErrors;
-	},
-	list:function()
-	{
-		return dbConnector.then(function(dbc)
-		{
-			return new SC.Promise([dbc.load(SC.XDCCdownload),dbc.load(SC.XDCCdownload.Package)])
-			.then(concat);
-		});
 	},
 	add:function(param)
 	{
@@ -82,11 +83,13 @@ module.exports={
 		}
 		else
 		{
+			var downloads=param.data.map(d=>new SC.XDCCdownload(d));
 			return dbConnector.then(function(dbc)
 			{
-				return dbc.save(param.data.map(d=>new SC.XDCCdownload(d)));
+				return dbc.save(downloads);
 			}).then(function(){
 				dbErrors.length=0;
+				notify("add",downloads);
 				return true;
 			},
 			function(error)
