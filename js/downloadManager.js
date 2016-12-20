@@ -33,38 +33,48 @@
 	es.addEventListener("init",function(event)
 	{
 		ocon.db.add(JSON.parse(event.data));
-		ocon.load(SC.XDCCdownload,d=>d.packageID==null).then(data=>downloads.appendChild(SC.selectionTable(new SC.TreeTableData(data,[
-			"name",
-			{
-				name:"filesize",
-				fn:function(cell,data)
+		ocon.load(SC.XDCCdownload,d=>d.packageID==null)
+		.then(data=>
+		{
+			var table=SC.selectionTable(new SC.TreeTableData(data,[
+				"name",
 				{
-					cell.textContent=SC.XDCCdownload.formatFilesize(data.filesize);
-				}
-			},
-			{
-				name:"progress",
-				fn:function(cell,data)
+					name:"filesize",
+					fn:function(cell,data)
+					{
+						cell.textContent=SC.XDCCdownload.formatFilesize(data.filesize);
+					}
+				},
 				{
-					cell.innerHTML="<progress></progress>";
-				}
-			},
-			{
-				name:"speed",
-				fn:function(cell,data)
+					name:"progress",
+					fn:function(cell,data)
+					{
+						cell.innerHTML="<progress></progress>";
+					}
+				},
 				{
-					cell.textContent="? kb/s";
-				}
-			},
-			{
-				name:"sources",
-				fn:function(cell,data)
+					name:"speed",
+					fn:function(cell,data)
+					{
+						cell.textContent="? kb/s";
+					}
+				},
 				{
-					cell.textContent=data.sources.map(s=>s.bot+"@"+s.network).join(" ");
-					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+					name:"sources",
+					fn:function(cell,data)
+					{
+						cell.textContent=data.sources.map(s=>s.bot+"@"+s.network).join(" ");
+						cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+					}
 				}
-			}
-		]))));
+			]),null,function(row,data)
+			{
+				row.dataset.id=data.ID;
+			});
+			table.noInput=true;
+			SC.selectionTable.selectionControl(table);
+			downloads.appendChild(table);
+		});
 	});
 	es.addEventListener("add",function()
 	{
