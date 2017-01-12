@@ -8,7 +8,6 @@
 		TableData:"gui.TableData"
 	});
 
-	//TODO check DB errors and queue searches
 	var dbErrors=SC.rq.json("rest/download/errors")
 	.then(function(errors)
 	{
