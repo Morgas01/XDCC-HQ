@@ -47,7 +47,7 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 {
 	µ.logger.info({subOffice:subOffice,queries:queries},`start hunting in subOffice ${subOffice}`);
 
-	new SC.Worker("libs/hunter",{
+	new SC.Worker("lib/hunter",{
 		subOffice:subOffice,
 		fileExpiration:SC.config.get("file expiration"),
 		searchTimeout:SC.config.get("search timeout")

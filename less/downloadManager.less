@@ -31,5 +31,19 @@ body {
 	align-self:stretch;
 	.selectionTable {
 		width:100%;
+
+		[data-state="disabled"] {
+			.stripes(@width:35px);
+			&:hover {
+				.stripes(lighten(@secondaryColor,10%),@width:35px);
+			}
+			.textBorder();
+			input:checked ~ * {
+				text-shadow:none;
+			}
+		}
+		progress {
+			width:100%;
+		}
 	}
 }

@@ -1,3 +1,4 @@
+/*
 var SC=µ.shortcut({
 	File:"File",
 	FileUtils:"File.util",
@@ -50,8 +51,6 @@ var notify=function(event,data)
 };
 notify("init",null);
 
-var concat=Array.prototype.concat.bind(Array.prototype);
-
 module.exports={
 	errors:function()
 	{
@@ -102,3 +101,12 @@ module.exports={
 		}
 	}
 }
+*/
+require("../lib/NIWA-Download/Download");
+var XDCCdownload=require("../js/XDCCdownload");
+
+module.exports=require("../lib/NIWA-Download/service")({
+	DBClassDictionary:{
+		XDCCdownload:XDCCdownload
+	}
+});

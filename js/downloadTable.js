@@ -6,7 +6,8 @@
 		Download:"Download",
 		OCON:"ObjectConnector",
 		adopt:"adopt",
-		Promise:"Promise"
+		Promise:"Promise",
+		rq:"request"
 	});
 
 	var baseColumns={
@@ -28,6 +29,8 @@
 	var downloadTable=function (columns,options)
 	{
 		options=SC.adopt({
+			apiPath:"rest/downloads",
+			eventName:"downloads",
 			onTableRefresh:null, //function(table)
 			DBClasses:[] // download && package
 		},options);
@@ -82,25 +85,27 @@
 				{
 					tableData.columns.fn.call(item,cols[i],item);
 				}
+				row.dataset.state=item.state;
 			}
 		}
 
-		var es=new EventSource("event/downloads");
+		var es=new EventSource("event/"+options.eventName);
 		window.addEventListener("beforeunload",function(){es.close()})
 		es.addEventListener("error",µ.logger.error);
 		es.addEventListener("ping",µ.logger.debug);
 
 		es.addEventListener("init",function(event)
 		{
+			ocon.db.clear();
 			ocon.db.add(JSON.parse(event.data));
 			refreshTable();
 		});
-		es.addEventListener("add",function()
+		es.addEventListener("add",function(event)
 		{
 			ocon.db.add(JSON.parse(event.data));
 			refreshTable();
 		});
-		es.addEventListener("remove",function()
+		es.addEventListener("remove",function(event)
 		{
 			var data=JSON.parse(event.data);
 			var promises=[];
@@ -110,7 +115,7 @@
 			}
 			Promise.all(promises).then(refreshTable)
 		});
-		es.addEventListener("update",function()
+		es.addEventListener("update",function(event)
 		{
 			var data=JSON.parse(event.data);
 			data.downloads=(data.downloads||[]).map(d=>new SC.Download().fromJson(d));
@@ -118,14 +123,80 @@
 			ocon.save(data.downloads.concat(data.packages)).then(updateTable);
 		});
 
+		var prepareItems=function(items)
+		{
+			var rtn={};
+			for(var item of items)
+			{
+				if(!rtn[item.objectType])rtn[item.objectType]=[];
+				rtn[item.objectType].push(item.ID);
+			}
+			return rtn;
+		};
+
 		return {
-			"getTable":()=>container,
-			"disable":function(items){},
-			"enable":function(items){},
-			"reset":function(items){},
-			"createPacakge":function(name,items){},
-			"moveTo":function(target,items){},
-			"delete":function(items){},
+			"getContainer":()=>container,
+			"getTable":()=>table,
+			"getDb":()=>ocon,
+			"disable":function(items)
+			{
+				return SC.rq({
+					url:options.apiPath+"/disable",
+					data:JSON.stringify(prepareItems(items)),
+					method:"PUT"
+				});
+			},
+			"enable":function(items)
+			{
+				return SC.rq({
+					url:options.apiPath+"/enable",
+					data:JSON.stringify(prepareItems(items)),
+					method:"PUT"
+				});
+			},
+			"reset":function(items)
+			{
+				return SC.rq({
+					url:options.apiPath+"/reset",
+					data:JSON.stringify(prepareItems(items)),
+					method:"PUT"
+				});
+			},
+			"createPacakge":function(name,items)
+			{
+				return SC.rq({
+					url:options.apiPath+"/createPacakge",
+					data:JSON.stringify({
+						items:prepareItems(items),
+						name:name
+					}),
+					method:"POST"
+				});
+			},
+			"moveTo":function(target,items)
+			{
+				var data={
+					target:null,
+					items:prepareItems(items),
+				};
+				if(target) data.target={
+					objectType:target.objectType,
+					ID:target.ID
+				}
+				return SC.rq({
+					url:options.apiPath+"/moveTo",
+					data:JSON.stringify(data),
+					method:"PUT"
+				});
+			},
+			"delete":function(items)
+			{
+				return SC.rq({
+					url:options.apiPath+"/delete",
+					data:JSON.stringify(prepareItems(items)),
+					method:"DELETE"
+				});
+			},
 		}
 	};
 	downloadTable.baseColumns=Object.keys(baseColumns);

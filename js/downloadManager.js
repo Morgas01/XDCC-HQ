@@ -2,7 +2,8 @@
 
 	SC=SC({
 		action:"gui.actionize",
-		downloadTable:"downloadTable"
+		downloadTable:"downloadTable",
+		XDCCdownload:"XDCCdownload"
 	});
 
 	var actions=document.getElementById("actions");
@@ -12,6 +13,14 @@
 	//TODO DB Errors
 
 	SC.action({
+		enable:function()
+		{
+			downloadTable.enable(downloadTable.getTable().getSelected());
+		},
+		disable:function()
+		{
+			downloadTable.disable(downloadTable.getTable().getSelected());
+		},
 		remove:function(){},
 		removeDone:function(){},
 		removeDisabled:function(){},
@@ -26,7 +35,9 @@
 			cell.textContent=data.sources.map(s=>s.bot+"@"+s.network).join(" ");
 			cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
 		}
-	]));
-	downloads.appendChild(downloadTable.getTable());
+	]),{
+		DBClasses:[SC.XDCCdownload]
+	});
+	downloads.appendChild(downloadTable.getContainer());
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
