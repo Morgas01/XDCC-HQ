@@ -18,7 +18,11 @@
 		},
 		"progress":function progress(cell,data)
 		{
-			cell.innerHTML="<progress></progress>";
+			cell.innerHTML=String.raw
+`<div class="progress-wrapper">
+	<div class="progress" style="width:${25}%;"></div>
+</div>`
+			;
 		},
 		speed:function speed(cell,data)
 		{

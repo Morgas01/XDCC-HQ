@@ -9,6 +9,8 @@
 @import url("structure/selectionTable");
 @import url("style/selectionTable");
 
+@import "../lib/NIWA-Download/downloadTable";
+
 html,body {
 	padding:0;
 	margin:0;
@@ -29,21 +31,4 @@ body {
 #downloads {
 	flex-grow:1;
 	align-self:stretch;
-	.selectionTable {
-		width:100%;
-
-		[data-state="disabled"] {
-			.stripes(@width:35px);
-			&:hover {
-				.stripes(lighten(@secondaryColor,10%),@width:35px);
-			}
-			.textBorder();
-			input:checked ~ * {
-				text-shadow:none;
-			}
-		}
-		progress {
-			width:100%;
-		}
-	}
 }

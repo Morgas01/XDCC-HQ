@@ -3,7 +3,8 @@
 	SC=SC({
 		action:"gui.actionize",
 		downloadTable:"downloadTable",
-		XDCCdownload:"XDCCdownload"
+		XDCCdownload:"XDCCdownload",
+		rq:"request"
 	});
 
 	var actions=document.getElementById("actions");
@@ -21,10 +22,34 @@
 		{
 			downloadTable.disable(downloadTable.getTable().getSelected());
 		},
-		remove:function(){},
-		removeDone:function(){},
-		removeDisabled:function(){},
-		removeError:function(){},
+		remove:function()
+		{
+			downloadTable.delete(downloadTable.getTable().getSelected());
+		},
+		removeDone:function()
+		{
+			SC.rq({
+				url:"rest/downloads/deleteByState",
+				data:JSON.stringify("DONE"),
+				method:"DELETE"
+			});
+		},
+		removeDisabled:function()
+		{
+			SC.rq({
+				url:"rest/downloads/deleteByState",
+				data:JSON.stringify("DISABLED"),
+				method:"DELETE"
+			});
+		},
+		removeError:function()
+		{
+			SC.rq({
+				url:"rest/downloads/deleteByState",
+				data:JSON.stringify("ERROR"),
+				method:"DELETE"
+			});
+		},
 		addDownload:function(){},
 		listFilenames:function(){},
 	},actions);
@@ -36,6 +61,7 @@
 			cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
 		}
 	]),{
+		apiPath:"rest/downloads/manager",
 		DBClasses:[SC.XDCCdownload]
 	});
 	downloads.appendChild(downloadTable.getContainer());
