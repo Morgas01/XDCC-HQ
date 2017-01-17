@@ -105,13 +105,17 @@
 			ocon.db.add(JSON.parse(event.data));
 			refreshTable();
 		});
-		es.addEventListener("remove",function(event)
+		es.addEventListener("delete",function(event)
 		{
 			var data=JSON.parse(event.data);
 			var promises=[];
 			for(var objectType in data)
 			{
-				if(options.DBClasses.has(objectType)) promises.push(ocon.delete(options.DBClasses.get(objectType),data[objectType]));
+				if(options.DBClasses.has(objectType))
+				{
+					if(Array.isArray(data[objectType])) promises.push(ocon.delete(options.DBClasses.get(objectType),data[objectType]));
+					else µ.logger.error(data[objectType]);
+				}
 			}
 			Promise.all(promises).then(refreshTable)
 		});
