@@ -106,9 +106,7 @@ require("../lib/NIWA-Download/Download");
 var XDCCdownload=require("../js/XDCCdownload");
 
 var manager=require("../lib/NIWA-Download/service")({
-	DBClassDictionary:{
-		XDCCdownload:XDCCdownload
-	}
+	DBClassDictionary:[XDCCdownload]
 });
 
 module.exports={

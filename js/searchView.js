@@ -37,7 +37,8 @@
 			},
 			function(error)
 			{
-				SC.dlg(error.response||error.error);
+				µ.logger.error(error);
+				SC.dlg(JSON.stringify(error.response||error.error));
 			});
 		});
 	},false);

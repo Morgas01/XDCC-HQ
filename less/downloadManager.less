@@ -32,6 +32,18 @@ body {
 #downloads {
 	flex-grow:1;
 	align-self:stretch;
+
+	.sources {
+		max-width:5em;
+		span {
+			display:inline-block;
+			width:100%;
+			text-overflow:ellipsis;
+			white-space:nowrap;
+			overflow:hidden;
+		}
+		.tooltip();
+	}
 }
 
 .dbError [data-action="abort"] {

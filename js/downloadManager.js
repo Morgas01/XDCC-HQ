@@ -66,8 +66,11 @@
 	var downloadTable=SC.downloadTable(SC.downloadTable.baseColumns.concat([
 		function sources(cell,data)
 		{
-			cell.textContent=data.sources.map(s=>s.bot+"@"+s.network).join(" ");
-			cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+			if(data instanceof SC.XDCCdownload)
+			{
+				cell.innerHTML='<span>'+data.sources.map(s=>s.bot+"@"+s.network).join(" ")+'</span>';
+				cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+			}
 		}
 	]),{
 		apiPath:"rest/downloads/manager",
