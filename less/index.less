@@ -1,4 +1,6 @@
-@import url("theme/default");
+@import "theme/default";
+
+@import "../lib/NIWA-Download/checkDbErrors";
 
 html,body {
 	padding:0;
@@ -132,4 +134,8 @@ body {
 	.addField, .removeField {
 		display:none;
 	}
+}
+
+.dbError [data-action="abort"] {
+	display:none;
 }

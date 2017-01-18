@@ -4,7 +4,8 @@
 	    Config:"Config",
 	    form:"gui.form",
 	    rq:"request",
-	    dialog:"gui.dialog"
+	    dialog:"gui.dialog",
+	    checkDB:"checkDbErrors"
 	});
 
 	var searchWrapper=document.getElementById("searchWrapper");
@@ -88,5 +89,7 @@
 			});
 	    },{modal:true});
 	});
+
+	SC.checkDB();
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

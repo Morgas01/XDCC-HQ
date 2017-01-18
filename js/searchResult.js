@@ -189,7 +189,7 @@
         	{
         		button.disabled=true;
         		SC.rq({
-        			url:"rest/download/add",
+        			url:"rest/downloads/manager/add",
         			data:JSON.stringify(table.getSelected())
         		})
         		.then(function()

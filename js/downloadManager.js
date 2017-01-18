@@ -4,7 +4,8 @@
 		action:"gui.actionize",
 		downloadTable:"downloadTable",
 		XDCCdownload:"XDCCdownload",
-		rq:"request"
+		rq:"request",
+		checkDB:"checkDbErrors"
 	});
 
 	var actions=document.getElementById("actions");
@@ -12,47 +13,55 @@
 	var downloads=document.getElementById("downloads");
 
 	//TODO DB Errors
+	SC.checkDB()
+	.then(function()
+	{
 
-	SC.action({
-		enable:function()
-		{
-			downloadTable.enable(downloadTable.getTable().getSelected());
-		},
-		disable:function()
-		{
-			downloadTable.disable(downloadTable.getTable().getSelected());
-		},
-		remove:function()
-		{
-			downloadTable.delete(downloadTable.getTable().getSelected());
-		},
-		removeDone:function()
-		{
-			SC.rq({
-				url:"rest/downloads/deleteByState",
-				data:JSON.stringify("DONE"),
-				method:"DELETE"
-			});
-		},
-		removeDisabled:function()
-		{
-			SC.rq({
-				url:"rest/downloads/deleteByState",
-				data:JSON.stringify("DISABLED"),
-				method:"DELETE"
-			});
-		},
-		removeError:function()
-		{
-			SC.rq({
-				url:"rest/downloads/deleteByState",
-				data:JSON.stringify("ERROR"),
-				method:"DELETE"
-			});
-		},
-		addDownload:function(){},
-		listFilenames:function(){},
-	},actions);
+		SC.action({
+			enable:function()
+			{
+				downloadTable.enable(downloadTable.getTable().getSelected());
+			},
+			disable:function()
+			{
+				downloadTable.disable(downloadTable.getTable().getSelected());
+			},
+			remove:function()
+			{
+				downloadTable.delete(downloadTable.getTable().getSelected());
+			},
+			removeDone:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("DONE"),
+					method:"DELETE"
+				});
+			},
+			removeDisabled:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("DISABLED"),
+					method:"DELETE"
+				});
+			},
+			removeError:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("ERROR"),
+					method:"DELETE"
+				});
+			},
+			listFilenames:function()
+			{
+				var items=downloadTable.getTable().getSelected();
+
+			},
+			addDownload:function(){},
+		},actions);
+	});
 
 	var downloadTable=SC.downloadTable(SC.downloadTable.baseColumns.concat([
 		function sources(cell,data)

@@ -1,15 +1,16 @@
-@import url("theme/default");
+@import "theme/default";
 
-@import url("structure/dialog");
-@import url("style/dialog");
-@import url("structure/menu");
-@import url("style/menu");
-@import url("structure/TreeTableData");
-@import url("style/TreeTableData");
-@import url("structure/selectionTable");
-@import url("style/selectionTable");
+@import "structure/dialog";
+@import "style/dialog";
+@import "structure/menu";
+@import "style/menu";
+@import "structure/TreeTableData";
+@import "style/TreeTableData";
+@import "structure/selectionTable";
+@import "style/selectionTable";
 
 @import "../lib/NIWA-Download/downloadTable";
+@import "../lib/NIWA-Download/checkDbErrors";
 
 html,body {
 	padding:0;
@@ -31,4 +32,8 @@ body {
 #downloads {
 	flex-grow:1;
 	align-self:stretch;
+}
+
+.dbError [data-action="abort"] {
+	display:none;
 }

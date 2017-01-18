@@ -5,71 +5,15 @@
 		searchResult:"searchResult",
 		dlg:"gui.dialog",
 		Promise:"Promise",
-		TableData:"gui.TableData"
+		TableData:"gui.TableData",
+		checkDB:"checkDbErrors"
 	});
-
-	var dbErrors=SC.rq.json("rest/download/errors")
-	.then(function(errors)
-	{
-		if(errors.length>0) return Promise.reject(errors);
-	},
-	function(networkError)
-	{
-		return Promise.reject([{error:networkError}]);
-	});
-	var errorCheck=function()
-	{
-		return dbErrors.catch(SC.Promise.pledge(function(signal,errors)
-		{
-			SC.dlg(function(element)
-			{
-				element.innerHTML=String.raw
-`
-<header>the database had some errors:</header>
-<div class="actions">
-	<button data-action="continue">continue</button>
-	<button data-action="abort">abort</button>
-</div>
-`
-				;
-				element.appendChild( new SC.TableData(errors,[
-					{
-						name:"error",
-						fn:function(element,error)
-						{
-
-							element.textContent=JSON.stringify(error,null,"\t").replace(/(?:[^\\])\\n/g,"\n");
-						}
-					},
-					"file"
-				]).getTable()
-				);
-
-			},
-			{
-				modal:true,
-				actions:{
-					continue:function()
-					{
-						this.close();
-						signal.resolve();
-						dbErrors=Promise.resolve();
-					},
-					abort:function()
-					{
-						this.close();
-						signal.reject();
-					}
-				}
-			}).classList.add("dbError");
-		}));
-	};
 
 	var tabs=SC.tabs([]);
 	document.body.appendChild(tabs);
 	window.addEventListener("message", function(event)
 	{
-		errorCheck().then(function()
+		SC.checkDB(true).then(function()
 		{
 			var container=null;
 			tabs.addTab(e=>e.innerHTML=String.raw

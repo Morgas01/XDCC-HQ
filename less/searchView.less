@@ -1,15 +1,18 @@
-@import url("theme/default");
-@import url("structure/tabs");
-@import url("style/tabs");
-@import url("structure/selectionTable");
-@import url("style/selectionTable");
-@import url("structure/form");
-@import url("style/form");
-@import url("structure/dialog");
-@import url("style/dialog");
-@import url("structure/menu");
-@import url("style/menu");
+@import "theme/default";
+@import "structure/tabs";
+@import "style/tabs";
+@import "structure/selectionTable";
+@import "style/selectionTable";
+@import "structure/form";
+@import "style/form";
+@import "structure/dialog";
+@import "style/dialog";
+@import "structure/menu";
+@import "style/menu";
+
+@import "../lib/NIWA-Download/checkDbErrors";
 @import "searchResult";
+
 
 html,body {
 	padding:0;
@@ -42,30 +45,5 @@ body {
 	[data-state="response"] {
 		.stripes(@ternaryColor);
 		.animate-stripes();
-	}
-}
-.dbError {
-	display:flex;
-	flex-direction:column;
-	header {
-		font-weight:bold;
-		font-size:2em;
-		white-space:nowrap;
-		order:1;
-	}
-	table {
-		order:2;
-		white-space:pre;
-		border-collapse:collapse;
-		td {
-			vertical-align:top;
-			border:1px solid;
-			.border-color();
-		}
-	}
-	.actions{
-		order:3;
-		display:flex;
-		justify-content:space-between;
 	}
 }
