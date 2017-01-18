@@ -6,7 +6,7 @@ var SC=µ.shortcut({
 	Worker:"nodeWorker",
 	Org:"Organizer",
 	es:"errorSerializer",
-	XDCCdownload:require.bind(null,"../js/XDCCdownload"),
+	Download:require.bind(null,"../lib/NIWA-Download/Download"),
 });
 
 
@@ -118,7 +118,7 @@ var combineResults=function(huntResults)
 		var filesizes=[];
 		for(var result of nameGroups[name].getValues())
 		{
-			var size=SC.XDCCdownload.parseFilesize(result.filesize);
+			var size=SC.Download.parseFilesize(result.filesize);
 			if(size>0) filesizes.push(size);
 		}
 		pack.filesize=filesizes.reduce((a,b)=>a+b,0)/(filesizes.length||1);

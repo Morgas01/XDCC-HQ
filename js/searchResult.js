@@ -190,7 +190,7 @@
         		button.disabled=true;
         		SC.rq({
         			url:"rest/downloads/manager/add",
-        			data:JSON.stringify(table.getSelected())
+        			data:JSON.stringify({XDCCdownload:table.getSelected()})
         		})
         		.then(function()
         		{
