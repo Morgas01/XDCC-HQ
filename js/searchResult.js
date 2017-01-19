@@ -187,10 +187,71 @@
         	},
         	download:function(event,button)
         	{
+        		var selectedDownloads=table.getSelected();
+        		if(selectedDownloads.length==0) return;
+
         		button.disabled=true;
-        		SC.rq({
-        			url:"rest/downloads/manager/add",
-        			data:JSON.stringify({XDCCdownload:table.getSelected()})
+        		SC.rq.json("rest/config/create%20Package")
+        		.then(createPackage=>
+        		{
+        			if(createPackage)
+        			{
+        				return new Promise(function(resolve,reject)
+        				{
+        					SC.dlg(String.raw
+`
+<label>
+	<span>Package name</span>
+	<input type="text" required/>
+</label>
+<div>
+	<button data-action="ok">OK</button>
+	<button data-action="cancel">Cancel</button>
+</div>
+`
+							,{
+								modal:true,
+								target:container,
+								actions:{
+									ok:function()
+									{
+										var input=this.querySelector("input");
+										if(input&&input.validity.valid)
+										{
+											this.close();
+											resolve(input.value);
+										}
+									},
+									cancel:function()
+									{
+										this.close();
+										reject();
+									}
+								}
+							});
+        				});
+        			}
+        			return Promise.reject();
+        		})
+        		.then(function(packageName)
+        		{
+        			return SC.rq({
+						url:"rest/downloads/manager/addWithPackage",
+						data:JSON.stringify({
+							packageName:packageName,
+							packageClass:"Package",
+							downloads:{
+								XDCCdownload:selectedDownloads
+							}
+						})
+					});
+        		},
+        		function()
+        		{
+        			return SC.rq({
+						url:"rest/downloads/manager/add",
+						data:JSON.stringify({XDCCdownload:selectedDownloads})
+					});
         		})
         		.then(function()
         		{

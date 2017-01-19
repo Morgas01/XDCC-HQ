@@ -50,7 +50,7 @@
 			{
 				SC.rq({
 					url:"rest/downloads/deleteByState",
-					data:JSON.stringify("ERROR"),
+					data:JSON.stringify("FAILED"),
 					method:"DELETE"
 				});
 			},

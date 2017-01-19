@@ -46,7 +46,16 @@
 		})
 	});
 
-	document.getElementById("searchBtn").addEventListener("click",function()
+	var searchBtn=document.getElementById("searchBtn");
+	searchForm.addEventListener("keydown",function(e)
+	{
+		if(e.code=="Enter")
+		{
+			searchBtn.focus();
+			//searchBtn.click();
+		}
+	});
+	searchBtn.addEventListener("click",function()
 	{
 	    if(searchForm.isValid())
 	    {
@@ -58,6 +67,7 @@
 	        document.getElementById("searchFrame").contentWindow.postMessage(data,"*");
 	    }
 	});
+
 
 	document.getElementById("configBtn").addEventListener("click",function()
 	{

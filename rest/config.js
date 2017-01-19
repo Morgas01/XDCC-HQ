@@ -5,7 +5,10 @@ var SC=µ.shortcut({
 });
 
 var config=SC.Config.parse({
-                               
+	"create Package":{
+		type:"boolean",
+		default:true
+	},
 	"append CRC32":{
 		type:"boolean",
 		default:true
