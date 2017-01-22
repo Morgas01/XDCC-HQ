@@ -1,8 +1,7 @@
-exports = module.exports = require("../mercenaries/xdccList");
 
-//define in subOffice
-exports.network=null;
-exports.channel=null;
-exports.bot=null;
-
-exports.type="BOT";
+module.exports=function(network,channel,bot)
+{
+	var rtn=require("./xdccList")(network,channel,null,bot);
+	rtn.type="BOT";
+	return rtn;
+};

@@ -1,28 +1,27 @@
-//define in subOffice
-exports.network=null;
-exports.channel=null;
-exports.url=null;
 
-exports.type="SEARCH";
-exports.getUrl=function(search)
+var parseRegEx=/b:"([^"]+).*n:(\d+).*s:(\d+).*f:"([^"]+)/g;
+
+module.exports=function(network,channel,url)
 {
-	return exports.url+"/search.php?t="+encodeURIComponent(search);
-}
-var parseRegEx=/b:"([^"]+).*n:(\d+).*s:(\d+).*f:"([^"]+)/g
-exports.parse=function(data)
-{
-	var rtn=[];
-	var match;
-	while(match=parseRegEx.exec(data))
-	{
-		rtn.push({
-			network:exports.network,
-			channel:exports.channel,
-			bot:match[1],
-			name:match[4],
-			packnumber:match[2],
-			filesize:match[3]+"M"
-		});
+	return {
+		type:"SEARCH",
+		getUrl:search=>url+"/search.php?t="+encodeURIComponent(search),
+		parse:function(data)
+        {
+        	var rtn=[];
+        	var match;
+        	while(match=parseRegEx.exec(data))
+        	{
+        		rtn.push({
+        			network:network,
+        			channel:channel,
+					bot:match[1],
+					name:match[4],
+					packnumber:match[2],
+					filesize:match[3]+"M"
+        		});
+        	}
+        	return rtn;
+        }
 	}
-	return rtn;
-}
+};

@@ -1,5 +1,2 @@
-exports = module.exports = require("../mercenaries/xdccParser");
-
-exports.network="irc.rizon.net";
-exports.channel="#Kaitou-Fansubs";
-exports.url="http://anime-mitsuketa.com";
+module.exports = require("../mercenaries/xdccParser")
+("irc.rizon.net","#Kaitou-Fansubs","http://anime-mitsuketa.com");

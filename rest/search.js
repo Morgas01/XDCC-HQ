@@ -39,8 +39,10 @@ module.exports=function(request)
 	{
 		var queries=[].concat(request.data.query);
 
-		return Promise.all(filteredList.map(s=>doSearch(s,queries)))
+		var p=Promise.all(filteredList.map(s=>doSearch(s,queries)))
 		.then(combineResults);
+		p.then(result=>µ.logger.info(`hunting for "${queries.join()}" complete with ${result.results.length} hits and ${result.errors.length} errors`));
+		return p;
 	});
 };
 var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
@@ -84,7 +86,17 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		});
 		return p;
 	})
-	.then(signal.resolve,signal.reject);
+	.then(signal.resolve,
+	function(error)
+	{
+		error=SC.es(error);
+		error.subOffice=subOffice;
+		µ.logger.error(error);
+		signal.resolve({
+			results:null,
+			error:error
+		})
+	});
 });
 var combineResults=function(huntResults)
 {
