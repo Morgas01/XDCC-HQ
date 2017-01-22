@@ -196,16 +196,18 @@
         		{
         			if(createPackage)
         			{
+        				var match=selectedDownloads[0].name.match(/(?:[\[\)][^\]\)]+[\]\)][\s_]+)?([^\[\(\]\)]+)(?:[\s_]+-[\s_]+\d+)(?:[\[\)][^\]\)]+[\]\)]\s*)?/);
+        				var packageName=match?match[1]:selectedDownloads[0].name;
         				return new Promise(function(resolve,reject)
         				{
         					SC.dlg(String.raw
 `
 <label>
 	<span>Package name</span>
-	<input type="text" required/>
+	<input type="text" required value="${packageName}"/>
 </label>
 <div>
-	<button data-action="ok">OK</button>
+	<button data-action="ok" autofocus>OK</button>
 	<button data-action="cancel">Cancel</button>
 </div>
 `
