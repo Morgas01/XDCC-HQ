@@ -12,6 +12,10 @@
 @import "../lib/NIWA-Download/downloadTable";
 @import "../lib/NIWA-Download/checkDbErrors";
 
+.TreeTableData-scope() {
+	@indentWidth:1em;
+}
+
 html,body {
 	padding:0;
 	margin:0;
@@ -48,4 +52,7 @@ body {
 
 .dbError [data-action="abort"] {
 	display:none;
+}
+.networkError {
+	white-space:pre;
 }

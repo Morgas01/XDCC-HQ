@@ -196,11 +196,11 @@
         		{
         			if(createPackage)
         			{
-        				var match=selectedDownloads[0].name.match(/(?:[\[\)][^\]\)]+[\]\)][\s_]+)?([^\[\(\]\)]+)(?:[\s_]+-[\s_]+\d+)(?:[\[\)][^\]\)]+[\]\)]\s*)?/);
+        				var match=selectedDownloads[0].name.match(/([^\[\]\(\)]+)[\s_]+-[\s_]+\d+/);
         				var packageName=match?match[1]:selectedDownloads[0].name;
         				return new Promise(function(resolve,reject)
         				{
-        					SC.dlg(String.raw
+								SC.dlg(String.raw
 `
 <label>
 	<span>Package name</span>
@@ -208,7 +208,7 @@
 </label>
 <div>
 	<button data-action="ok" autofocus>OK</button>
-	<button data-action="cancel">Cancel</button>
+	<button data-action="cancel">add without package</button>
 </div>
 `
 							,{
@@ -314,7 +314,8 @@
 				html:e.subOffice,
 				children:[
 					{
-						html:'<div>'+e.message+'</div><div class="stack">'+(e.stack||"")+'</div>'
+						html:'<div>'+e.message+'</div><div class="stack">'+(e.stack||"")+'</div>',
+						text:e.text
 					}
 				]
 			}));
@@ -322,7 +323,11 @@
 				html:errors.length+" errors",
 				children:errors
 			}];
-			container.appendChild(SC.menu(errors,(e,d)=>e.innerHTML=d.html));
+			container.appendChild(SC.menu(errors,(dom,error)=>
+			{
+				if(error.text)dom.textContent=error.text;
+				else dom.innerHTML=error.html;
+			}));
 		}
 	};
 

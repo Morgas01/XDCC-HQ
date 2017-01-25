@@ -2,11 +2,12 @@
 exports.type="SEARCH";
 exports.getUrl=function(search)
 {
-	return "http://nibl.co.uk/bots.php?search="+encodeURIComponent(search);
+	return "https://nibl.co.uk/bots.php?search="+encodeURIComponent(search);
 }
 var parseRegEx=/botname="([^"]+)\D+?(\d+).+?filesize\D+([\d\.]+.).+?filename..(.+?)\s+<a/g;
 exports.parse=function(data)
 {
+	console.log(data);
 	data=data.replace(/\n/g,"");
 	var rtn=[];
 	var match;

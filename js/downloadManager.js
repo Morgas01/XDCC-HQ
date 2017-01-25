@@ -5,14 +5,29 @@
 		downloadTable:"downloadTable",
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
-		checkDB:"checkDbErrors"
+		checkDB:"checkDbErrors",
+		dlg:"gui.dialog"
 	});
 
 	var actions=document.getElementById("actions");
 	var stats=document.getElementById("stats");
 	var downloads=document.getElementById("downloads");
 
-	//TODO DB Errors
+	var networkError=function(error)
+	{
+		var content;
+		try
+		{
+			error=JSON.parse(error.response);
+			content=String.raw`<div>${error.name}</div><div>${error.message}</div><div>${error.stack}</div><button data-action="close">OK</button>`;
+		}
+		catch (e)
+		{
+			content=error.response;
+		}
+		SC.dlg(content,{modal:true}).classList.add("networkError");
+	};
+
 	SC.checkDB()
 	.then(function()
 	{
@@ -20,15 +35,18 @@
 		SC.action({
 			enable:function()
 			{
-				downloadTable.enable(downloadTable.getTable().getSelected());
+				downloadTable.enable(downloadTable.getTable().getSelected())
+				.catch(networkError);
 			},
 			disable:function()
 			{
-				downloadTable.disable(downloadTable.getTable().getSelected());
+				downloadTable.disable(downloadTable.getTable().getSelected())
+				.catch(networkError);
 			},
 			remove:function()
 			{
-				downloadTable.delete(downloadTable.getTable().getSelected());
+				downloadTable.delete(downloadTable.getTable().getSelected())
+				.catch(networkError);
 			},
 			removeDone:function()
 			{
@@ -36,7 +54,8 @@
 					url:"rest/downloads/deleteByState",
 					data:JSON.stringify("DONE"),
 					method:"DELETE"
-				});
+				})
+				.catch(networkError);
 			},
 			removeDisabled:function()
 			{
@@ -44,7 +63,8 @@
 					url:"rest/downloads/deleteByState",
 					data:JSON.stringify("DISABLED"),
 					method:"DELETE"
-				});
+				})
+				.catch(networkError);
 			},
 			removeError:function()
 			{
@@ -52,12 +72,42 @@
 					url:"rest/downloads/deleteByState",
 					data:JSON.stringify("FAILED"),
 					method:"DELETE"
-				});
+				})
+				.catch(networkError);
 			},
 			listFilenames:function()
 			{
 				var items=downloadTable.getTable().getSelected();
 
+			},
+			createPackage:function()
+			{
+				SC.dlg(String.raw
+`
+<label>
+	<span>Package name</span>
+	<input type="text" required autofocus/>
+</label>
+<div>
+	<button data-action="ok">OK</button>
+	<button data-action="close">cancel</button>
+</div>
+`
+				,{
+					modal:true,
+					actions:{
+						ok:function()
+						{
+							var input=this.querySelector("input");
+							if(input&&input.validity.valid)
+							{
+								this.close();
+								downloadTable.createPackage(input.value,downloadTable.getTable().getSelected(),"Package")
+								.catch(networkError);
+							}
+						}
+					}
+				});
 			},
 			addDownload:function(){},
 		},actions);
