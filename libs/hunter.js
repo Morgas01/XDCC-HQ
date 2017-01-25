@@ -83,8 +83,10 @@ else
 	{
 		var getUrl=subOffice.getUrl(param.search);
 		logger.info({url:getUrl},"hunt from url");
-		var protocol=require(url.parse(getUrl).protocol.slice(0,-1)||"http");
-		protocol.get(getUrl,function(response)
+		var options=url.parse(getUrl);
+		var protocol=require(options.protocol.slice(0,-1)||"http");
+		options.rejectUnauthorized=false;
+		protocol.get(options,function(response)
 		{
 			var data="";
 			response.on("data",function(chunk)
