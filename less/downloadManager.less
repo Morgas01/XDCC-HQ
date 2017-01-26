@@ -27,6 +27,15 @@ body {
 	flex-direction:column;
 	align-items:center;
 }
+#actions {
+	[accesskey] {
+		.tooltip(@content:~'"Accesskey "attr(accesskey)',@distance:50%,@additions: {
+			transform:translateX(50%);
+			text-transform: capitalize;
+			.fadeIn(@delay:.25s);
+		});
+	}
+}
 #stats {
 	display:flex;
 	div {
