@@ -7,6 +7,23 @@
 .downloadTable {
 	.downloadTable-scope();
 
+	.icon {
+		width:0;
+		padding-left:0;
+		white-space:nowrap;
+		&.package::after, &.download::after {
+			text-shadow: 0 0 2px black,0 0 2px black,0 0 2px black,0 0 2px black;
+		}
+		&.package::after {
+			content:"📁";
+			color:gold;
+		}
+		&.download::after {
+			content:"📄";
+			color:silver;
+		}
+	}
+
 	.selectionTable {
 		width:100%;
 	}
