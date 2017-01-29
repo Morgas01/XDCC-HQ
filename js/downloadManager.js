@@ -26,7 +26,7 @@
 		}
 		catch (e)
 		{
-			content=error.response;
+			content=error.response+`<button data-action="close">OK</button>`;
 		}
 		SC.dlg(content,{modal:true}).classList.add("networkError");
 	};
@@ -115,50 +115,7 @@
 			addDownload:function(){},
 			moveTo:function()
 			{
-				downloadTable.getDb().load(SC.Download.Package)
-				.then(function(packages)
-				{
-					SC.DBObj.connectObjects(packages);
-					return {
-						name:"root",
-						children:packages.filter(p=>p.packageID==null)
-					};
-				})
-				.then(function(root)
-				{
-					var tree=SC.stree(root,function(element,package)
-					{
-						element.textContent=package.name;
-					},{
-						childrenGetter:c=>c instanceof SC.Download.Package?c.getChildren("subPackages"):c.children,
-						radioName:"moveTarget"
-					});
-					tree.expand(true,true);
-
-					SC.dlg(function(container)
-					{
-						container.appendChild(tree);
-						var okBtn=document.createElement("button");
-						okBtn.textContent=okBtn.dataset.action="OK";
-						container.appendChild(okBtn);
-						var closeBtn=document.createElement("button");
-						closeBtn.textContent="cancel"
-						closeBtn.dataset.action="close";
-						container.appendChild(closeBtn);
-
-					},{
-						modal:true,
-						actions:{
-							OK:function()
-							{
-								var target=tree.getSelected()[0];
-								if(target===root) target=null;
-								downloadTable.moveTo(target,downloadTable.getTable().getSelected());
-								this.close();
-							}
-						}
-					});
-				})
+				downloadTable.moveSelected().catch(networkError);
 			}
 		},actions);
 	});
