@@ -62,7 +62,7 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 			µ.logger.info({query:query},`hunt in ${subOffice} for ${query} [${index}/${queries.length}]`);
 			return hunter.request("search",query,50000);
 		})
-		.then(results=>({results:Array.prototype.concat.apply([],results)}),
+		.then(results=>({results:Array.prototype.concat.apply([],results)}),//flatten
 		function(results)
 		{
 			var rtn={results:null,error:results.pop()};
@@ -106,6 +106,7 @@ var combineResults=function(huntResults)
 	};
 
 	var org = new SC.Org(huntResults.reduce((a,hr)=>(a.push.apply(a,hr.results),a),[]));
+	//TODO group by cleaned name?
 	org.group("names",r=>r.name,function(subGroup)
 	{
 		subGroup.group("sources",r=>String.raw`{"network":"${r.network}","channel":"${r.channel}","bot":"${r.bot}","packnumber":${r.packnumber||"null"}}`,
