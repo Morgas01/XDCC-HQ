@@ -31,7 +31,48 @@ body {
 	flex-direction:column;
 	align-items:center;
 }
+#menu {
+	position:fixed;
+	top:1ex;
+	left:1ex;
+	[accesskey] {
+		.tooltip(@content:~'"Search\A Accesskey "attr(accesskey)',@direction:~"left",@additions:{
+			text-transform: capitalize;
+		});
+		padding:0;
+	}
+	#searchIcon {
+		font-size:2em;
+	}
+}
 #actions {
+	display:flex;
+	align-items:start;
+	margin-top:1ex;
+	height:3em;
+	button {
+		padding:0;
+		min-height:2em;
+		margin:0 1ex;
+		&.splitButton {
+			margin-right:0;
+			+ div button {
+				margin-left:0
+			}
+		}
+		.actionHint {
+			display:none;
+		}
+		&:hover .actionHint {
+			display:block;
+		}
+	}
+	[data-action="moveTo"] {
+		min-width:4em;
+	}
+	[data-action="sort"] {
+		min-width:3em;
+	}
 	[accesskey] {
 		.tooltip(@content:~'"Accesskey "attr(accesskey)',@distance:50%,@additions: {
 			transform:translateX(50%);

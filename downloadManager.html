@@ -47,34 +47,37 @@
 		<script type="text/javascript" defer="defer" src="js/downloadManager.js"></script>
 	</head>
 	<body>
-	<div id="actions">
-		<button data-action="enable" accesskey="e">enable</button>
-		<button data-action="disable" accesskey="w">disable</button>
-		<button data-action="remove" class="splitButton">remove</button><!-- prevent white space
-	 --><div>
-			<button class="menu">&#709;</button>
-			<ul class="menu">
-				<li><span data-action="removeDone" accesskey="x">finished downloads</span></li>
-				<li><span data-action="removeDisabled">disabled downloads</span></li>
-				<li><span data-action="removeError">failed downloads</span></li>
-			</ul>
+		<div id="menu">
+			<a href="index.html"><button accesskey="f"><div id="searchIcon">&#128269;</div></button></a>
 		</div>
-		<button data-action="addDownload" accesskey="a">add download</button>
-		<button data-action="listFilenames" accesskey="l">list filenames</button>
-		<button data-action="createPackage" accesskey="n">new Package</button>
-		<button data-action="moveTo" accesskey="m"><div>➫</div>move</button>
-		<button data-action="sort" accesskey="s"><div>⇄</div>sort</button>
-	</div>
-	<div id="stats">
-		<div>
-			<span>Downloads:</span>
-			<span id="downloadCount">&#8263;</span>
+		<div id="actions">
+			<button data-action="enable" accesskey="e">enable</button>
+			<button data-action="disable" accesskey="w">disable</button>
+			<button data-action="remove" class="splitButton">remove</button>
+			<div>
+				<button class="menu">&#709;</button>
+				<ul class="menu">
+					<li><span data-action="removeDone" accesskey="x">finished downloads</span></li>
+					<li><span data-action="removeDisabled">disabled downloads</span></li>
+					<li><span data-action="removeError">failed downloads</span></li>
+				</ul>
+			</div>
+			<button data-action="addDownload" accesskey="a">add download</button>
+			<button data-action="listFilenames" accesskey="l">list filenames</button>
+			<button data-action="createPackage" accesskey="n">new Package</button>
+			<button data-action="moveTo" accesskey="m">➫<div class="actionHint">move</div></button>
+			<button data-action="sort" accesskey="s">⇄<div class="actionHint">sort</div></button>
 		</div>
-		<div>
-			<span>File size:</span>
-			<span id="fileSize">&#8263;</span>
+		<div id="stats">
+			<div>
+				<span>Downloads:</span>
+				<span id="downloadCount">&#8263;</span>
+			</div>
+			<div>
+				<span>File size:</span>
+				<span id="fileSize">&#8263;</span>
+			</div>
 		</div>
-	</div>
-	<div id="downloads"></div>
+		<div id="downloads"></div>
 	</body>
 </html>

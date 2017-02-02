@@ -20,8 +20,8 @@
 	}, undefined,"Search");
 	searchForm.id="searchForm";
 	var firstInput=searchForm.querySelector("input")
-	firstInput.accessKey="F";
-	firstInput.title="AccessKey F";
+	firstInput.accessKey="f";
+	firstInput.title="Accesskey F";
 	firstInput.autofocus=true;
 	searchWrapper.appendChild(searchForm);
 
@@ -75,13 +75,18 @@
 	    {
 	    	element.id="configDialog";
 	    	element.classList.add("request");
+			var closeBtn=document.createElement("button");
+			closeBtn.textContent="ok";
+			closeBtn.dataset.action="close";
+			closeBtn.autofocus=true;
+			element.appendChild(closeBtn);
 	    	SC.rq.json({
 	    		method:"OPTIONS",
 	    		url:"rest/config"
 			}).then(function(data)
 			{
 				element.classList.remove("request");
-				element.appendChild(SC.form(data.description,data.value));
+				element.insertBefore(SC.form(data.description,data.value),closeBtn);
 				element.addEventListener("formChange",function(event)
 				{
 					SC.rq({
@@ -92,10 +97,6 @@
 						})
 					})
 				});
-				var closeBtn=document.createElement("button");
-				closeBtn.textContent="ok";
-				closeBtn.dataset.action="close";
-				element.appendChild(closeBtn);
 			});
 	    },{modal:true});
 	});
