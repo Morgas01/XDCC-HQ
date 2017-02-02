@@ -72,3 +72,32 @@
 		}
 	}
 }
+.sortDialog {
+	.downloadTable-scope();
+	display:flex;
+	flex-direction:column;
+	.sortWrapper{
+		order:1;
+		display:flex;
+		flex-direction:row;
+		margin-bottom:1em;
+		.sortActions {
+			margin-right:1em;
+			order:1;
+			display:flex;
+			flex-direction:column;
+			button {
+				font-size:1.5em;
+				flex-grow:1;
+			}
+		}
+		.selectionTable {
+			order:2;
+		}
+	}
+	.dialogActions {
+		order:2;
+		display:flex;
+		justify-content:space-between;
+	}
+}

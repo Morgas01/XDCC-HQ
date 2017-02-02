@@ -18,6 +18,8 @@
 
 	var networkError=function(error)
 	{
+		if(error==="cancel") return; // downloadTable dialogs
+		µ.logger.error(error);
 		var content;
 		try
 		{
@@ -26,7 +28,7 @@
 		}
 		catch (e)
 		{
-			content=error.response+`<button data-action="close">OK</button>`;
+			content=(error.response||error)+`<button data-action="close">OK</button>`;
 		}
 		SC.dlg(content,{modal:true}).classList.add("networkError");
 	};
@@ -116,6 +118,10 @@
 			moveTo:function()
 			{
 				downloadTable.moveSelected().catch(networkError);
+			},
+			sort:function()
+			{
+				downloadTable.sortSelected().catch(networkError);
 			}
 		},actions);
 	});
