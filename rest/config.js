@@ -41,7 +41,7 @@ var config=SC.Config.parse({
 	}
 });
 
-module.exports=worker.configManager(config);
+module.exports=µ.getModule("configManager")(config);
 module.exports.config=config;
 
 new SC.File("subOffices").listFiles().then(function(subOfficeList)
