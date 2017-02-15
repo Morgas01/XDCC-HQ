@@ -7,7 +7,6 @@ exports.getUrl=function(search)
 var parseRegEx=/botname="([^"]+)\D+?(\d+).+?filesize\D+([\d\.]+.).+?filename..(.+?)\s+<a/g;
 exports.parse=function(data)
 {
-	console.log(data);
 	data=data.replace(/\n/g,"");
 	var rtn=[];
 	var match;
