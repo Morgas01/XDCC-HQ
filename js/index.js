@@ -92,7 +92,7 @@
 					SC.rq({
 						url:"rest/config",
 						data:JSON.stringify({
-							key:event.detail.path.concat(event.detail.key),
+							path:event.detail.path.concat(event.detail.key),
 							value:event.detail.value
 						})
 					})
