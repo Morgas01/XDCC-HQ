@@ -136,7 +136,6 @@
 			}
 		}
 	]),{
-		apiPath:"rest/downloads/manager",
 		DBClasses:[SC.XDCCdownload]
 	});
 	downloads.appendChild(downloadTable.getContainer());

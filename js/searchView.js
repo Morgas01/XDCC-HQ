@@ -13,7 +13,7 @@
 	document.body.appendChild(tabs);
 	window.addEventListener("message", function(event)
 	{
-		SC.checkDB(true).then(function()
+		SC.checkDB(undefined,true).then(function()
 		{
 			var container=null;
 			tabs.addTab(e=>e.innerHTML=String.raw
