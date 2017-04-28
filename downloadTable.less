@@ -1,0 +1,103 @@
+.downloadTable-scope() {
+	@progress-color:#0D0;
+	@disabled-color:gray;
+	@done-color:mix(@progress-color,@ternaryColor);
+	@failed-color:red;
+}
+.downloadTable {
+	.downloadTable-scope();
+
+	.icon {
+		width:0;
+		padding-left:0;
+		white-space:nowrap;
+		&.package::after, &.download::after {
+			text-shadow: 0 0 2px black,0 0 2px black,0 0 2px black,0 0 2px black;
+		}
+		&.package::after {
+			content:"📁";
+			color:gold;
+		}
+		&.download::after {
+			content:"📄";
+			color:silver;
+		}
+	}
+
+	.selectionTable {
+		width:100%;
+	}
+	[data-state="disabled"] {
+		.stripes(@width:39px);
+		&:hover {
+			.stripes(lighten(@secondaryColor,10%),@width:39px);
+		}
+		.textBorder();
+		input:checked ~ * {
+			text-shadow:none;
+		}
+		.progress-wrapper {
+			.stripes(@disabled-color);
+			.progress {
+				background-color:fade(@progress-color,60%);
+			}
+		}
+	}
+	label[data-state="failed"] {
+		background-color:@failed-color;
+		&:hover {
+			background-color:lighten(@failed-color,10%);
+		}
+	}
+	label[data-state="done"] {
+		background-color:@done-color;
+		&:hover {
+			background-color:lighten(@done-color,10%);
+		}
+	}
+	[data-state="failed"] .progress-wrapper,[data-state="done"] .progress-wrapper {
+		display:none;
+	}
+	[data-state="running"] .progress-wrapper .progress {
+		.stripes(@progress-color,@width:2em,@angle:-45deg);
+		.stripes-animate(4s);
+	}
+	.progress-wrapper {
+		height:1em;
+		width:100%;
+		.progress {
+			height:100%;
+			transition:width .5s;
+			background-color:@progress-color;
+		}
+	}
+}
+.sortDialog {
+	.downloadTable-scope();
+	display:flex;
+	flex-direction:column;
+	.sortWrapper{
+		order:1;
+		display:flex;
+		flex-direction:row;
+		margin-bottom:1em;
+		.sortActions {
+			margin-right:1em;
+			order:1;
+			display:flex;
+			flex-direction:column;
+			button {
+				font-size:1.5em;
+				flex-grow:1;
+			}
+		}
+		.selectionTable {
+			order:2;
+		}
+	}
+	.dialogActions {
+		order:2;
+		display:flex;
+		justify-content:space-between;
+	}
+}
