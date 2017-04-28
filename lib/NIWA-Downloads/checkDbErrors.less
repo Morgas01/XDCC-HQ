@@ -1,0 +1,25 @@
+.dbError {
+	display:flex;
+	flex-direction:column;
+	header {
+		font-weight:bold;
+		font-size:2em;
+		white-space:nowrap;
+		order:1;
+	}
+	table {
+		order:2;
+		white-space:pre;
+		border-collapse:collapse;
+		td {
+			vertical-align:top;
+			border:1px solid;
+			.border-color();
+		}
+	}
+	.actions{
+		order:3;
+		display:flex;
+		justify-content:space-between;
+	}
+}
