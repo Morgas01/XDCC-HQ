@@ -6,7 +6,7 @@ var SC=µ.shortcut({
 	Worker:"nodeWorker",
 	Org:"Organizer",
 	es:"errorSerializer",
-	Download:require.bind(null,"../lib/NIWA-Download/Download"),
+	Download:require.bind(null,"../lib/NIWA-Downloads/Download"),
 });
 
 

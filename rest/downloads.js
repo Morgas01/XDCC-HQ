@@ -1,7 +1,7 @@
-require("../lib/NIWA-Download/Download");
+require("../lib/NIWA-Downloads/Download");
 var XDCCdownload=require("../js/XDCCdownload");
 
-var manager=new (require("../lib/NIWA-Download/Manager"))({
+var manager=new (require("../lib/NIWA-Downloads/Manager"))({
 	DBClassDictionary:[XDCCdownload]
 });
 
