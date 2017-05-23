@@ -38,6 +38,11 @@ var config=SC.Config.parse({
 			type:"boolean",
 			default:true
 		}
+	},
+	"maximum Downloads":{
+		type:"number",
+		min:-1,
+		default:-1
 	}
 });
 
