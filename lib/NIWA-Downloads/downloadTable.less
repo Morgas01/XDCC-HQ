@@ -62,6 +62,16 @@
 		.stripes(@progress-color,@width:2em,@angle:-45deg);
 		.stripes-animate(4s);
 	}
+	label>.filepath {
+		font-size: .75em;
+		white-space:nowrap;
+	}
+	label>.messages, label>.progress, label>.speed, label>.time {
+		.tooltip(@distance:0,@additions:{
+			top:0;
+		});
+		.tooltip-fadeIn(.5s,.5s);
+	}
 	.progress-wrapper {
 		height:1em;
 		width:100%;
@@ -70,6 +80,8 @@
 			transition:width .5s;
 			background-color:@progress-color;
 		}
+		border-right-width:1px;
+		border-right-style:solid;
 	}
 }
 .sortDialog {
