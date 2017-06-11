@@ -1,7 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var DBObj=µ.getModule("DBObj"),
-		FIELD=µ.getModule("DBField");
+	var DBObj=GMOD("DBObj"),
+		FIELD=GMOD("DBField");
 
 	SC=SC({
 		rel:"DBRel"
@@ -26,7 +26,15 @@
 			this.addField("dataSource",	FIELD.TYPES.JSON	,param.dataSource); // information to start download String = {url:"string"}
 			this.addField("orderIndex",	FIELD.TYPES.INT		,param.orderIndex);
 
-			this.size=param.size||0; // current filesize
+			// for the download progress
+			this.startTime=param.startTime||null;
+			this.startSize=param.startSize||0;
+			this.time=param.time||null;
+			this.size=param.size||null;
+
+			// for download from other apps
+			this.addField("appName",	FIELD.TYPES.STRING	,param.appName);
+			this.addField("remoteID",	FIELD.TYPES.INT		,param.remoteID);
 
 			this.addRelation("package",	DOWNLOAD.Package	,SC.rel.TYPES.PARENT,"children","packageID");
 
@@ -42,17 +50,36 @@
 			if(!time)time=Date.now();
 			this.messages.push({text:text,time:time});
 		},
-		toJSON:function()
+		toUpdateJSON:function()
 		{
-			var jsonObject=DBObj.prototype.toJSON.call(this);
+			var jsonObject=this.toJSON();
+
+			jsonObject.startTime=this.startTime;
+			jsonObject.startSize=this.startSize;
+			jsonObject.time=this.time;
 			jsonObject.size=this.size;
+
 			return jsonObject;
 		},
 		fromJSON:function(jsonObject)
 		{
 			DBObj.prototype.fromJSON.call(this,jsonObject);
-			this.size=jsonObject.size||0;
+
+			this.startTime=jsonObject.startTime||null;
+			this.startSize=jsonObject.startSize||0;
+			this.time=jsonObject.time||null;
+			this.size=jsonObject.size||null;
+
 			return this;
+		},
+		getSpeed:function()
+		{
+			return this.getCurrentSpeed(this.startSize,this.startTime);
+		},
+		getCurrentSpeed:function(lastSize,lastTime)
+		{
+			if(!this.size) return 0;
+			else return (this.size - lastSize)/((this.time - lastTime)/1000);
 		}
 	});
 	DOWNLOAD.states={
