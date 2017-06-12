@@ -80,6 +80,20 @@ body {
 			.fadeIn(@delay:.25s);
 		});
 	}
+	#autoTrigger>[data-state] {
+		display:none;
+	}
+	#autoTrigger>[data-state="true"] {
+		color:green;
+	}
+	#autoTrigger>[data-state="false"] {
+		color:black;
+		font-weight:bolder;
+	}
+	#autoTrigger[data-state="true"]>[data-state="false"],
+	#autoTrigger[data-state="false"]>[data-state="true"] {
+		display:inline;
+	}
 }
 #stats {
 	display:flex;

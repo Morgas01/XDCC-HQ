@@ -238,7 +238,7 @@
         		.then(function(packageName)
         		{
         			return SC.rq({
-						url:"rest/downloads/manager/addWithPackage",
+						url:"rest/downloads/addWithPackage",
 						data:JSON.stringify({
 							packageName:packageName,
 							packageClass:"Package",

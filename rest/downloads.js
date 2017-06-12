@@ -5,14 +5,27 @@ var manager=new (require("../lib/NIWA-Downloads/Manager"))({
 	DBClassDictionary:[XDCCdownload],
 	filter:function(running,download)
 	{
-		//TODO
-		return download.filterSources(running);
+		if(worker.appNamesDict["NIWA-irc"].length==0) return "no irc available";
+		return download.filterSources(running.map(r=>r.dataSource));
 	},
 	download:function(signal,download)
 	{
-		var delegate=download;
 		//TODO select best source from activeSources
-		this.delegateDownload(signal,worker.appNamesDict["NIWA-irc"][0],delegate);
+		download.dataSource=download.availableSources[0];
+		//TODO rename bot to user
+		download.dataSource.user=download.dataSource.bot;
+		this.delegateDownload(signal,worker.appNamesDict["NIWA-irc"][0],delegate,function onUpdate(updated)
+		{
+			updated.sources=download.sources;
+			download.fromJson(updated);
+			if(download.state===XDCCdownload.states.RUNNING) this.updateDownload(download);
+			else signal.resolve();
+		})
+		.catch(function(e)
+		{
+			//TODO next source
+			signal.reject(e);
+		});
 	}
 });
 
@@ -28,4 +41,4 @@ manager.serviceMethods.deleteByState=function(param)
 require("./config").ready.then(function(config)
 {
 	manager.setMaxDownloads(config.get(["maximum Downloads"]).get());
-});
+}).catch(µ.logger.error);

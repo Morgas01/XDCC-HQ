@@ -38,6 +38,15 @@
 	{
 
 		SC.action({
+			autoTrigger:function(event,target)
+			{
+				var nextState=target.dataset.state!=="true"
+				downloadTable.autoTrigger(nextState)
+				.then(function()
+				{
+					target.dataset.state=nextState;
+				},networkError);
+			},
 			enable:function()
 			{
 				downloadTable.enable(downloadTable.getTable().getSelected())
@@ -46,6 +55,11 @@
 			disable:function()
 			{
 				downloadTable.disable(downloadTable.getTable().getSelected())
+				.catch(networkError);
+			},
+			reset:function()
+			{
+				downloadTable.reset(downloadTable.getTable().getSelected())
 				.catch(networkError);
 			},
 			remove:function()
@@ -139,5 +153,13 @@
 		DBClasses:[SC.XDCCdownload]
 	});
 	downloads.appendChild(downloadTable.getContainer());
+
+	SC.rq.json("rest/downloads/autoTrigger")
+	.then(function(triggerState)
+	{
+		var button=document.getElementById("autoTrigger");
+		button.dataset.state=triggerState;
+		button.disabled=false;
+	})
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

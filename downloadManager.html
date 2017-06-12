@@ -10,6 +10,7 @@
 		<!--
 		<script defer src="/morgas/gui/tabs.js"></script>
 		-->
+		<script defer src="/morgas/Morgas.util.object.flatten.js"></script>
 		<script defer src="/morgas/Morgas.util.Request.js"></script>
 		<script defer src="/morgas/Morgas.Promise.js"></script>
 		<script defer src="/morgas/Morgas.util.object.adopt.js"></script>
@@ -51,8 +52,13 @@
 			<a href="index.html"><button accesskey="f"><div id="searchIcon">&#128269;</div></button></a>
 		</div>
 		<div id="actions">
+			<button id="autoTrigger" data-action="autoTrigger" accesskey="p" disabled>
+				<span data-state="true">&#9654;</span>
+				<span data-state="false">||</span>
+			</button>
 			<button data-action="enable" accesskey="e">enable</button>
 			<button data-action="disable" accesskey="w">disable</button>
+			<button data-action="reset" accesskey="r">reset</button>
 			<button data-action="remove" class="splitButton">remove</button>
 			<div>
 				<button class="menu">&#709;</button>
