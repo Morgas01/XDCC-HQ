@@ -14,7 +14,7 @@ var manager=new (require("../lib/NIWA-Downloads/Manager"))({
 		download.dataSource=download.availableSources[0];
 		//TODO rename bot to user
 		download.dataSource.user=download.dataSource.bot;
-		this.delegateDownload(signal,worker.appNamesDict["NIWA-irc"][0],download,function onUpdate(updated)
+		this.delegateDownload(worker.appNamesDict["NIWA-irc"][0],download,function onUpdate(updated)
 		{
 			updated.sources=download.sources;
 			download.fromJson(updated);
