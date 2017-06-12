@@ -251,7 +251,7 @@
         		function()
         		{
         			return SC.rq({
-						url:"rest/downloads/manager/add",
+						url:"rest/downloads/add",
 						data:JSON.stringify({XDCCdownload:selectedDownloads})
 					});
         		})
