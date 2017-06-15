@@ -55,10 +55,7 @@
 					var delegate=(new SC.Download()).fromJSON(download.toJSON());
 					delegate.filepath=downloadFolder.getAbsolutePath();
 					delegate.filename=config.get("clean name").get()?download.getCleanName():download.name;
-					if(config.get("check name").get())
-					{
-						delegate.dataSource.checkName=download.name;
-					}
+					delegate.dataSource.checkName=config.get("check name").get()?download.name:null;
 					console.log(delegate.toJSON());
 					this.delegateDownload(worker.appNamesDict["NIWA-irc"][0],delegate,function onUpdate(updated)
 					{
