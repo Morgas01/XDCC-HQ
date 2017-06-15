@@ -27,6 +27,15 @@
 			}
 			this.availableSources=Array.from(sourcesMap.values());
 			return this.availableSources.length>0;
+		},
+		getCleanName:function()
+		{
+			var name=this.name;
+			if((name.indexOf("%20")!==-1&&name.indexOf(" ")===-1)||(name.indexOf("%5B")!==-1&&name.indexOf("[")===-1))
+				name=decodeURIComponent(name);
+			name=name.replace(/_/g," ");
+			name=name.replace(/(?:(\D)\.+|\.+(?=\D))(?=.*\.)/g,"$1 "); //keep dots between numbers and last one
+			return name;
 		}
 	});
 	XDCCdownload.states=DOWNLOAD.states;

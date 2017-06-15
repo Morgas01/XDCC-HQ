@@ -89,13 +89,24 @@
 				element.insertBefore(SC.form(data.description,data.value),closeBtn);
 				element.addEventListener("formChange",function(event)
 				{
-					SC.rq({
+					var field=event.target;
+					field.disabled=true;
+					SC.rq.json({
 						url:"rest/config",
 						data:JSON.stringify({
 							path:event.detail.path.concat(event.detail.key),
 							value:event.detail.value
 						})
 					})
+					.then(function(reply)
+					{
+						if(!reply.result)
+						{
+							field.setCustomValidity(reply.error);
+						}
+					})
+					.always(()=>
+					event.target.disabled=false);
 				});
 			});
 	    },{modal:true});

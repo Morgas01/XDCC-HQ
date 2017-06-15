@@ -1,10 +1,20 @@
 
+var FS=require("fs");
+
 var SC=µ.shortcut({
 	Config:"Config",
 	File:"File"
 });
 
 var config=SC.Config.parse({
+	"download folder":{
+		type:"string",
+		validate:function(path)
+		{
+			if (FS.existsSync(path)) return true;
+			return "path does not exist";
+		}
+	},
 	"create Package":{
 		type:"boolean",
 		default:true
