@@ -20,6 +20,7 @@
 		},
 		download:function(signal,download)
 		{
+			download.dataSource=null;
 			SC.config.then(config=>
 			{
 				var downloadPath=config.get("download folder").get();

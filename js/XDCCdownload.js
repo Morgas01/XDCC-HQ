@@ -23,6 +23,7 @@
 			var sourcesMap=this.sources.reduce((map,source)=>map.set(source.bot+"@"+source.network,source),new Map());
 			for(var aktiveSource of aktiveSources)
 			{
+				if(aktiveSource==null) return false; // started but did not decide a bot jet
 				sourcesMap.delete(aktiveSource.bot+"@"+aktiveSource.network);
 			}
 			this.availableSources=Array.from(sourcesMap.values());
