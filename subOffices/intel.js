@@ -12,7 +12,7 @@ exports.parse=function(data)
 		return {
 			network:"irc.rizon.net",
 			channel:"#intel",
-			bot:d.botname,
+			user:d.botname,
 			name:d.filename.trim(),
 			packnumber:d.packnum,
 			filesize:d.size

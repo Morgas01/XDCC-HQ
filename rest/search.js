@@ -106,10 +106,9 @@ var combineResults=function(huntResults)
 	};
 
 	var org = new SC.Org(huntResults.reduce((a,hr)=>(a.push.apply(a,hr.results),a),[]));
-	//TODO group by cleaned name?
-	org.group("names",r=>r.name,function(subGroup)
+	org.group("names","name",function(subGroup)
 	{
-		subGroup.group("sources",r=>String.raw`{"network":"${r.network}","channel":"${r.channel}","bot":"${r.bot}","packnumber":${r.packnumber||"null"}}`,
+		subGroup.group("sources",r=>String.raw`{"network":"${r.network}","user":"${r.user}","packnumber":${r.packnumber||"null"}}`,
 		subsubGroup=>subsubGroup.group("subOffices","subOffice"));
 	});
 
@@ -125,6 +124,7 @@ var combineResults=function(huntResults)
 		for(var sourceKey in sourceGroups)
 		{
 			var source=JSON.parse(sourceKey);
+			source.channel=sourceGroups[sourceKey].getValues()[0].channel;
 			source.subOffices=Object.keys(sourceGroups[sourceKey].getGroup("subOffices"));
 			pack.sources.push(source);
 		}

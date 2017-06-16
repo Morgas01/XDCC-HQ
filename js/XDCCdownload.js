@@ -20,14 +20,24 @@
 		},
 		filterSources:function(aktiveSources)
 		{
-			var sourcesMap=this.sources.reduce((map,source)=>map.set(source.bot+"@"+source.network,source),new Map());
+			var sourcesMap=this.sources.filter(s=>!s.failed).reduce((map,source)=>map.set(source.user+"@"+source.network,source),new Map());
 			for(var aktiveSource of aktiveSources)
 			{
 				if(aktiveSource==null) return false; // started but did not decide a bot jet
-				sourcesMap.delete(aktiveSource.bot+"@"+aktiveSource.network);
+				sourcesMap.delete(aktiveSource.user+"@"+aktiveSource.network);
 			}
 			this.availableSources=Array.from(sourcesMap.values());
-			return this.availableSources.length>0;
+			if(this.availableSources.length>0)
+			{
+				//TODO select best source from activeSources
+				this.dataSource=this.availableSources[0];
+				return true;
+			}
+			else
+			{
+				this.dataSource=null;
+				return false;
+			}
 		},
 		getCleanName:function()
 		{

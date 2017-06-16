@@ -49,11 +49,15 @@
 	var searchBtn=document.getElementById("searchBtn");
 	searchForm.addEventListener("keydown",function(e)
 	{
-		if(e.code=="Enter")
+		if(e.key=="Enter")
 		{
 			searchBtn.focus();
 			//searchBtn.click();
 		}
+	});
+	searchForm.addEventListener("formAdd",function(e)
+	{
+		e.detail.element.querySelector("input").focus();
 	});
 	searchBtn.addEventListener("click",function()
 	{

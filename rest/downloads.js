@@ -20,7 +20,7 @@
 		},
 		download:function(signal,download)
 		{
-			download.dataSource=null;
+			µ.logger.info("start to download "+download.name);
 			SC.config.then(config=>
 			{
 				var downloadPath=config.get("download folder").get();
@@ -47,23 +47,27 @@
 				})
 				.then(downloadFolder=>
 				{
-					//TODO select best source from activeSources
-					download.dataSource=download.availableSources[0];
-					//TODO rename bot to user
-					download.dataSource.user=download.dataSource.bot;
 					this.updateDownload(download);
 
 					var delegate=(new SC.Download()).fromJSON(download.toJSON());
 					delegate.filepath=downloadFolder.getAbsolutePath();
 					delegate.filename=config.get("clean name").get()?download.getCleanName():download.name;
 					delegate.dataSource.checkName=config.get("check name").get()?download.name:null;
-					console.log(delegate.toJSON());
+					µ.logger.info({dataSource:delegate.dataSource},"delegate to irc");
 					this.delegateDownload(worker.appNamesDict["NIWA-irc"][0],delegate,function onUpdate(updated)
 					{
 						updated.sources=download.sources;
-						download.fromJSON(updated);
+						download.updateFromDelegate(updated);
 						if(download.state===SC.Download.states.RUNNING) this.updateDownload(download);
-						else signal.resolve();
+						else
+						{
+							if (download.state===SC.Download.states.FAILED)
+							{
+								download.dataSource.failed=true;
+								if(download.sources.find(s=>!s.failed)) download.state=SC.Download.states.PENDING;
+							}
+							signal.resolve();
+						}
 					})
 					.catch(function(e)
 					{

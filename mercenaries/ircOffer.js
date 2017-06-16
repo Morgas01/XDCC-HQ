@@ -1,7 +1,7 @@
 
 var parseRegEx=/"right">#?(\d+).*?"right">.*?"right">(\d+.).*?>([^<]+)<\/(a|span)/g;
 
-module.exports=function(network,channel,url,bot)
+module.exports=function(network,channel,url,user)
 {
 	return {
 		type:"FILE",
@@ -16,7 +16,7 @@ module.exports=function(network,channel,url,bot)
         		rtn.push({
         			network:network,
         			channel:channel,
-        			bot:bot,
+        			user:user,
         			name:match[3],
         			packnumber:match[1],
         			filesize:match[2]

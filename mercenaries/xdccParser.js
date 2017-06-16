@@ -15,7 +15,7 @@ module.exports=function(network,channel,url)
         		rtn.push({
         			network:network,
         			channel:channel,
-					bot:match[1],
+					user:match[1],
 					name:match[4],
 					packnumber:match[2],
 					filesize:match[3]+"M"

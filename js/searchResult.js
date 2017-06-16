@@ -24,7 +24,7 @@
 			if(m)return m[1];
 			return "no subber found";
 		},
-		bot:p=>p.sources.map(s=>s.bot),
+		bot:p=>p.sources.map(s=>s.user),
 		resolution: p=>
 		{
 			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
@@ -69,8 +69,8 @@
 				name:"sources",
 				fn:function(cell,data)
 				{
-					cell.textContent=data.sources.map(s=>s.bot+"@"+s.network).join(" ");
-					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.bot+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+					cell.textContent=data.sources.map(s=>s.user+"@"+s.network).join(" ");
+					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
 				}
 			}
 		]);
@@ -163,7 +163,7 @@
         	showIrcCmd:function()
         	{
         		var networks=new SC.org(table.getSelected())
-        		.group("network","network",child=>child.group("channel","channel",child=>child.group("bot","bot"))).getGroup("network");
+        		.group("network","network",child=>child.group("channel","channel",child=>child.group("bot","user"))).getGroup("network");
 
 				var content="<pre>";
 				for(var n in networks)
@@ -196,7 +196,7 @@
         		{
         			if(createPackage)
         			{
-        				var match=selectedDownloads[0].name.match(/([^\[\]\(\)]+)[\s_]+-[\s_]+\d+/);
+        				var match=selectedDownloads[0].name.match(/\s?([^\[\]\(\)]*)[\s_]+(?:-|ep)[\s_]+\d+/i);
         				var packageName=match?match[1]:selectedDownloads[0].name;
         				return new Promise(function(resolve,reject)
         				{
@@ -257,7 +257,7 @@
         		})
         		.then(function()
         		{
-        			SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close">ok</button>',
+        			SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close" autofocus>ok</button>',
         				{modal:true,target:container}
 					);
         		},
