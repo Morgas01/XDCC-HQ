@@ -20,6 +20,8 @@
 		},
 		filterSources:function(aktiveSources)
 		{
+			if(this.sources.every(s=>s.failed)) this.sources.forEach(s=>s.failed=false);//when every source failed try all again
+
 			var sourcesMap=this.sources.filter(s=>!s.failed).reduce((map,source)=>map.set(source.user+"@"+source.network,source),new Map());
 			for(var aktiveSource of aktiveSources)
 			{
