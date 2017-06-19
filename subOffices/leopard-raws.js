@@ -18,7 +18,7 @@ exports.parse=function(data)
 			user:"Leopard-xdcc",
 			name:match[2],
 			packnumber:match[1],
-			size:match[3]
+			filesize:match[3]
 		});
 	}
 	return rtn;
