@@ -7,52 +7,56 @@ var SC=µ.shortcut({
 });
 
 var config=SC.Config.parse({
-	"download folder":{
-		type:"string",
-		validate:function(path)
-		{
-			if (FS.existsSync(path)) return true;
-			return "path does not exist";
+	"search":{
+		"file expiration":{
+			type:"number",
+			min:0,
+			default:6
+		},
+		"search timeout":{
+			type:"number",
+			min:500,
+			max:50000,
+			default:15000
+		},
+		"search sources":{
+			type:"map",
+			model:{
+				type:"boolean",
+				default:true
+			}
 		}
 	},
-	"create Package":{
-		type:"boolean",
-		default:true
-	},
-	"append CRC32":{
-		type:"boolean",
-		default:true
-	},
-	"check name":{
-		type:"boolean",
-		default:true
-	},
-	"clean name":{
-		type:"boolean",
-		default:true
-	},
-	"file expiration":{
-		type:"number",
-		min:0,
-		default:6
-	},
-	"search timeout":{
-		type:"number",
-		min:500,
-		max:50000,
-		default:15000
-	},
-	"search sources":{
-		type:"map",
-		model:{
+	"download":{
+		"download folder":{
+			type:"string",
+			validate:function(path)
+			{
+				if (FS.existsSync(path)) return true;
+				return "path does not exist";
+			}
+		},
+		"create Package":{
 			type:"boolean",
 			default:true
+		},
+		"append CRC32":{
+			type:"boolean",
+			default:true
+		},
+		"check name":{
+			type:"boolean",
+			default:true
+		},
+		"clean name":{
+			type:"boolean",
+			default:true
+		},
+		"maximum Downloads":{
+			type:"number",
+			min:-1,
+			default:-1
 		}
-	},
-	"maximum Downloads":{
-		type:"number",
-		min:-1,
-		default:-1
 	}
 });
 
@@ -62,9 +66,10 @@ module.exports.config=config;
 new SC.File("subOffices").listFiles().then(function(subOfficeList)
 {
 
-	var searchSources=config.get("search sources");
+	var searchSources=config.get(["search","search sources"]);
 	for(var subOffice of subOfficeList)
 	{
 		searchSources.add(subOffice);
 	}
-});
+})
+.catch(e=>µ.logger.error({error:e},"error adding subOffices"));

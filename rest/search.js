@@ -26,7 +26,7 @@ module.exports=function(request)
 		{
 			return subOfficeList.filter(s=>request.data.sources.indexOf(s)!=-1);
 		}
-		searchSources=SC.config.get("search sources");
+		searchSources=SC.config.get(["search","search sources"]);
 		return subOfficeList.filter(s=>
 		{
 			var source=searchSources.get(s);
@@ -51,8 +51,8 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 
 	new SC.Worker("lib/hunter",{
 		subOffice:subOffice,
-		fileExpiration:SC.config.get("file expiration"),
-		searchTimeout:SC.config.get("search timeout")
+		fileExpiration:SC.config.get(["search","file expiration"]),
+		searchTimeout:SC.config.get(["search","search timeout"])
 	}).ready()
 	.then(function()
 	{
