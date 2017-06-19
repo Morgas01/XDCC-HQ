@@ -191,12 +191,12 @@
         		if(selectedDownloads.length==0) return;
 
         		button.disabled=true;
-        		SC.rq.json("rest/config/create%20Package")
+        		SC.rq.json("rest/config/download/create%20Package")
         		.then(createPackage=>
         		{
         			if(createPackage)
         			{
-        				var match=selectedDownloads[0].name.match(/\s?([^\[\]\(\)]*)[\s_]+(?:-|ep)[\s_]+\d+/i);
+        				var match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]+\d+/i);
         				var packageName=match?match[1]:selectedDownloads[0].name;
         				return new Promise(function(resolve,reject)
         				{
