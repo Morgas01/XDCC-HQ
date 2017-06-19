@@ -29,7 +29,8 @@
 	SC.rq.json("rest/config").then(function(data)
 	{
 		var sourcesConfig={};
-		for(var sourceName in data["search sources"])
+		var names=Object.keys(data["search"]["search sources"]).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
+		for(var sourceName of names)
 		{
 			sourcesConfig[sourceName]={
 				type:"boolean",
