@@ -95,7 +95,7 @@
 									SC.util.calcCRC(downloadFile)
 									.then((crc)=>
 									{
-										var newFileName=downloadFile.getFileName+` [${crc}]`+downloadFile.getExt();
+										var newFileName=downloadFile.getFileName()+` [${crc}]`+downloadFile.getExt();
 										downloadFile.rename(newFileName)
 										.then(()=>
 										{
