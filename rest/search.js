@@ -37,6 +37,7 @@ module.exports=function(request)
 	})
 	.then(function(filteredList)
 	{
+		µ.logger.info(filteredList,"starting search");
 		var queries=[].concat(request.data.query);
 
 		var p=Promise.all(filteredList.map(s=>doSearch(s,queries)))
