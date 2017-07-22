@@ -60,6 +60,26 @@
 	{
 		e.detail.element.querySelector("input").focus();
 	});
+	searchForm.addEventListener("paste",function(e){
+		if(e.clipboardData.types.includes("text/plain"))
+		{
+			e.preventDefault();
+			var terms=e.clipboardData.getData("text/plain").split("\n");
+			var input=e.target;
+			var container=input.parentNode.parentNode;
+			for(var term of terms)
+			{
+				if(input!=null)
+				{
+					input.value=term;
+					var nextWrapper=input.parentNode.nextElementSibling;
+					if(nextWrapper) input=nextWrapper.children[1];
+					else input=null;
+				}
+				else container.addField(term);
+			}
+		}
+	})
 	searchBtn.addEventListener("click",function()
 	{
 	    if(searchForm.isValid())
