@@ -61,23 +61,25 @@
 		e.detail.element.querySelector("input").focus();
 	});
 	searchForm.addEventListener("paste",function(e){
-		if(e.clipboardData.types.includes("text/plain"))
+		var terms=e.clipboardData.getData("text/plain").split("\n");
+		if(terms.length>1)
 		{
-			e.preventDefault();
-			var terms=e.clipboardData.getData("text/plain").split("\n");
-			var input=e.target;
-			var container=input.parentNode.parentNode;
-			for(var term of terms)
+			requestAnimationFrame(function()
 			{
-				if(input!=null)
+				var input=e.target;
+				var container=input.parentNode.parentNode;
+				for(var term of terms)
 				{
-					input.value=term;
-					var nextWrapper=input.parentNode.nextElementSibling;
-					if(nextWrapper) input=nextWrapper.children[1];
-					else input=null;
+					if(input!=null)
+					{
+						input.value=term;
+						var nextWrapper=input.parentNode.nextElementSibling;
+						if(nextWrapper) input=nextWrapper.children[1];
+						else input=null;
+					}
+					else container.addField(term);
 				}
-				else container.addField(term);
-			}
+			});
 		}
 	})
 	searchBtn.addEventListener("click",function()

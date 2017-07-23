@@ -55,6 +55,35 @@
 		var tableWrapper=results.children[0];
 
 		createErrorMenu(errors,data.errors)
+		SC.action({
+        	downloadList:function(event,button)
+        	{
+        		button.disabled=true;
+				return SC.rq({
+					url:"rest/downloads/add",
+					data:'{"XDCCdownload":['+atob(button.dataset.listParam)+']}'
+				})
+        		.then(function()
+        		{
+        			SC.dlg('<div><span class="dialog-icon">&#10071;</span> added list to download queue</div><button data-action="close" autofocus>ok</button>',
+        				{modal:true,target:container}
+					);
+					button.textContent=button.dataset.action="retry";
+        		},
+        		function(e)
+        		{
+        			µ.logger.error(e);
+        			SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding list to download queue:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
+        				{modal:true,target:container}
+					);
+        		})
+        		.always(()=>button.disabled=false);
+        	},
+        	retry:function()
+        	{
+        		//TODO
+        	}
+		},errors)
 
 		var tableData=new SC.TableData(data.results,[
 			"name",
@@ -269,7 +298,7 @@
 					);
         		})
         		.always(()=>button.disabled=false);
-        	},
+        	}
 		},actions);
 
 		var tableHeader=table.children[0];
@@ -310,24 +339,43 @@
 	{
 		if(errors.length>0)
 		{
-			errors=errors.map(e=>({
-				html:e.subOffice,
-				children:[
-					{
-						html:'<div>'+e.message+'</div><div class="stack">'+(e.stack||"")+'</div>',
-						text:e.text
+			errors=errors.map(e=>
+			{
+				if(e.listParam)
+				{
+					return {
+						html:e.subOffice,
+						children:[
+							{
+								html:'<div>no list available</div>'+
+									'<button data-action="downloadList" data-list-param="'+btoa(JSON.stringify(e.listParam))+'">download list</button>',
+								text:e.text
+							}
+						]
 					}
-				]
-			}));
+				}
+				return {
+					html:e.subOffice,
+					children:[
+						{
+							html:'<div>'+e.message+'</div>'+
+								'<div class="stack">'+(e.stack||"")+'</div>',
+							text:e.text
+						}
+					]
+				};
+			});
 			errors=[{
 				html:errors.length+" errors",
 				children:errors
 			}];
-			container.appendChild(SC.menu(errors,(dom,error)=>
+
+			var menu=SC.menu(errors,(dom,error)=>
 			{
 				if(error.text)dom.textContent=error.text;
 				else dom.innerHTML=error.html;
-			}));
+			});
+			container.appendChild(menu);
 		}
 	};
 

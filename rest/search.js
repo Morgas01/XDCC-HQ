@@ -95,7 +95,7 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		µ.logger.error(error);
 		signal.resolve({
 			results:null,
-			error:error
+			error:SC.es(error)
 		})
 	});
 });

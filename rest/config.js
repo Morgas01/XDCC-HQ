@@ -71,5 +71,16 @@ new SC.File("subOffices").listFiles().then(function(subOfficeList)
 	{
 		searchSources.add(subOffice);
 	}
+	module.exports.ready.then(function()
+	{
+		var searchSources=config.get(["search","search sources"]);
+		for(var key of searchSources.keys)
+		{
+			if(subOfficeList.indexOf(key)==-1)
+			{
+				searchSources.remove(key);
+			}
+		};
+	});
 })
 .catch(e=>µ.logger.error({error:e},"error adding subOffices"));
