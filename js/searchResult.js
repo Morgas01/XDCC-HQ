@@ -34,6 +34,121 @@
 		network:p=>p.sources.map(s=>s.network),
 	}
 
+	var searchResult=µ.Class({
+		init:function()
+		{
+			this.element=document.createElement("div");
+			this.element.classList.add("searchResult");
+
+			this.errorMenu=document.createElement("div");
+			this.errorMenu.classList.add("errorMenu");
+			this.element.appendChild(errorMenu);
+
+			this.actions=document.createElement("div");
+			this.actions.classList.add("actions");
+			this.element.appendChild(actions);
+
+			this.content=document.createElement("div");
+			this.content.classList.add("content");
+			this.element.appendChild(content);
+
+			this.tableWrapper=document.createElement("div");
+			this.tableWrapper.classList.add("tableWrapper");
+			this.content.appendChild(tableWrapper);
+
+			this.table=null;
+			this.errors=[];
+			this.organizer=new SC.org();
+			for(var [name,fn] of Object.entries(filterGroups)) organizer.group(name,fn);
+			this.sortColumns=[];
+		},
+		setData:function(data)
+		{
+			this.organizer.clear();
+			this.addResults(data);
+		},
+		addData:function(data)
+		{
+			if(this.organizer.values.length==0&&this.errors==0)
+			{
+				this.organizer.add(data.results);
+				this.errors=data.errors;
+			}
+			else
+			{
+				//TODO
+			}
+
+			this._createErrorMenu();
+			this._createTable();
+
+		},
+		_createErrorMenu:function()
+		{
+			while(this.errorMenu.firstChild)this.errorMenu.firstChild.remove();
+
+			if(this.errors.length>0)
+			{
+				var errorNodes=this.errors.map(function(error)
+				{
+					if(e.listParam)
+					{
+						return {
+							html:e.subOffice,
+							children:[
+								{
+									html:'<div>no list available</div>'+
+										'<button data-action="downloadList" data-list-param="'+btoa(JSON.stringify(e.listParam))+'">download list</button>',
+									text:e.text
+								}
+							]
+						}
+					}
+					return {
+						html:e.subOffice,
+						children:[
+							{
+								html:'<div>'+e.message+'</div>'+
+									'<div class="stack">'+(e.stack||"")+'</div>',
+								text:e.text
+							}
+						]
+					};
+				});
+				var errorRoot=[{
+					html:errorNodes.length+" errors",
+					children:errorNodes
+				}];
+
+				var menu=SC.menu(errorRoot,function(dom,error)
+				{
+					if(error.text)dom.textContent=error.text;
+					else dom.innerHTML=error.html;
+				});
+				this.errorMenu.appendChild(menu);
+			}
+		},
+		_createTable:function()
+		{
+
+		}
+	});
+	searchResult.filterGroups={
+		subber:function(p)
+		{
+			var m=p.name.match(/^\[([^\]]+)/);
+			if(m)return m[1];
+			return "no subber found";
+		},
+		bot:function(p){ return p.sources.map(s=>s.user);},
+		resolution: function(p)
+		{
+			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
+			if (m==null) return "unknown";
+			return m.slice(-2).join("")+"p";
+		},
+		network:function (p){ return p.sources.map(s=>s.network);},
+	};
 	var searchResult=function(container,data)
 	{
 		container.classList.add("searchResult");

@@ -1,4 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
+
+	var IDBConn=GMOD("IDBConn");
+
 	SC=SC({
 		tabs:"gui.tabs",
 		rq:"request",
@@ -8,6 +11,9 @@
 		TableData:"gui.TableData",
 		checkDB:"checkDbErrors"
 	});
+
+	var STORAGE_NAME="XDCC search history";
+	var searchHistory={};
 
 	var tabs=SC.tabs([]);
 	document.body.appendChild(tabs);
@@ -32,8 +38,11 @@
 			.then(function(data)
 			{
 				container.dataset.state="response";
-				var searchResult=SC.searchResult(container,data);
-				container.dataset.state="done";
+				requestAnimationFrame(()=>
+				{
+					var searchResult=SC.searchResult(container,data);
+					container.dataset.state="done";
+				});
 			},
 			function(error)
 			{
@@ -42,5 +51,16 @@
 			});
 		});
 	},false);
+
+
+	try
+	{
+		if(STORAGE_NAME in sessionStorage)
+		searchHistory=JSON.parse(sessionStorage.getItem(STORAGE_NAME));
+	}
+	catch (e)
+	{
+		console.error("sessionStorage not available",e)
+	}
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

@@ -73,6 +73,8 @@
 								var fileCRC=download.filename.match(extractCRC);
 								if(fileCRC)
 								{
+									download.addMessage("checking CRC ...");
+									this.updateDownload(download);
 									SC.util.calcCRC(download.filepath+'/'+download.filename)
 									.then((crc)=>
 									{
@@ -91,6 +93,8 @@
 								}
 								else if (config.get(["download","append CRC32"]))
 								{
+									download.addMessage("calculating CRC ...");
+									this.updateDownload(download);
 									var downloadFile=new SC.File(download.filepath).changePath(download.filename);
 									SC.util.calcCRC(downloadFile)
 									.then((crc)=>
