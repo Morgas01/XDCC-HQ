@@ -340,8 +340,8 @@
         		{
         			if(createPackage)
         			{
-        				var match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]+\d+/i);
-        				var packageName=match?match[1]:selectedDownloads[0].name;
+        				var match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]*\d+/i);
+        				var packageName=match?match[1].replace(/_/g," "):selectedDownloads[0].name;
         				return new Promise(function(resolve,reject)
         				{
 								SC.dlg(String.raw
