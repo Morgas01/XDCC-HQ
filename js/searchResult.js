@@ -253,17 +253,17 @@
 				url:"rest/downloads/add",
 				data:'{"XDCCdownload":['+atob(button.dataset.listParam)+']}'
 			})
-			.then(function()
+			.then(()=>
 			{
 				SC.dlg('<div><span class="dialog-icon">&#10071;</span> added list to download queue</div><button data-action="close" autofocus>ok</button>',
-					{modal:true,target:container}
+					{modal:true,target:this.element}
 				);
 			},
-			function(e)
+			(e)=>
 			{
 				µ.logger.error(e);
 				SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding list to download queue:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
-					{modal:true,target:container}
+					{modal:true,target:this.element}
 				);
 			});
 		},
@@ -314,7 +314,7 @@
 				}
 			}
 			content+='</pre><button data-action="close">ok</button>';
-			SC.dlg(content,{modal:true,target:container});
+			SC.dlg(content,{modal:true,target:this.element});
 		},
 		download:function(event,button)
 		{
@@ -328,7 +328,7 @@
 				{
 					var match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]*\d+/i);
 					var packageName=match?match[1].replace(/_/g," "):selectedDownloads[0].name;
-					return new Promise(function(resolve,reject)
+					return new Promise((resolve,reject)=>
 					{
 						SC.dlg(String.raw
 `
@@ -343,7 +343,7 @@
 `
 						,{
 							modal:true,
-							target:container,
+							target:this.element,
 							actions:{
 								ok:function()
 								{
@@ -378,24 +378,26 @@
 					})
 				});
 			},
-			function()
+			function(error)
 			{
+				debugger;
+				if(error!=null) return Promise.reject(error);
 				return SC.rq({
 					url:"rest/downloads/add",
 					data:JSON.stringify({XDCCdownload:selectedDownloads})
 				});
 			})
-			.then(function()
+			.then(()=>
 			{
 				SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close" autofocus>ok</button>',
-					{modal:true,target:container}
+					{modal:true,target:this.element}
 				);
 			},
-			function(e)
+			(e)=>
 			{
 				µ.logger.error(e);
 				SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding downloads:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
-					{modal:true,target:container}
+					{modal:true,target:this.element}
 				);
 			});
 		},
