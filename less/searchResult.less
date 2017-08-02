@@ -1,10 +1,12 @@
 .searchResult {
-	position:relative;
 	display:flex;
 	flex-direction:column;
-	padding-top:.5em;
+	padding-top:1ex;
+	padding-left:1ex;
+	height: 100%;
+    box-sizing: border-box;
 
-	.errors {
+	.errorMenu {
 		&:not(:empty) {
 			margin-bottom:1em;
 		}
@@ -33,7 +35,7 @@
 		}
 	}
 
-	.results {
+	.content {
 		height:0;
 		flex-grow:1;
 		display:flex;

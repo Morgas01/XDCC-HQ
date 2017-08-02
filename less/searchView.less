@@ -1,8 +1,8 @@
 @import "theme/default";
 @import "structure/tabs";
 @import "style/tabs";
-@import "structure/selectionTable";
-@import "style/selectionTable";
+@import "structure/TableConfig.Select";
+@import "style/TableConfig.Select";
 @import "structure/form";
 @import "style/form";
 @import "structure/dialog";
@@ -48,5 +48,11 @@ body {
 	[data-state="response"] {
 		.stripes(@ternaryColor);
 		.stripes-animate();
+	}
+	.oldQueries {
+		display:flex;
+		align-items:center;
+		flex-direction: column;
+        padding: 2em;
 	}
 }

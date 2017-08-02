@@ -1,21 +1,19 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var IDBConn=GMOD("IDBConn");
+	var Tabs=GMOD("gui.tabs");
+	var actionize=GMOD("gui.actionize");
 
 	SC=SC({
-		tabs:"gui.tabs",
 		rq:"request",
-		searchResult:"searchResult",
+		SearchResult:"SearchResult",
 		dlg:"gui.dialog",
-		Promise:"Promise",
-		TableData:"gui.TableData",
 		checkDB:"checkDbErrors"
 	});
 
 	var STORAGE_NAME="XDCC search history";
 	var searchHistory={};
 
-	var tabs=SC.tabs([]);
+	var tabs=Tabs([]);
 	document.body.appendChild(tabs);
 	window.addEventListener("message", function(event)
 	{
@@ -38,11 +36,17 @@
 			.then(function(data)
 			{
 				container.dataset.state="response";
-				requestAnimationFrame(()=>
+
+				searchHistory[event.data.query+""]=data;
+				try{sessionStorage.setItem(STORAGE_NAME,JSON.stringify(searchHistory))}catch(e){}
+
+				var searchResult=new SC.SearchResult();
+				container.appendChild(searchResult.element)
+				requestAnimationFrame(()=>requestAnimationFrame(()=>//double requestAnimationFrame to wait for render
 				{
-					var searchResult=SC.searchResult(container,data);
+					searchResult.setData(data);
 					container.dataset.state="done";
-				});
+				}));
 			},
 			function(error)
 			{
@@ -57,6 +61,35 @@
 	{
 		if(STORAGE_NAME in sessionStorage)
 		searchHistory=JSON.parse(sessionStorage.getItem(STORAGE_NAME));
+		tabs.addTab(e=>e.innerHTML=String.raw`<span title="old queries">&#128465;</span>`,
+		function(oldQueriesContent)
+		{
+			oldQueriesContent.classList.add("oldQueries");
+			oldQueriesContent.innerHTML=Object.entries(searchHistory).map(([name,data])=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-name="${name}">${name}</span>`);
+			actionize({
+				reopen:function(event,target)
+				{
+					var name=target.dataset.name;
+					tabs.addTab(e=>e.innerHTML=String.raw
+`
+<span>${name}</span>
+<botton data-action="closeTab">&#10060;</button>
+`
+					,
+					function(container)
+					{
+						container.dataset.state="response";
+						var searchResult=new SC.SearchResult();
+						container.appendChild(searchResult.element);
+						requestAnimationFrame(()=>requestAnimationFrame(()=>//double requestAnimationFrame to wait for render
+						{
+								searchResult.setData(searchHistory[name]);
+								container.dataset.state="done";
+						}));
+					},true);
+				}
+			},oldQueriesContent)
+		});
 	}
 	catch (e)
 	{

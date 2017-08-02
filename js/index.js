@@ -1,16 +1,16 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
+	var Form=GMOD("gui.form");
+	var request=GMOD("request");
+	var checkDB=GMOD("checkDbErrors");
+
 	var SC=SC({
-	    Config:"Config",
-	    form:"gui.form",
-	    rq:"request",
-	    dialog:"gui.dialog",
-	    checkDB:"checkDbErrors"
+	    dialog:"gui.dialog"
 	});
 
 	var searchWrapper=document.getElementById("searchWrapper");
 
-	var searchForm=SC.form({
+	var searchForm=Form({
 	   type:"array",
 	   model:{
 		   type:"string",
@@ -26,7 +26,7 @@
 	searchWrapper.appendChild(searchForm);
 
 	var searchSources;
-	SC.rq.json("rest/config").then(function(data)
+	request.json("rest/config").then(function(data)
 	{
 		var sourcesConfig={};
 		var names=Object.keys(data["search"]["search sources"]).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
@@ -37,7 +37,7 @@
 				default:false
 			};
 		}
-		searchSources=SC.form(sourcesConfig,undefined,"Sources");
+		searchSources=Form(sourcesConfig,undefined,"Sources");
 		searchSources.id="searchSources";
 		searchSources.classList.add("hidden");
 		searchWrapper.appendChild(searchSources);
@@ -113,7 +113,7 @@
 			}).then(function(data)
 			{
 				element.classList.remove("request");
-				element.insertBefore(SC.form(data.description,data.value),closeBtn);
+				element.insertBefore(Form(data.description,data.value),closeBtn);
 				element.addEventListener("formChange",function(event)
 				{
 					var field=event.target;
@@ -139,6 +139,6 @@
 	    },{modal:true});
 	});
 
-	SC.checkDB();
+	checkDB();
 	
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
