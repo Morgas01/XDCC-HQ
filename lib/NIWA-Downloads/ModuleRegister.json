@@ -1,0 +1,5 @@
+{
+	"checkDbErrors": "js/checkDbErrors.js",
+	"downloadTable": "js/downloadTable.js",
+	"Download": "lib/Download.js"
+}
