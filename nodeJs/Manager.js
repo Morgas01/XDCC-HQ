@@ -3,7 +3,7 @@
 
 	SC=SC({
 		adopt:"adopt",
-		Download:require.bind(null,"./Download"),
+		Download:require.bind(null,"../lib/Download"),
     	File:"File",
     	FileUtils:"File.util",
     	JsonConnector:"DB/jsonConnector",
@@ -16,13 +16,54 @@
     	flatten:"flatten",
     	rescope:"rescope",
     	flatten:"flatten",
-    	itAs:"iterateAsync"
+    	itAs:"iterateAsync",
     });
+
+    var delegateID=0;
+    var delegateMap=new Map();
+
+    var delegateDownload=function(appName,download,onUpdate,manager)
+    {
+    	var delegateInfo={
+    		appName:appName,
+    		ID:delegateID++,
+    		onUpdate:onUpdate,
+    		manager:manager
+    	};
+    	delegateMap.set(delegateInfo.ID,delegateInfo);
+    	var p=worker.ask(appName,"receiveDownload",{
+    		ID:delegateInfo.ID,
+    		download:download,
+    		objectType:download.objectType
+		});
+    	p.catch(()=>delegateMap.delete(delegateInfo.ID));
+    	return p;
+    }
+    worker.updateDelegatedDownload=function(update,appName)
+	{
+		var delegateInfo=delegateMap.get(update.remoteID);
+
+		if(!delegateInfo) µ.logger.error("no delegate info");
+		else if(delegateInfo.appName!=appName) µ.logger.error("wrong delegate app");
+		else
+		{
+			update.ID=update.remoteID;
+			delete update.remoteID;
+			delete update.appName;
+			delegateInfo.onUpdate.call(delegateInfo.manager,update);
+			if(update.state!==SC.Download.states.RUNNING) delegateMap.delete(update.ID);
+		}
+	}
+
+	var rotateErrorMapper=function(rotateError)
+	{
+		return {error:SC.es(rotateError.error),file:rotateError.file.getAbsolutePath()}
+	};
 
 	var MANAGER=module.exports=µ.Class({
 		init:function(options)
 		{
-			SC.rescope.all(this,["isDownloadNotRunning","receiveDownload","updateDelegatedDownload","_trigger"]);
+			SC.rescope.all(this,["isDownloadNotRunning","receiveDownload","_trigger","fetchSubPackages"]);
 			options=SC.adopt({
 				eventName:"downloads",
 				DBClassDictionary:[],// standard Download and Package is always added
@@ -63,13 +104,14 @@
 				var storageFile=new SC.File(options.storagePath);
 				this.dbConnector=SC.FileUtils.enshureDir(storageFile.clone().changePath("..")).then(()=>
 				{
+					var dbErrors=this.dbErrors;
 					return new SC.JsonConnector(storageFile,options.jsonConnectorParam).open
 					.then(function(result)
 					{
 						if(result.others.length>0)
 						{
-							this.dbErrors=result.others.map(rotateErrorMapper);
-							this.dbErrors.push({file:result.file.getAbsolutePath(),error:"loaded"});
+							dbErrors=result.others.map(rotateErrorMapper);
+							dbErrors.push({file:result.file.getAbsolutePath(),error:"loaded"});
 							µ.logger.warn({errors:dbErrors},"errors loading file "+result.file.getAbsolutePath());
 						}
 						return this;
@@ -81,7 +123,7 @@
 							errors.push({file:storageFile,error:"file not found"});
 						}
 						Array.prototype.push.apply(dbErrors,errors.map(rotateErrorMapper));
-						this.dbErrors.push({file:null,error:"could not load any DB file"});
+						dbErrors.push({file:null,error:"could not load any DB file"});
 						µ.logger.warn({errors:dbErrors},"could not load any DB file");
 
 						return this;
@@ -105,7 +147,7 @@
 				worker.receiveDownload=this.receiveDownload;
 			}
 
-			this.maxDownloads=options.maxDownloads>0?options.maxDownloads:0;
+			this.setMaxDownloads(options.maxDownloads);
 			this.setAutoTrigger(options.autoTriggger);
 		},
 		setAutoTrigger:function(trigger)
@@ -113,13 +155,13 @@
 			this.autoTriggger=!!trigger;
 			this._trigger();
 		},
+		getAutoTrigger:function(){return this.autoTriggger},
 		setMaxDownloads:function(maxDownloads)
 		{
-			this.maxDownloads=options.maxDownloads>0?options.maxDownloads:0;
+			this.maxDownloads=maxDownloads>0?maxDownloads:0;
 			this._trigger();
 		},
-		getMaxDownloads:function(){return this.maxDownloads}},
-		getAutoTrigger:function(){return this.autoTriggger},
+		getMaxDownloads:function(){return this.maxDownloads},
 		notify:function(event,data)
 		{
 			this.dbConnector.then((dbc)=>
@@ -155,6 +197,7 @@
     	add:function(downloads)
     	{
     		if(!Array.isArray(downloads)) downloads=[downloads];
+    		//TODO  set orderIndex
     		return this.dbConnector.then(function(dbc)
 			{
 				return dbc.save(downloads);
@@ -188,10 +231,11 @@
     		.then(()=>
     		{
     			this.notify("add",[{objectType:package.objectType,fields:package.toJSON()}]);
-    			return this.moveTo(package,items);
+    			items.forEach((d,i)=>d.orderIndex=i);
+    			return this.moveTo(package,items,true);
     		});
     	},
-    	moveTo:function(package,items)
+    	moveTo:function(package,items,keepOrder)
     	{
     		return this.fetchParentPackages(package) //get parents until "root"
     		.then(()=> //generate parentUIDs
@@ -211,18 +255,20 @@
 				for(var item of items)
 				{
 					item.setParent("package",package||null);
-					item.orderIndex=null;
+					if(!keepOrder) item.orderIndex=null;
 				}
+				//TODO if(!keepOrder) sort
 				return this.dbConnector.then(dbc=>dbc.save(items))
 				.then(()=>
 				{
-					this.notify("move",prepareItems(items)));
+					this.notify("move",prepareItems(items));
 					this._trigger();
-				}
+				});
 			});
     	},
     	changeState:function(idDictionary,expectedState,newState)
     	{
+    		var isPending=(newState===SC.Download.states.PENDING)
     		return this.dbConnector.then(dbc=>
     			Promise.all(Object.keys(idDictionary)
     				.map(type=>dbc.load(this.DBClassDictionary[type],{ID:idDictionary[type],state:expectedState}))
@@ -230,8 +276,16 @@
 				.then(SC.flatten)
 				.then(downloads=>
 				{
-					for(var download of downloads) download.state=newState;
-					return dbc.save(downloads).then(()=>this.notify("update",prepareItems(downloads)));
+					for(var download of downloads)
+				 	{
+				 		download.state=newState;
+				 		if(isPending)download.clearMessages();
+				 	}
+					return dbc.save(downloads).then(()=>
+					{
+						this.notify("update",prepareItems(downloads));
+						if(isPending) this._trigger();
+					});
 				})
     		);
     	},
@@ -254,12 +308,12 @@
 						.then(()=>packages.map(p=>
 						{
 							var toDelete=new Set();
-							SC.NodePatch.traverse(p,function(package)
+							SC.NodePatch.traverse(p,package=>
 							{
 								var isRunning=false;
 								for(var download of package.getChildren("children"))
 								{
-									if(!isDownloadNotRunning(download)) isRunning=true;
+									if(!this.isDownloadNotRunning(download)) isRunning=true;
 									else toDelete.add(download);
 								}
 								if(!isRunning) toDelete.add(package);
@@ -341,6 +395,7 @@
     	},
     	startDownload:function(download)
     	{
+    		µ.logger.debug("startDownload",download.name);
     		if(!this.isDownloadNotRunning(download)) return Promise.reject("download already running");
 
     		return trueOrReject(this.isDownloadReady(Array.from(this.runningDownloadMap.keys()),download))
@@ -350,7 +405,7 @@
 				this.updateDownload(download);
 				var runningInfo={promise:null};
 				this.runningDownloadMap.set(download,runningInfo);
-				runningInfo.promise=new SC.Promise(this.download,{args:[download]});
+				runningInfo.promise=new SC.Promise(this.download,{args:[download],scope:this});
 				runningInfo.promise.then(function()
 				{
 					if(download.state==SC.Download.states.RUNNING)
@@ -362,7 +417,8 @@
 				function(error)
 				{
 					µ.logger.error({error:error},"download failed");
-					download.addMessage("error");
+					error=SC.es(error);
+					download.addMessage("Error:\n"+JSON.stringify(error,null,"\t"));
 					download.state=SC.Download.states.FAILED;
 				})
 				.then(()=>
@@ -383,83 +439,55 @@
     	receiveDownload:function(data,appName)
     	{
 			data.appName=appName;
-			data.remoteID=data.ID;
-			delete data.ID;
+			data.download.remoteID=data.ID;
+			data.download.appName=appName;
+			delete data.download.ID;
 			var downloadClass=this.DBClassDictionary[data.objectType];
-			if(!downloadClass) return Promise.reject("unknown class: "+data.objectType);
+			if(!downloadClass) return Promise.reject("unknown class: "+data.download.objectType);
 			var download=new downloadClass();
-			download.fromJSON(data);
+			download.fromJSON(data.download);
 
 			return trueOrReject(this.accept(download,appName))
 			.then(()=>this.startDownload(download));
     	},
     	delegateDownload:function(appName,download,onUpdate)
     	{
-    		worker.updateDelegatedDownload=this.updateDelegatedDownload;
-
-    		var runningInfo=this.runningDownloadMap.get(download);
-    		if(!runningInfo) return Promise.reject("no runningInfo");
-    		//TODO multiple delegates for same download
-    		runningInfo.onUpdate=onUpdate;
-    		return worker.ask(appName,"receiveDownload",download);
-    	},
-    	updateDelegatedDownload:function(update)//,appName) TODO check appName?
-    	{
-    		var runningDownload=Array.from(this.runningDownloadMap.keys()).find(SC.eq.test({ID:update.remoteID}));
-    		if(runningDownload)
-    		{
-    			update.ID=update.remoteID;
-    			var runningInfo=this.runningDownloadMap.get(runningDownload);
-    			if(runningInfo.onUpdate) runningInfo.onUpdate(update,runningDownload)
-    			else
-    			{
-    				runningDownload.fromJSON(update);
-					if(runningDownload.state===SC.Download.states.RUNNING) this.updateDownload(runningDownload);
-					else signal.resolve();
-    			}
-    		}
-    		else
-    		{
-    			µ.logger.error(`could not find running download to update (ID:${download.remoteID})`);
-    			return Promise.reject(`could not find running download to update (ID:${download.remoteID})`);
-    		}
+    		return delegateDownload(appName,download,onUpdate,this);
     	},
     	_trigger:function()
     	{
-    		if(!this.autoTriggger) return;
-    		 if(this.runningDownloadMap.size()>=this.maxDownloads) return;
+    		µ.logger.debug("_trigger");
+    		if(!this.autoTriggger) return Promise.resolve();
+    		if(this.maxDownloads!=0&&this.runningDownloadMap.size>=this.maxDownloads) return Promise.resolve();
     		//TODO queue?
     		var dbClasses=Object.keys(this.DBClassDictionary).map(key=>this.DBClassDictionary[key])
-    		return this.dbConnector.then(dbc=>
+    		var triggerPromise=this.dbConnector.then(dbc=>
     		{
     			//load all dbClasses in Pending
-    			return Promise.all(dbClasses.map(dbClass=>ocon.load(dbClass)))
+    			return Promise.all(dbClasses.map(dbClass=>dbc.load(dbClass,{packageID:SC.eq.unset()})))
 				.then(SC.flatten) //flatten
 				.then(data=>
 				{
-					SC.DBObj.connectObjects(data);
-					var sortedData=data.filter(d=>d.packageID==null).sort(SC.Download.sortByOrderIndex);
-
-					return SC.iterateAsync(sortedData,function(index,item)
+					var sortedData=data.sort(SC.Download.sortByOrderIndex);
+					return SC.itAs(sortedData,function(index,item)
 					{
-						var item=sortedData.shift();
 						if(item instanceof SC.Download)
 						{
 							if(item.state===SC.Download.states.PENDING&&this.isDownloadNotRunning(item))
 							{
-								return SC.Promise.reverse(this.startDownload(item));
+								return SC.Promise.reverse(this.startDownload(item),item);
 							}
 							return "download not pending";
 						}
 						else
 						{
 							return Promise.all([
-								dbc.loadChildren(p,"children"),
-								dbc.loadChildren(p,"subPackages")
+								dbc.loadChildren(item,"children"),
+								dbc.loadChildren(item,"subPackages")
 							]).then(function()
 							{
 								sortedData.splice(index+1,0,...item.getItems()); //insert sub items as next items
-								return "loaded sub items"
+								return "loaded sub items";
 							},
 							function(error)
 							{
@@ -467,9 +495,11 @@
 								return error;
 							});
 						}
-					},null,this).reverse();
+					},null,this).reverse("triggered download");
 				});
     		});
+    		triggerPromise.then(this._trigger,µ.logger.error);
+    		return triggerPromise;
     	}
 	});
 
@@ -647,13 +677,12 @@
 				});
 			});
 		},
-		autoTriggger:function(param)
+		autoTrigger:function(param)
 		{
 			if(param.method==="GET") return this.autoTriggger;
-			else if Param.method==="POST")
+			else if (param.method==="POST")
 			{
 				this.setAutoTrigger(param.data);
-				param.status=204;
 				return Promise.resolve();
 			}
 			else

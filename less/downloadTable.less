@@ -3,6 +3,7 @@
 	@disabled-color:gray;
 	@done-color:mix(@progress-color,@ternaryColor);
 	@failed-color:red;
+	@failed-text-color:white;
 }
 .downloadTable {
 	.downloadTable-scope();
@@ -45,6 +46,7 @@
 	}
 	label[data-state="failed"] {
 		background-color:@failed-color;
+		color:@failed-text-color;
 		&:hover {
 			background-color:lighten(@failed-color,10%);
 		}
@@ -66,11 +68,21 @@
 		font-size: .75em;
 		white-space:nowrap;
 	}
-	label>.messages, label>.progress, label>.speed, label>.time {
+	label>.progress, label>.speed, label>.time {
 		.tooltip(@distance:0,@additions:{
 			top:0;
 		});
 		.tooltip-fadeIn(.5s,.5s);
+	}
+	label>.messages {
+		.tooltip(@distance:0,@direction:~"left",@additions:{
+			top:0;
+			left:0;
+		});
+		.tooltip-fadeIn(.5s,.5s);
+	}
+	label>.filesize,header [data-translation=filesize] {
+		text-align:right;
 	}
 	.progress-wrapper {
 		height:1em;
@@ -85,17 +97,18 @@
 	}
 }
 .sortDialog {
+	height:100%;
 	.downloadTable-scope();
 	display:flex;
 	flex-direction:column;
-	.sortWrapper{
-		order:1;
+	.sortWrapper {
 		display:flex;
 		flex-direction:row;
 		margin-bottom:1em;
+		height:0;
+		flex-grow:1;
 		.sortActions {
 			margin-right:1em;
-			order:1;
 			display:flex;
 			flex-direction:column;
 			button {
@@ -103,13 +116,15 @@
 				flex-grow:1;
 			}
 		}
-		.selectionTable {
-			order:2;
+		.sortTableScroll {
+			overflow:auto;
 		}
 	}
 	.dialogActions {
-		order:2;
 		display:flex;
 		justify-content:space-between;
+	}
+	[data-action] {
+		cursor:pointer;
 	}
 }

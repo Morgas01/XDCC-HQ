@@ -1,7 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
 	SC=SC({
-		TreeTableData:"gui.TreeTableData",
+		TreeTableConfig:"gui.TreeTableConfig.Select",
 		selectionTable:"gui.selectionTable",
 		DBObj:"DBObj",
 		Download:"Download",
@@ -11,7 +11,7 @@
 		rq:"request",
 		dlg:"gui.dialog",
 		stree:"gui.selectionTree",
-		TableData:"gui.TableData",
+		TableConfig:"gui.TableConfig.Select",
 		eq:"equals",
 		flatten:"flatten"
 	});
@@ -31,12 +31,18 @@
 		"name":"name",
 		"filepath":function filepath(cell,data)
 		{
-			var sep=(data.filepath.match(/[\\\/]/)||"/")[0];
-			cell.textContent=data.filepath+sep+data.filename;
+			if(data.filepath)
+			{
+				var sep=(data.filepath.match(/[\\\/]/)||"/")[0];
+				cell.textContent=data.filepath+sep+data.filename;
+			}
+			else cell.textContent=data.filename||"";
 		},
 		"messages":function messages(cell,data)
 		{
-			if(data.messages.length>0) cell.textContent=data.messages[data.messages.length-1].text;
+			if(!data.messages) return;
+			if(data.messages.length==0) cell.textContent="";
+			else if(data.messages.length>0) cell.textContent=data.messages[data.messages.length-1].text;
 			cell.dataset.title=data.messages.map(msg=>
 			{
 				dateHelper.setTime(msg.time);
@@ -45,10 +51,7 @@
 		},
 		"filesize":function filesize(cell,data)
 		{
-			var filesize;
-			if(data instanceof SC.Download) filesize=data.filesize;
-			else filesize=0;//TODO
-			cell.textContent=SC.Download.formatFilesize(filesize);
+			cell.textContent=data.formattedFilesize
 		},
 		"progress":function progress(cell,data)
 		{
@@ -110,14 +113,17 @@
 
 		var container=document.createElement("div");
 		container.classList.add("downloadTable");
-		var tableData=new SC.TreeTableData(
-			[],
+		var tableConfig=new SC.TreeTableConfig(
 			(columns||Object.keys(baseColumns)).map(c=>(c in baseColumns)?baseColumns[c]:c),
-			function(p)
 			{
-				if(p instanceof SC.Download.Package) return p.getItems();
-				return null;
-			});
+				control:true,
+				childrenGetter:function(p)
+				{
+					if(p instanceof SC.Download.Package) return p.getItems();
+					return null;
+				}
+			}
+		);
 		var table=null;
 		var ocon=new SC.OCON();
 		var rowMap=new Map();
@@ -129,15 +135,13 @@
 			.then(data=>
 			{
 				SC.DBObj.connectObjects(data);
-				tableData.data=data.filter(d=>d.packageID==null).sort(SC.Download.sortByOrderIndex);
-				var newTable=SC.selectionTable(tableData,null,function(row,item)
+				rowMap.clear();
+				var newTable=tableConfig.getTable(data.filter(d=>d.packageID==null).sort(SC.Download.sortByOrderIndex),null,function(row,item)
 				{
 					rowMap.set(item.objectType+item.ID,row);
 					row.dataset.state=item.state;
 					row.dataset.type=item.objectType;
 				});
-				newTable.noInput=true;
-				SC.selectionTable.selectionControl(newTable);
 
 				if(table) table.remove();
 				table=newTable;
@@ -160,7 +164,7 @@
 				//cols[0]=cols[0].children[2]
 				for(var i=0;i<cols.length;i++)
 				{
-					tableData.columns[i].fn.call(item,cols[i],item);
+					tableConfig.columns[i].fn.call(item,cols[i],item);
 				}
 				row.dataset.state=item.state;
 			}
@@ -194,17 +198,20 @@
 
 		es.addEventListener("init",function(event)
 		{
+			µ.logger.info("downloadEvent init:",event);
 			ocon.db.clear();
 			ocon.db.add(JSON.parse(event.data));
 			refreshTable();
 		});
 		es.addEventListener("add",function(event)
 		{
+			µ.logger.info("downloadEvent add:",event);
 			ocon.db.add(JSON.parse(event.data));
 			refreshTable();
 		});
 		es.addEventListener("delete",function(event)
 		{
+			µ.logger.info("downloadEvent delete:",event);
 			var data=JSON.parse(event.data);
 			var promises=[];
 			for(var objectType in data)
@@ -218,14 +225,17 @@
 		});
 		es.addEventListener("update",function(event)
 		{
+			µ.logger.info("downloadEvent update:",event);
 			updateItems(JSON.parse(event.data)).then(updateTable);
 		});
 		es.addEventListener("move",function(event)
 		{
+			µ.logger.info("downloadEvent move:",event);
 			updateItems(JSON.parse(event.data)).then(refreshTable);
 		});
 		es.addEventListener("sort",function(event)
 		{
+			µ.logger.info("downloadEvent sort:",event);
 			updateItems(JSON.parse(event.data)).then(refreshTable);
 		});
 
@@ -244,6 +254,14 @@
 			"getContainer":()=>container,
 			"getTable":()=>table,
 			"getDb":()=>ocon,
+			"autoTrigger":function(nextState)
+			{
+				return SC.rq({
+					url:options.apiPath+"/autoTrigger",
+					data:JSON.stringify(!!nextState),
+					methos:"POST"
+				});
+			},
 			"disable":function(items)
 			{
 				return SC.rq({
@@ -365,7 +383,8 @@
 			"sortSelected":function()
 			{
 				var selected=table.getSelected()[0];
-				var loadPattern={packageID:SC.eq.unset()};
+				if(!selected) return;
+				var loadPattern={packageID:selected.packageID||SC.eq.unset()};
 				if(selected instanceof SC.Download.Package) loadPattern={packageID:selected.ID};
 
 				var dbClasses=Object.keys(options.DBClasses).map(key=>options.DBClasses[key]);
@@ -374,13 +393,14 @@
 				.then(function(downloads)
 				{
 					downloads.sort(SC.Download.sortByOrderIndex);
-					var sortData=new SC.TableData(downloads,["name"]);
-					var sortTable=SC.selectionTable(sortData,"sortItems",function(row,data)
+					var sortConfig=new SC.TableConfig(["name"],{radioName:"sortItems",noInput:true});
+					var sortTable=sortConfig.getTable(downloads,function(row,data)
 					{
 						row.dataset.type=data.objectType;
 						row.dataset.ID=data.ID;
 					});
-					sortTable.noInput=true;
+					var nameHeader=sortTable.querySelector('header [data-translation="name"]');
+					nameHeader.dataset.action="sortName";
 					return new SC.Promise(function(signal)
 					{
 						SC.dlg(function(container)
@@ -395,6 +415,7 @@
 		<button data-action="down">↓</button>
 		<button data-action="last">⤓</button>
 	</div>
+	<div class="sortTableScroll"></div>
 </div>
 <div class="dialogActions">
 	<button data-action="ok">OK</button>
@@ -402,7 +423,7 @@
 </div>
 `
 							;
-							container.firstElementChild.appendChild(sortTable);
+							container.firstElementChild.lastElementChild.appendChild(sortTable);
 						},{
 							modal:true,
 							actions:{
@@ -425,6 +446,13 @@
 								{
 									var selectedRow=sortTable.getSelectedRows()[0];
 									if(selectedRow) selectedRow.parentNode.appendChild(selectedRow);
+								},
+								sortName:function()
+								{
+									var tableBody=Array.from(sortTable.children).filter(e=>e.tagName=="DIV")[0];
+									Array.from(tableBody.children)
+									.sort((a,b)=>a.children[1].textContent>b.children[1].textContent)
+									.forEach(r=>tableBody.appendChild(r));
 								},
 								ok:function()
 								{

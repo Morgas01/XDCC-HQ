@@ -1,0 +1,13 @@
+.settings
+.settings/*.*
+.project
+*.iml
+.idea/
+out/
+target/
+node_modules/
+build/
+
+logs/
+temp/
+storage/
