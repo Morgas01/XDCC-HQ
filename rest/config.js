@@ -71,10 +71,10 @@ new SC.File("subOffices").listFiles().then(function(subOfficeList)
 	{
 		searchSources.add(subOffice);
 	}
-	module.exports.ready.then(function()
+	return module.exports.ready.then(function()
 	{
 		var searchSources=config.get(["search","search sources"]);
-		for(var key of searchSources.keys)
+		for(var key of searchSources.keys())
 		{
 			if(subOfficeList.indexOf(key)==-1)
 			{

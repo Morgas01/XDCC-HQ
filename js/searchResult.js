@@ -10,7 +10,7 @@
 		org:"Organizer",
 		dlg:"gui.dialog",
 		fuzzy:"fuzzySearch",
-		XDCCdownload:"Download",
+		XDCCdownload:"XDCCdownload",
 		rq:"request",
 		menu:"gui.menu"
 	});
@@ -141,7 +141,7 @@
 		{
 			return this.data.filter(entry=>
 			{
-				var row=this.getRow(entry);
+				var row=this.change(entry);
 				return row!=null&&row.firstElementChild.checked;
 			});
 		},
@@ -156,7 +156,6 @@
 			this.tableHeader.addEventListener("click",this._onHeaderClick.bind(this));
 			//this.tableHeader.querySelector("[data-translation=name]").click();
 
-			this.tableElement.addEventListener("select",this._onSelect.bind(this));
 
 			return this.tableElement;
 		},
@@ -427,20 +426,6 @@
 					if(!this.organizer.hasSort(this.sortKey)) this.organizer.sort(this.sortKey,SC.org.attributeSort([column.dataset.translation],false));
 				}
 				this.updateFilter();
-			}
-		},
-		/**
-		 * resets filtered row's selected state
-		 */
-		_onSelect:function(event)
-		{
-			if(event.detail.selectionType==="single")
-			{
-				for (var entry of this.data)
-				{
-					var row=this.getRow(entry)
-					if(row!=event.detail.row) row.firstElementChild.checked=false
-				}
 			}
 		}
 	});

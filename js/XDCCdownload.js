@@ -1,6 +1,6 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var DOWNLOAD=µ.getModule("Download");
+	var DOWNLOAD=GMOD("NIWA-Downloads.Download");
 
 	SC=SC({
 		rel:"DBRel",
@@ -56,6 +56,7 @@
 	DOWNLOAD.Package.downloadClass=XDCCdownload;
 
 	SMOD("XDCCdownload",XDCCdownload);
+
 	if(typeof module!=="undefined")module.exports=XDCCdownload;
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

@@ -5,7 +5,7 @@ module.exports=function(network,channel,url)
 {
 	return {
 		type:"SEARCH",
-		getUrl:search=>url+"/search.php?t="+encodeURIComponent(search),
+		getUrl:search=>url+"/search.php?t="+search.replace(/\s/g,"+"),
 		parse:function(data)
         {
         	var rtn=[];

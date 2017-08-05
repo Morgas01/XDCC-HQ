@@ -1,18 +1,18 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	require("../lib/NIWA-Downloads/Download");
+	var Manager=GMOD("NIWA-Downloads.Manager");
 	var XDCCdownload=require("../js/XDCCdownload");
 	var extractCRC=/.*[\[\(]([0-9a-fA-F]{8})[\)\]]/;
 
 	SC=SC({
     	es:"errorSerializer",
-		Download:require.bind(null,"../lib/NIWA-Downloads/Download"),
+		Download:"NIWA-Downloads..Download",
 		config:()=>require("./config"),
 		File:"File",
 		util:"File.util"
 	})
 
-	var manager=new (require("../lib/NIWA-Downloads/Manager"))({
+	var manager=new Manager({
 		DBClassDictionary:[XDCCdownload],
 		filter:function(running,download)
 		{
