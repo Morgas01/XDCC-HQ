@@ -1,6 +1,6 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var DOWNLOAD=GMOD("NIWA-Downloads.Download");
+	var DOWNLOAD=GMOD("NIWA-Download.Download");
 
 	SC=SC({
 		rel:"DBRel",
@@ -52,6 +52,7 @@
 		}
 	});
 	XDCCdownload.states=DOWNLOAD.states;
+	XDCCdownload.formatFilesize=DOWNLOAD.formatFilesize
 
 	DOWNLOAD.Package.downloadClass=XDCCdownload;
 

@@ -2,11 +2,11 @@
 
 	SC=SC({
 		action:"gui.actionize",
-		downloadTable:"downloadTable",
+		downloadTable:"NIWA-Download.downloadTable",
 		DBObj:"DBObj",
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
-		checkDB:"checkDbErrors",
+		checkDB:"NIWA-Download.checkDbErrors",
 		dlg:"gui.dialog",
 		stree:"gui.selectionTree"
 	});

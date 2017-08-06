@@ -2,7 +2,7 @@
 
 	var Form=GMOD("gui.form");
 	var request=GMOD("request");
-	var checkDB=GMOD("checkDbErrors");
+	var checkDB=GMOD("NIWA-Download.checkDbErrors");
 
 	var SC=SC({
 	    dialog:"gui.dialog"

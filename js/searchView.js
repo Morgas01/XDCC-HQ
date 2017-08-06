@@ -7,7 +7,7 @@
 		rq:"request",
 		SearchResult:"SearchResult",
 		dlg:"gui.dialog",
-		checkDB:"checkDbErrors"
+		checkDB:"NIWA-Download.checkDbErrors"
 	});
 
 	var STORAGE_NAME="XDCC search history";

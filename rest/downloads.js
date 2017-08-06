@@ -1,12 +1,12 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var Manager=GMOD("NIWA-Downloads.Manager");
+	var Manager=GMOD("NIWA-Download.Manager");
 	var XDCCdownload=require("../js/XDCCdownload");
 	var extractCRC=/.*[\[\(]([0-9a-fA-F]{8})[\)\]]/;
 
 	SC=SC({
     	es:"errorSerializer",
-		Download:"NIWA-Downloads..Download",
+		Download:"NIWA-Download.Download",
 		config:()=>require("./config"),
 		File:"File",
 		util:"File.util"
