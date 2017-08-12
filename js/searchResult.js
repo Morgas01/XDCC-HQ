@@ -247,7 +247,6 @@
 		//errorMenu actions
 		downloadList:function()
 		{
-			button.disabled=true;
 			return SC.rq({
 				url:"rest/downloads/add",
 				data:'{"XDCCdownload":['+atob(button.dataset.listParam)+']}'
