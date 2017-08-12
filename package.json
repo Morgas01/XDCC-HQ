@@ -8,6 +8,9 @@
 	"engine": {
 		"node": ">=4.0.0"
 	},
+	"dependencies": {
+		"NIWA-Download": "git+https://github.com/Morgas01/NIWA-Download.git"
+	},
 	"niwa": {
 		"setup":"niwaSetup",
 		"dependencies":[

@@ -1,5 +1,8 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
+	//fun
+	µ.logger.info(GMOD("signature"));
+
 	var Form=GMOD("gui.form");
 	var request=GMOD("request");
 	var checkDB=GMOD("NIWA-Download.checkDbErrors");

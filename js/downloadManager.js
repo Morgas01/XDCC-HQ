@@ -2,7 +2,7 @@
 
 	SC=SC({
 		action:"gui.actionize",
-		downloadTable:"NIWA-Download.downloadTable",
+		downloadTable:"NIWA-Download.DownloadTable",
 		DBObj:"DBObj",
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
