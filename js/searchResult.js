@@ -52,7 +52,7 @@
 				downloadList:(event,button)=>
 				{
 					button.disabled=true;
-					var added=this.downloadList();
+					var added=this.downloadList(atob(button.dataset.listParam));
 					added.then(()=>button.textContent=button.dataset.action="retry");
 					added.always(()=>button.disabled=false);
 				},
@@ -245,11 +245,11 @@
 			filtered.get().forEach(entry=>this.tableBody.appendChild(this.dataDomMap.get(entry)));
 		},
 		//errorMenu actions
-		downloadList:function()
+		downloadList:function(downloadJsonString)
 		{
 			return SC.rq({
 				url:"rest/downloads/add",
-				data:'{"XDCCdownload":['+atob(button.dataset.listParam)+']}'
+				data:'{"XDCCdownload":['+downloadJsonString+']}'
 			})
 			.then(()=>
 			{
