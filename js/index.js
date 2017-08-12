@@ -8,7 +8,8 @@
 	var checkDB=GMOD("NIWA-Download.checkDbErrors");
 
 	var SC=SC({
-	    dialog:"gui.dialog"
+	    dialog:"gui.dialog",
+	    rq:"request"
 	});
 
 	var searchWrapper=document.getElementById("searchWrapper");
