@@ -50,22 +50,22 @@
 				},
 				enable:function()
 				{
-					downloadTable.enable(downloadTable.getSelected())
+					downloadTable.enableSelected()
 					.catch(networkError);
 				},
 				disable:function()
 				{
-					downloadTable.disable(downloadTable.getSelected())
+					downloadTable.disableSelected()
 					.catch(networkError);
 				},
 				reset:function()
 				{
-					downloadTable.reset(downloadTable.getSelected())
+					downloadTable.resetSelected()
 					.catch(networkError);
 				},
 				remove:function()
 				{
-					downloadTable.delete(downloadTable.getSelected())
+					downloadTable.removeSelected()
 					.catch(networkError);
 				},
 				removeDone:function()
@@ -98,7 +98,7 @@
 				listFilenames:function()
 				{
 					var items=downloadTable.getSelected();
-
+					//TODO
 				},
 				createPackage:function()
 				{
@@ -141,7 +141,7 @@
 			},actions);
 		});
 
-		var downloadTable=SC.downloadTable(SC.downloadTable.baseColumns.concat([
+		var columns=Object.keys(SC.downloadTable.baseColumns).concat([
 			function sources(cell,data)
 			{
 				if(data instanceof SC.XDCCdownload)
@@ -150,10 +150,11 @@
 					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
 				}
 			}
-		]),{
+		]);
+		var downloadTable=new SC.downloadTable(columns,{
 			DBClasses:[SC.XDCCdownload]
 		});
-		downloads.appendChild(downloadTable.getContainer());
+		downloads.appendChild(downloadTable.element);
 
 		SC.rq.json("rest/downloads/autoTrigger")
 		.then(function(triggerState)
