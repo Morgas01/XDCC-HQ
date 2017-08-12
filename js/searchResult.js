@@ -49,7 +49,7 @@
 			this.errorMenu.classList.add("errorMenu");
 			this.element.appendChild(this.errorMenu);
 			SC.action({
-				downloadList:function(event,button)
+				downloadList:(event,button)=>
 				{
 					button.disabled=true;
 					var added=this.downloadList();
