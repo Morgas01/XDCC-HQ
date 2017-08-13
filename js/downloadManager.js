@@ -7,8 +7,9 @@
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
 		checkDB:"NIWA-Download.checkDbErrors",
-		dlg:"gui.dialog",
-		stree:"gui.selectionTree"
+		dialog:"gui.dialog",
+		stree:"gui.selectionTree",
+		form:"gui.form"
 	});
 
 	var actions=document.getElementById("actions");
@@ -29,7 +30,7 @@
 		{
 			content=(error.response||error)+`<button data-action="close">OK</button>`;
 		}
-		SC.dlg(content,{modal:true}).classList.add("networkError");
+		SC.dialog(content,{modal:true}).classList.add("networkError");
 	};
 
 	requestAnimationFrame(()=>
@@ -102,7 +103,7 @@
 				},
 				createPackage:function()
 				{
-					SC.dlg(String.raw
+					SC.dialog(String.raw
 	`
 	<label>
 		<span>Package name</span>
@@ -163,6 +164,49 @@
 			button.dataset.state=triggerState;
 			button.disabled=false;
 		})
+	});
+
+	document.getElementById("configBtn").addEventListener("click",function()
+	{
+		SC.dialog(function(element)
+		{
+			element.id="configDialog";
+			element.classList.add("request");
+			var closeBtn=document.createElement("button");
+			closeBtn.textContent="ok";
+			closeBtn.dataset.action="close";
+			closeBtn.autofocus=true;
+			element.appendChild(closeBtn);
+			SC.rq.json({
+				method:"OPTIONS",
+				url:"rest/config/download"
+			}).then(function(data)
+			{
+				element.classList.remove("request");
+				element.insertBefore(SC.form(data.description,data.value,undefined,"download"),closeBtn);
+				element.addEventListener("formChange",function(event)
+				{
+					var field=event.target;
+					field.disabled=true;
+					SC.rq.json({
+						url:"rest/config",
+						data:JSON.stringify({
+							path:event.detail.path.concat(event.detail.key),
+							value:event.detail.value
+						})
+					})
+					.then(function(reply)
+					{
+						if(!reply.result)
+						{
+							field.setCustomValidity(reply.error);
+						}
+					})
+					.always(()=>
+					event.target.disabled=false);
+				});
+			});
+		},{modal:true});
 	});
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

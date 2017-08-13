@@ -1,5 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
+	//SC=SC({});
+
 	var IH=function(storageKey,maxCount)
 	{
 		var history=[];

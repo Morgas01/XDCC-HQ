@@ -14,6 +14,10 @@
 @import "NIWA-Download.downloadTable";
 @import "NIWA-Download.checkDbErrors";
 
+@import "menu";
+@import "structure/form";
+@import "style/form";
+
 .TreeTableData-scope() {
 	@indentWidth:1em;
 }
@@ -28,20 +32,6 @@ body {
 	display: flex;
 	flex-direction:column;
 	align-items:center;
-}
-#menu {
-	position:fixed;
-	top:1ex;
-	left:1ex;
-	[accesskey] {
-		.tooltip(@content:~'"Search\A Accesskey "attr(accesskey)',@direction:~"left",@additions:{
-			text-transform: capitalize;
-		});
-		padding:0;
-	}
-	#searchIcon {
-		font-size:2em;
-	}
 }
 #actions {
 	display:flex;

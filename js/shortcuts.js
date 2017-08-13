@@ -1,5 +1,7 @@
 window.addEventListener("keydown",function(e)
 {
+	//SC=SC({});
+
 	var domTarget=null;
 	if(e.ctrlKey&&e.code=="KeyI"&&(domTarget=document.querySelector("#configView")))
 	{
