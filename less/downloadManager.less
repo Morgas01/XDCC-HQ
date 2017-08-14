@@ -62,7 +62,7 @@ body {
 		min-width:3em;
 	}
 	[accesskey] {
-		.tooltip(@content:~'"Accesskey "attr(accesskey)',@distance:50%,@additions: {
+		.tooltip(@attr:~"accesskey",@content:~'"Accesskey "attr(accesskey)',@distance:50%,@additions: {
 			transform:translateX(50%);
 			text-transform: capitalize;
 			.fadeIn(@delay:.25s);
