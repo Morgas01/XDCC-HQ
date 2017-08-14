@@ -8,8 +8,7 @@
 	var checkDB=GMOD("NIWA-Download.checkDbErrors");
 
 	var SC=SC({
-	    dialog:"gui.dialog",
-	    rq:"request"
+	    dialog:"gui.dialog"
 	});
 
 	var searchWrapper=document.getElementById("searchWrapper");
@@ -23,7 +22,7 @@
 	   default:[""]
 	}, undefined,"Search");
 	searchForm.id="searchForm";
-	var firstInput=searchForm.querySelector("input")
+	var firstInput=searchForm.querySelector("input");
 	firstInput.accessKey="f";
 	firstInput.title="Accesskey F";
 	firstInput.autofocus=true;
@@ -47,7 +46,7 @@
 		searchWrapper.appendChild(searchSources);
 		searchSources.firstElementChild.addEventListener("click",function()
 		{
-			searchSources.classList.toggle("hidden")
+			searchSources.classList.toggle("hidden");
 		})
 	});
 
@@ -111,7 +110,7 @@
 			closeBtn.dataset.action="close";
 			closeBtn.autofocus=true;
 			element.appendChild(closeBtn);
-	    	SC.rq.json({
+	    	request.json({
 	    		method:"OPTIONS",
 	    		url:"rest/config"
 			}).then(function(data)
@@ -122,7 +121,7 @@
 				{
 					var field=event.target;
 					field.disabled=true;
-					SC.rq.json({
+					request.json({
 						url:"rest/config",
 						data:JSON.stringify({
 							path:event.detail.path.concat(event.detail.key),
