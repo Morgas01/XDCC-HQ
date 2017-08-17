@@ -6,6 +6,7 @@ module.exports=function(network,channel,bot,listPackNumber=-1)
 	rtn.listParam={
 		network:network,
 		channel:channel,
+		user:bot,
 		packnumber:listPackNumber
 	};
 	return rtn;

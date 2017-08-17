@@ -9,7 +9,8 @@
 		Download:"NIWA-Download.Download",
 		config:()=>require("./config"),
 		File:"File",
-		util:"File.util"
+		util:"File.util",
+		adopt:"adopt"
 	})
 
 	var manager=new Manager({
@@ -51,10 +52,13 @@
 					this.updateDownload(download);
 
 					var delegate=(new SC.Download()).fromJSON(download.toJSON());
-					delegate.filepath=downloadFolder.getAbsolutePath();
-					delegate.filename=config.get(["download","clean name"]).get()?download.getCleanName():download.name;
-					delegate.dataSource.checkName=config.get(["download","check name"]).get()?download.name:null;
+					delegate.dataSource=SC.adopt({},download.dataSource,true); //copy
+					if(!delegate.filepath)delegate.filepath=downloadFolder.getAbsolutePath();
+					if(!delegate.filename)delegate.filename=config.get(["download","clean name"]).get()?download.getCleanName():download.name;
+					if(download.checkName!=null) delegate.dataSource.checkName=download.checkName;
+					else if (config.get(["download","check name"]).get()) delegate.dataSource.checkName=download.name;
 					µ.logger.info({dataSource:delegate.dataSource},"delegate to irc");
+					download.addMessage("download "+delegate.dataSource.packnumber+":"+delegate.dataSource.user+"@"+delegate.dataSource.network);
 					this.delegateDownload(worker.appNamesDict["NIWA-irc"][0],delegate,function onUpdate(updated)
 					{
 						updated.sources=download.sources;
@@ -65,7 +69,7 @@
 							if (download.state===SC.Download.states.FAILED)
 							{
 								download.dataSource.failed=true;
-								if(download.sources.find(s=>!s.failed)) download.state=SC.Download.states.PENDING;
+								if(download.sources.find(s=>!s.failed)) download.state=SC.Download.states.PENDING; //
 							}
 							signal.resolve();
 							if (download.state===SC.Download.states.DONE)
@@ -91,7 +95,7 @@
 										this.updateDownload(download);
 									});
 								}
-								else if (config.get(["download","append CRC32"]))
+								else if (config.get(["download","append CRC32"]).get())
 								{
 									download.addMessage("calculating CRC ...");
 									this.updateDownload(download);
@@ -99,6 +103,12 @@
 									SC.util.calcCRC(downloadFile)
 									.then((crc)=>
 									{
+										let prom;
+										if(download.appendCRC===false)
+										{
+											download.addMessage("CRC: "+crc);
+											return;
+										}
 										var newFileName=downloadFile.getFileName()+` [${crc}]`+downloadFile.getExt();
 										downloadFile.rename(newFileName)
 										.then(()=>
@@ -110,12 +120,12 @@
 										{
 											download.addMessage("could not append CRC "+crc);
 											µ.logger.error({error:e},"could not append CRC "+crc);
-										})
-										.then(()=>
-										{
-											this.dbConnector.then(dbc=>dbc.save(download));
-											this.updateDownload(download);
 										});
+									})
+									.then(()=>
+									{
+										this.dbConnector.then(dbc=>dbc.save(download));
+										this.updateDownload(download);
 									});
 								}
 							}
@@ -144,6 +154,28 @@
 		if(param.data in XDCCdownload.states) return manager.delete({XDCCdownload:{state:XDCCdownload.states[param.data]}});
 		else return "unknown state: "+param.data;
 	};
+
+	manager.serviceMethods.addListDownload=function(param)
+	{
+		if(param.method!=="POST") return "http method must be POST";
+
+		let download=new XDCCdownload();
+		download.name="xdcc listing from "+param.data.user;
+		download.sources=[{
+			network: param.data.network,
+			user: param.data.user,
+			packnumber: param.data.packnumber,
+			channel: param.data.channel,
+			subOffices: [param.data.subOffice],
+		}];
+		download.checkName=false;
+		download.appendCRC=false;
+		let targetFile=new SC.File(__dirname).changePath("../storage");
+		download.filepath=targetFile.getAbsolutePath();
+		download.filename=param.data.subOffice.slice(0,-3)+".txt";
+
+		manager.add(download);
+	}
 
 	SC.config.ready.then(function(config)
 	{

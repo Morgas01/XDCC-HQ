@@ -52,9 +52,15 @@
 				downloadList:(event,button)=>
 				{
 					button.disabled=true;
-					var added=this.downloadList(atob(button.dataset.listParam));
-					added.then(()=>button.textContent=button.dataset.action="retry");
-					added.always(()=>button.disabled=false);
+					var added=this.downloadList({
+						network:button.dataset.network,
+						channel:button.dataset.channel,
+						user:button.dataset.user,
+						packnumber:button.dataset.packnumber,
+						subOffice:button.dataset.subOffice
+					});
+					//TODO added.then(()=>button.textContent=button.dataset.action="retry");
+					added.catch(()=>button.disabled=false);
 				},
 				retry:function()
 				{
@@ -165,8 +171,7 @@
 							html:error.subOffice,
 							children:[
 								{
-									html:'<div>no list available</div>'+
-										'<button data-action="downloadList" data-list-param="'+btoa(JSON.stringify(error.listParam))+'">download list</button>',
+									html:`<div>no list available</div><button data-action="downloadList" data-network="${error.listParam.network}" data-channel="${error.listParam.channel}" data-user="${error.listParam.user}" data-packnumber="${error.listParam.packnumber}" data-sub-office="${error.subOffice}" >download list</button>`,
 									text:error.text
 								}
 							]
@@ -237,11 +242,11 @@
 			filtered.get().forEach(entry=>this.tableBody.appendChild(this.dataDomMap.get(entry)));
 		},
 		//errorMenu actions
-		downloadList:function(downloadJsonString)
+		downloadList:function(data)
 		{
 			return SC.rq({
-				url:"rest/downloads/add",
-				data:'{"XDCCdownload":['+downloadJsonString+']}'
+				url:"rest/downloads/addListDownload",
+				data:JSON.stringify(data)
 			})
 			.then(()=>
 			{

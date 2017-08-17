@@ -15,6 +15,8 @@
 
 			this.mega(param);
 
+			this.addField("checkName", SC.FIELD.TYPES.BOOL, param.checkName);
+			this.addField("appendCRC", SC.FIELD.TYPES.BOOL, param.appendCRC);
 			this.addField("sources", SC.FIELD.TYPES.JSON, param.sources);
 			this.availableSources=[];
 		},
