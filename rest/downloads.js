@@ -110,7 +110,7 @@
 											return;
 										}
 										var newFileName=downloadFile.getFileName()+` [${crc}]`+downloadFile.getExt();
-										downloadFile.rename(newFileName)
+										return downloadFile.rename(newFileName)
 										.then(()=>
 										{
 											download.addMessage("appended CRC "+crc);
