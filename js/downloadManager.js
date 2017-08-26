@@ -1,5 +1,11 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
+	/* workaround
+		GMOD("NIWA-Download.checkDbErrors");
+		GMOD("request");
+		GMOD("Listeners");
+	*/
+
 	SC=SC({
 		action:"gui.actionize",
 		downloadTable:"NIWA-Download.DownloadTable",
@@ -32,139 +38,6 @@
 		}
 		SC.dialog(content,{modal:true}).classList.add("networkError");
 	};
-
-	requestAnimationFrame(()=>
-	{ // all scripts executed
-		SC.checkDB()
-		.then(function()
-		{
-
-			SC.action({
-				autoTrigger:function(event,target)
-				{
-					var nextState=target.dataset.state!=="true"
-					downloadTable.autoTrigger(nextState)
-					.then(function()
-					{
-						target.dataset.state=nextState;
-					},networkError);
-				},
-				enable:function()
-				{
-					downloadTable.enableSelected()
-					.catch(networkError);
-				},
-				disable:function()
-				{
-					downloadTable.disableSelected()
-					.catch(networkError);
-				},
-				reset:function()
-				{
-					downloadTable.resetSelected()
-					.catch(networkError);
-				},
-				remove:function()
-				{
-					downloadTable.removeSelected()
-					.catch(networkError);
-				},
-				removeDone:function()
-				{
-					SC.rq({
-						url:"rest/downloads/deleteByState",
-						data:JSON.stringify("DONE"),
-						method:"DELETE"
-					})
-					.catch(networkError);
-				},
-				removeDisabled:function()
-				{
-					SC.rq({
-						url:"rest/downloads/deleteByState",
-						data:JSON.stringify("DISABLED"),
-						method:"DELETE"
-					})
-					.catch(networkError);
-				},
-				removeError:function()
-				{
-					SC.rq({
-						url:"rest/downloads/deleteByState",
-						data:JSON.stringify("FAILED"),
-						method:"DELETE"
-					})
-					.catch(networkError);
-				},
-				listFilenames:function()
-				{
-					var items=downloadTable.getSelected();
-					//TODO
-				},
-				createPackage:function()
-				{
-					SC.dialog(String.raw
-	`
-	<label>
-		<span>Package name</span>
-		<input type="text" required autofocus/>
-	</label>
-	<div>
-		<button data-action="ok">OK</button>
-		<button data-action="close">cancel</button>
-	</div>
-	`
-					,{
-						modal:true,
-						actions:{
-							ok:function()
-							{
-								var input=this.querySelector("input");
-								if(input&&input.validity.valid)
-								{
-									this.close();
-									downloadTable.createPackage(input.value,downloadTable.getSelected(),"Package")
-									.catch(networkError);
-								}
-							}
-						}
-					});
-				},
-				addDownload:function(){},
-				moveTo:function()
-				{
-					downloadTable.moveSelected().catch(networkError);
-				},
-				sort:function()
-				{
-					downloadTable.sortSelected().catch(networkError);
-				}
-			},actions);
-		});
-
-		var columns=Object.keys(SC.downloadTable.baseColumns).concat([
-			function sources(cell,data)
-			{
-				if(data instanceof SC.XDCCdownload)
-				{
-					cell.innerHTML='<span>'+data.sources.map(s=>s.user+"@"+s.network).join(" ")+'</span>';
-					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
-				}
-			}
-		]);
-		var downloadTable=new SC.downloadTable(columns,{
-			DBClasses:[SC.XDCCdownload]
-		});
-		downloads.appendChild(downloadTable.element);
-
-		SC.rq.json("rest/downloads/autoTrigger")
-		.then(function(triggerState)
-		{
-			var button=document.getElementById("autoTrigger");
-			button.dataset.state=triggerState;
-			button.disabled=false;
-		})
-	});
 
 	document.getElementById("configBtn").addEventListener("click",function()
 	{
@@ -207,6 +80,155 @@
 				});
 			});
 		},{modal:true});
+	});
+
+	SC.checkDB()
+	.then(function()
+	{
+		var columns=Object.keys(SC.downloadTable.baseColumns).concat([
+			function sources(cell,data)
+			{
+				if(data instanceof SC.XDCCdownload)
+				{
+					cell.innerHTML='<span>'+data.sources.map(s=>s.user+"@"+s.network).join(" ")+'</span>';
+					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+				}
+			}
+		]);
+		var downloadTable=new SC.downloadTable(columns,{
+			DBClasses:[SC.XDCCdownload]
+		});
+		downloads.appendChild(downloadTable.element);
+
+		SC.rq.json("rest/downloads/autoTrigger")
+		.then(function(triggerState)
+		{
+			var button=document.getElementById("autoTrigger");
+			button.dataset.state=triggerState;
+			button.disabled=false;
+		});
+		let speedStat=document.getElementById("speedStat");
+		let sizeStat=document.getElementById("sizeStat");
+		let totalSizeStat=document.getElementById("totalSizeStat");
+
+		downloadTable.addListener(".speed",null,e=>{speedStat.textContent=e.state});
+		downloadTable.addListener(".size",null,e=>
+		{
+			let states=e.state.states;
+			let size=states[SC.XDCCdownload.states.PENDING]+
+				states[SC.XDCCdownload.states.RUNNING]+
+				states[SC.XDCCdownload.states.DONE];
+			sizeStat.textContent=SC.XDCCdownload.formatFilesize(size);
+		});
+		downloadTable.addListener(".totalSize",null,e=>
+		{
+			let states=e.state.states;
+			let size=states[SC.XDCCdownload.states.PENDING]+
+				states[SC.XDCCdownload.states.RUNNING]+
+				states[SC.XDCCdownload.states.DONE];
+			totalSizeStat.textContent=SC.XDCCdownload.formatFilesize(size);
+		});
+		SC.action({
+			autoTrigger:function(event,target)
+			{
+				var nextState=target.dataset.state!=="true"
+				downloadTable.autoTrigger(nextState)
+				.then(function()
+				{
+					target.dataset.state=nextState;
+				},networkError);
+			},
+			enable:function()
+			{
+				downloadTable.enableSelected()
+				.catch(networkError);
+			},
+			disable:function()
+			{
+				downloadTable.disableSelected()
+				.catch(networkError);
+			},
+			reset:function()
+			{
+				downloadTable.resetSelected()
+				.catch(networkError);
+			},
+			remove:function()
+			{
+				downloadTable.removeSelected()
+				.catch(networkError);
+			},
+			removeDone:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("DONE"),
+					method:"DELETE"
+				})
+				.catch(networkError);
+			},
+			removeDisabled:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("DISABLED"),
+					method:"DELETE"
+				})
+				.catch(networkError);
+			},
+			removeError:function()
+			{
+				SC.rq({
+					url:"rest/downloads/deleteByState",
+					data:JSON.stringify("FAILED"),
+					method:"DELETE"
+				})
+				.catch(networkError);
+			},
+			listFilenames:function()
+			{
+				var items=downloadTable.getSelected();
+				//TODO
+			},
+			createPackage:function()
+			{
+				SC.dialog(String.raw
+`
+<label>
+<span>Package name</span>
+<input type="text" required autofocus/>
+</label>
+<div>
+<button data-action="ok">OK</button>
+<button data-action="close">cancel</button>
+</div>
+`
+				,{
+					modal:true,
+					actions:{
+						ok:function()
+						{
+							var input=this.querySelector("input");
+							if(input&&input.validity.valid)
+							{
+								this.close();
+								downloadTable.createPackage(input.value,downloadTable.getSelected(),"Package")
+								.catch(networkError);
+							}
+						}
+					}
+				});
+			},
+			addDownload:function(){},
+			moveTo:function()
+			{
+				downloadTable.moveSelected().catch(networkError);
+			},
+			sort:function()
+			{
+				downloadTable.sortSelected().catch(networkError);
+			}
+		},actions);
 	});
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
