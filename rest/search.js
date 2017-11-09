@@ -1,12 +1,12 @@
-var SC=µ.shortcut({
+let SC=µ.shortcut({
 	config:()=>require("./config").config,
-	itAs:"iterateAsync",
 	File:"File",
 	Promise:"Promise",
 	Worker:"nodeWorker",
 	Org:"Organizer",
 	es:"errorSerializer",
 	Download:"NIWA-Download.Download",
+	niwaWorkDir:"niwaWorkDir"
 });
 
 
@@ -14,8 +14,7 @@ module.exports=function(request)
 {
 	if(request.method!=="POST"||!request.data||!request.data.query)
 	{
-		return String.raw
-`post as json like this:
+		return `post as json like this:
 	{String|String[]} query
 	{String|String[]} [sources=null]
 `		;
@@ -29,7 +28,7 @@ module.exports=function(request)
 		searchSources=SC.config.get(["search","search sources"]);
 		return subOfficeList.filter(s=>
 		{
-			var source=searchSources.get(s);
+			let source=searchSources.get(s);
 			if(!source) searchSources.add(s);
 			else return source.get();
 			return true;
@@ -38,54 +37,65 @@ module.exports=function(request)
 	.then(function(filteredList)
 	{
 		µ.logger.info(filteredList,"starting search");
-		var queries=[].concat(request.data.query);
+		let queries=[].concat(request.data.query);
 
-		var p=Promise.all(filteredList.map(s=>doSearch(s,queries)))
+		let p=Promise.all(filteredList.map(s=>doSearch(s,queries)))
 		.then(combineResults);
 		p.then(result=>µ.logger.info(`hunting for "${queries.join()}" complete with ${result.results.length} hits and ${result.errors.length} errors`));
 		return p;
 	});
 };
-var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
+let doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 {
 	µ.logger.info({subOffice:subOffice,queries:queries},`start hunting in subOffice ${subOffice}`);
-
-	new SC.Worker("lib/hunter",{
-		subOffice:subOffice,
-		fileExpiration:SC.config.get(["search","file expiration"]),
-		searchTimeout:SC.config.get(["search","search timeout"])
-	}).ready()
-	.then(function()
+	let searchTimeout=SC.config.get(["search","search timeout"]).get();
+	new SC.Worker({
+		loadScripts:"lib/hunter",
+		cwd:process.cwd(),
+		param:{
+			subOffice:subOffice,
+			fileExpiration:SC.config.get(["search","file expiration"]).get(),
+			searchTimeout:searchTimeout,
+			niwaWorkDir:SC.niwaWorkDir
+		}
+	})
+	.ready
+	.then(async function()
 	{
-		var hunter=this;
-		var p= SC.itAs(queries,function(index,query)
+		let hunter=this;
+		let results=[];
+		let error=null;
+		let index=0;
+		for(let query of queries)
 		{
-			µ.logger.info({query:query},`hunt in ${subOffice} for ${query} [${index}/${queries.length}]`);
-			return hunter.request("search",query,50000);
-		})
-		.then(results=>({results:Array.prototype.concat.apply([],results)}),//flatten
-		function(results)
-		{
-			var rtn={results:null,error:results.pop()};
-			if(rtn.error==="timeout") rtn.error={message:rtn.error};
-			rtn.results=Array.prototype.concat.apply([],results);
-			rtn.error.subOffice=subOffice;
-			return rtn;
-		});
+			µ.logger.info({query:query},`hunt in ${subOffice} for ${query} [${index++}/${queries.length}]`);
+			try
+			{
+				results.push(...(await hunter.request("search",[query],searchTimeout+1000)));
+			}
+			catch (e)
+			{
+				error=e;
+				if(error==="timeout") error={message:error};
+				else error==SC.es(error);
+				error.subOffice=subOffice;
+				break;
+			}
+		}
 
-		p.always(function(result)
-		{
-			µ.logger.info({
-					subOffice:subOffice,
-					queries:queries,
-					results:result.results.length,
-					error:SC.es(result.error)
-				},
-				`hunting ended in subOffice ${subOffice}`
-			);
-			hunter.destroy();
-		});
-		return p;
+		µ.logger.info({
+			subOffice:subOffice,
+			queries:queries,
+			results:results.length,
+			error:error
+		},
+		`hunting ended in subOffice ${subOffice}`
+		);
+		hunter.destroy();
+		return {
+			results:results,
+			error:error
+		};
 	})
 	.then(signal.resolve,
 	function(error)
@@ -99,40 +109,40 @@ var doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 		})
 	});
 });
-var combineResults=function(huntResults)
+let combineResults=function(huntResults)
 {
-	var rtn={
+	let rtn={
 		results:[],
 		errors:huntResults.reduce((a,h)=>(h.error&&a.push(h.error),a),[])
 	};
 
-	var org = new SC.Org(huntResults.reduce((a,hr)=>(a.push.apply(a,hr.results),a),[]));
+	let org = new SC.Org(huntResults.reduce((a,hr)=>(a.push.apply(a,hr.results),a),[]));
 	org.group("names","name",function(subGroup)
 	{
 		subGroup.group("sources",r=>String.raw`{"network":"${r.network}","user":"${r.user}","packnumber":${r.packnumber||"null"}}`,
 		subsubGroup=>subsubGroup.group("subOffices","subOffice"));
 	});
 
-	var nameGroups=org.getGroup("names");
-	for(var name in nameGroups)
+	let nameGroups=org.getGroup("names");
+	for(let name in nameGroups)
 	{
-		var pack={
+		let pack={
 			name:name,
 			filesize:null,
 			sources:[]
 		};
-		var sourceGroups=nameGroups[name].getGroup("sources");
-		for(var sourceKey in sourceGroups)
+		let sourceGroups=nameGroups[name].getGroup("sources");
+		for(let sourceKey in sourceGroups)
 		{
-			var source=JSON.parse(sourceKey);
+			let source=JSON.parse(sourceKey);
 			source.channel=sourceGroups[sourceKey].getValues()[0].channel;
 			source.subOffices=Object.keys(sourceGroups[sourceKey].getGroup("subOffices"));
 			pack.sources.push(source);
 		}
-		var filesizes=[];
-		for(var result of nameGroups[name].getValues())
+		let filesizes=[];
+		for(let result of nameGroups[name].getValues())
 		{
-			var size=SC.Download.parseFilesize(result.filesize);
+			let size=SC.Download.parseFilesize(result.filesize);
 			if(size>0) filesizes.push(size);
 		}
 		pack.filesize=filesizes.reduce((a,b)=>a+b,0)/(filesizes.length||1);

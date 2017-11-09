@@ -1,25 +1,25 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var Tabs=GMOD("gui.tabs");
-	var actionize=GMOD("gui.actionize");
+	let Tabs=GMOD("gui.tabs");
+	let actionize=GMOD("gui.actionize");
 
 	SC=SC({
 		rq:"request",
 		SearchResult:"SearchResult",
-		dlg:"gui.dialog",
+		dlg:"gui.Dialog",
 		checkDB:"NIWA-Download.checkDbErrors"
 	});
 
-	var STORAGE_NAME="XDCC search history";
-	var searchHistory={};
+	let STORAGE_NAME="XDCC search history";
+	let searchHistory={};
 
-	var tabs=Tabs([]);
+	let tabs=Tabs([]);
 	document.body.appendChild(tabs);
 	window.addEventListener("message", function(event)
 	{
 		SC.checkDB(undefined,true).then(function()
 		{
-			var container=null;
+			let container=null;
 			tabs.addTab(e=>e.innerHTML=String.raw
 `
 <span>${event.data.query}</span>
@@ -40,7 +40,7 @@
 				searchHistory[event.data.query+""]=data;
 				try{sessionStorage.setItem(STORAGE_NAME,JSON.stringify(searchHistory))}catch(e){}
 
-				var searchResult=new SC.SearchResult();
+				let searchResult=new SC.SearchResult();
 				container.appendChild(searchResult.element)
 				requestAnimationFrame(()=>requestAnimationFrame(()=>//double requestAnimationFrame to wait for render
 				{
@@ -51,7 +51,7 @@
 			function(error)
 			{
 				µ.logger.error(error);
-				SC.dlg(JSON.stringify(error.response||error.error||error),{modal:true,target:container});
+				new SC.dlg(JSON.stringify(error.response||error.error||error),{modal:true,target:container});
 			});
 		});
 	},false);
@@ -69,7 +69,7 @@
 			actionize({
 				reopen:function(event,target)
 				{
-					var name=target.dataset.name;
+					let name=target.dataset.name;
 					tabs.addTab(e=>e.innerHTML=String.raw
 `
 <span>${name}</span>
@@ -79,7 +79,7 @@
 					function(container)
 					{
 						container.dataset.state="response";
-						var searchResult=new SC.SearchResult();
+						let searchResult=new SC.SearchResult();
 						container.appendChild(searchResult.element);
 						requestAnimationFrame(()=>requestAnimationFrame(()=>//double requestAnimationFrame to wait for render
 						{

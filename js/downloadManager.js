@@ -1,11 +1,5 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	/* workaround
-		GMOD("NIWA-Download.checkDbErrors");
-		GMOD("request");
-		GMOD("Listeners");
-	*/
-
 	SC=SC({
 		action:"gui.actionize",
 		downloadTable:"NIWA-Download.DownloadTable",
@@ -13,20 +7,20 @@
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
 		checkDB:"NIWA-Download.checkDbErrors",
-		dialog:"gui.dialog",
+		dialog:"gui.Dialog",
 		stree:"gui.selectionTree",
 		form:"gui.form"
 	});
 
-	var actions=document.getElementById("actions");
-	var stats=document.getElementById("stats");
-	var downloads=document.getElementById("downloads");
+	let actions=document.getElementById("actions");
+	let stats=document.getElementById("stats");
+	let downloads=document.getElementById("downloads");
 
-	var networkError=function(error)
+	let networkError=function(error)
 	{
 		if(error==="cancel") return; // downloadTable dialogs
 		µ.logger.error(error);
-		var content;
+		let content;
 		try
 		{
 			error=JSON.parse(error.response);
@@ -36,16 +30,16 @@
 		{
 			content=(error.response||error)+`<button data-action="close">OK</button>`;
 		}
-		SC.dialog(content,{modal:true}).classList.add("networkError");
+		new SC.dialog(content,{modal:true}).classList.add("networkError");
 	};
 
 	document.getElementById("configBtn").addEventListener("click",function()
 	{
-		SC.dialog(function(element)
+		new SC.dialog(function(element)
 		{
 			element.id="configDialog";
 			element.classList.add("request");
-			var closeBtn=document.createElement("button");
+			let closeBtn=document.createElement("button");
 			closeBtn.textContent="ok";
 			closeBtn.dataset.action="close";
 			closeBtn.autofocus=true;
@@ -59,7 +53,7 @@
 				element.insertBefore(SC.form(data.description,data.value,undefined,"download"),closeBtn);
 				element.addEventListener("formChange",function(event)
 				{
-					var field=event.target;
+					let field=event.target;
 					field.disabled=true;
 					SC.rq.json({
 						url:"rest/config",
@@ -85,7 +79,7 @@
 	SC.checkDB()
 	.then(function()
 	{
-		var columns=Object.keys(SC.downloadTable.baseColumns).concat([
+		let columns=Object.keys(SC.downloadTable.baseColumns).concat([
 			function sources(cell,data)
 			{
 				if(data instanceof SC.XDCCdownload)
@@ -95,7 +89,7 @@
 				}
 			}
 		]);
-		var downloadTable=new SC.downloadTable(columns,{
+		let downloadTable=new SC.downloadTable(columns,{
 			DBClasses:[SC.XDCCdownload]
 		});
 		downloads.appendChild(downloadTable.element);
@@ -103,7 +97,7 @@
 		SC.rq.json("rest/downloads/autoTrigger")
 		.then(function(triggerState)
 		{
-			var button=document.getElementById("autoTrigger");
+			let button=document.getElementById("autoTrigger");
 			button.dataset.state=triggerState;
 			button.disabled=false;
 		});
@@ -111,8 +105,12 @@
 		let sizeStat=document.getElementById("sizeStat");
 		let totalSizeStat=document.getElementById("totalSizeStat");
 
-		downloadTable.addListener(".speed",null,e=>{speedStat.textContent=e.state});
-		downloadTable.addListener(".size",null,e=>
+		downloadTable.addEventListener("downloadSpeed",null,e=>
+		{
+			speedStat.textContent=SC.XDCCdownload.formatFilesize(e.state.average)+"/s"
+			speedStat.dataset.title=SC.XDCCdownload.formatFilesize(e.state.current)+"/s"
+		});
+		downloadTable.addEventListener("downloadSize",null,e=>
 		{
 			let states=e.state.states;
 			let size=states[SC.XDCCdownload.states.PENDING]+
@@ -120,7 +118,7 @@
 				states[SC.XDCCdownload.states.DONE];
 			sizeStat.textContent=SC.XDCCdownload.formatFilesize(size);
 		});
-		downloadTable.addListener(".totalSize",null,e=>
+		downloadTable.addEventListener("downloadTotalSize",null,e=>
 		{
 			let states=e.state.states;
 			let size=states[SC.XDCCdownload.states.PENDING]+
@@ -131,7 +129,7 @@
 		SC.action({
 			autoTrigger:function(event,target)
 			{
-				var nextState=target.dataset.state!=="true"
+				let nextState=target.dataset.state!=="true"
 				downloadTable.autoTrigger(nextState)
 				.then(function()
 				{
@@ -187,12 +185,12 @@
 			},
 			listFilenames:function()
 			{
-				var items=downloadTable.getSelected();
+				let items=downloadTable.getSelected();
 				//TODO
 			},
 			createPackage:function()
 			{
-				SC.dialog(String.raw
+				new SC.dialog(String.raw
 `
 <label>
 <span>Package name</span>
@@ -208,7 +206,7 @@
 					actions:{
 						ok:function()
 						{
-							var input=this.querySelector("input");
+							let input=this.querySelector("input");
 							if(input&&input.validity.valid)
 							{
 								this.close();

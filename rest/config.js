@@ -1,12 +1,12 @@
 
-var FS=require("fs");
+let FS=require("fs");
 
-var SC=µ.shortcut({
+let SC=µ.shortcut({
 	Config:"Config",
 	File:"File"
 });
 
-var config=SC.Config.parse({
+let config=SC.Config.parse({
 	"search":{
 		"file expiration":{
 			type:"number",
@@ -66,15 +66,15 @@ module.exports.config=config;
 new SC.File("subOffices").listFiles().then(function(subOfficeList)
 {
 
-	var searchSources=config.get(["search","search sources"]);
-	for(var subOffice of subOfficeList)
+	let searchSources=config.get(["search","search sources"]);
+	for(let subOffice of subOfficeList)
 	{
 		searchSources.add(subOffice);
 	}
 	return module.exports.ready.then(function()
 	{
-		var searchSources=config.get(["search","search sources"]);
-		for(var key of searchSources.keys())
+		let searchSources=config.get(["search","search sources"]);
+		for(let key of searchSources.keys())
 		{
 			if(subOfficeList.indexOf(key)==-1)
 			{

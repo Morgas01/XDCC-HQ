@@ -88,6 +88,12 @@ body {
 	div {
 		margin: .5em 1em;
 	}
+	#speedStat {
+		.tooltip(@direction:left,@distance:100%,@additions:{
+			top:-.5em;
+		});
+		.tooltip-fadeIn(.5s,.5s);
+	}
 }
 #downloads {
 	flex-grow:1;

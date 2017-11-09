@@ -3,17 +3,17 @@
 	//fun
 	µ.logger.info(GMOD("signature"));
 
-	var Form=GMOD("gui.form");
-	var request=GMOD("request");
-	var checkDB=GMOD("NIWA-Download.checkDbErrors");
+	let Form=GMOD("gui.form");
+	let request=GMOD("request");
+	let checkDB=GMOD("NIWA-Download.checkDbErrors");
 
-	var SC=SC({
-	    dialog:"gui.dialog"
+	SC=SC({
+	    dialog:"gui.Dialog"
 	});
 
-	var searchWrapper=document.getElementById("searchWrapper");
+	let searchWrapper=document.getElementById("searchWrapper");
 
-	var searchForm=Form({
+	let searchForm=Form({
 	   type:"array",
 	   model:{
 		   type:"string",
@@ -22,18 +22,18 @@
 	   default:[""]
 	}, undefined,"Search");
 	searchForm.id="searchForm";
-	var firstInput=searchForm.querySelector("input");
+	let firstInput=searchForm.querySelector("input");
 	firstInput.accessKey="f";
 	firstInput.title="Accesskey F";
 	firstInput.autofocus=true;
 	searchWrapper.appendChild(searchForm);
 
-	var searchSources;
+	let searchSources;
 	request.json("rest/config").then(function(data)
 	{
-		var sourcesConfig={};
-		var names=Object.keys(data["search"]["search sources"]).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
-		for(var sourceName of names)
+		let sourcesConfig={};
+		let names=Object.keys(data["search"]["search sources"]).sort((a,b)=>a.toLowerCase()>b.toLowerCase());
+		for(let sourceName of names)
 		{
 			sourcesConfig[sourceName]={
 				type:"boolean",
@@ -50,7 +50,7 @@
 		})
 	});
 
-	var searchBtn=document.getElementById("searchBtn");
+	let searchBtn=document.getElementById("searchBtn");
 	searchForm.addEventListener("keydown",function(e)
 	{
 		if(e.key=="Enter")
@@ -64,19 +64,19 @@
 		e.detail.element.querySelector("input").focus();
 	});
 	searchForm.addEventListener("paste",function(e){
-		var terms=e.clipboardData.getData("text/plain").split("\n");
+		let terms=e.clipboardData.getData("text/plain").split("\n");
 		if(terms.length>1)
 		{
 			requestAnimationFrame(function()
 			{
-				var input=e.target;
-				var container=input.parentNode.parentNode;
-				for(var term of terms)
+				let input=e.target;
+				let container=input.parentNode.parentNode;
+				for(let term of terms)
 				{
 					if(input!=null)
 					{
 						input.value=term;
-						var nextWrapper=input.parentNode.nextElementSibling;
+						let nextWrapper=input.parentNode.nextElementSibling;
 						if(nextWrapper) input=nextWrapper.children[1];
 						else input=null;
 					}
@@ -89,7 +89,7 @@
 	{
 	    if(searchForm.isValid())
 	    {
-	        var data={query:searchForm.getConfig().get()};
+	        let data={query:searchForm.getConfig().get()};
 	        if(!searchSources.classList.contains("hidden"))
 	        {
 	        	data.sources=Array.from(searchSources.querySelectorAll("input:checked")).map(e=>e.name);
@@ -101,11 +101,11 @@
 
 	document.getElementById("configBtn").addEventListener("click",function()
 	{
-	    SC.dialog(function(element)
+	    new SC.dialog(function(element)
 	    {
 	    	element.id="configDialog";
 	    	element.classList.add("request");
-			var closeBtn=document.createElement("button");
+			let closeBtn=document.createElement("button");
 			closeBtn.textContent="ok";
 			closeBtn.dataset.action="close";
 			closeBtn.autofocus=true;
@@ -119,7 +119,7 @@
 				element.insertBefore(Form(data.description,data.value),closeBtn);
 				element.addEventListener("formChange",function(event)
 				{
-					var field=event.target;
+					let field=event.target;
 					field.disabled=true;
 					request.json({
 						url:"rest/config",

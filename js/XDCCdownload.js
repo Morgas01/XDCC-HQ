@@ -1,15 +1,15 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var DOWNLOAD=GMOD("NIWA-Download.Download");
+	let DOWNLOAD=GMOD("NIWA-Download.Download");
 
 	SC=SC({
 		rel:"DBRel",
 		FIELD:"DBField"
 	});
 
-	var XDCCdownload=µ.Class(DOWNLOAD,{
+	let XDCCdownload=µ.Class(DOWNLOAD,{
 		objectType:"XDCCdownload",
-		init:function(param)
+		constructor:function(param)
 		{
 			param=param||{};
 
@@ -24,8 +24,8 @@
 		{
 			if(this.sources.every(s=>s.failed)) this.sources.forEach(s=>s.failed=false);//when every source failed try all again
 
-			var sourcesMap=this.sources.filter(s=>!s.failed).reduce((map,source)=>map.set(source.user+"@"+source.network,source),new Map());
-			for(var aktiveSource of aktiveSources)
+			let sourcesMap=this.sources.filter(s=>!s.failed).reduce((map,source)=>map.set(source.user+"@"+source.network,source),new Map());
+			for(let aktiveSource of aktiveSources)
 			{
 				if(aktiveSource==null) return false; // started but did not decide a bot jet
 				sourcesMap.delete(aktiveSource.user+"@"+aktiveSource.network);
@@ -45,7 +45,7 @@
 		},
 		getCleanName:function()
 		{
-			var name=this.name;
+			let name=this.name;
 			if((name.indexOf("%20")!==-1&&name.indexOf(" ")===-1)||(name.indexOf("%5B")!==-1&&name.indexOf("[")===-1))
 				name=decodeURIComponent(name);
 			name=name.replace(/_/g," ");

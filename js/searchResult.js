@@ -1,29 +1,30 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var goPath=GMOD("goPath");
-	var Table=GMOD("gui.Table");
+	let goPath=GMOD("goPath");
+	let Table=GMOD("gui.Table");
 
 	SC=SC({
 		TableConfig:"gui.TableConfig.Select",
 		form:"gui.form",
 		action:"gui.actionize",
 		org:"Organizer",
-		dlg:"gui.dialog",
+		dlg:"gui.Dialog",
 		fuzzy:"fuzzySearch",
 		XDCCdownload:"XDCCdownload",
 		rq:"request",
 		menu:"gui.menu"
 	});
 
-	var helper=document.createDocumentFragment();
+	let helper=document.createDocumentFragment();
 
-	var SearchResult=µ.Class(Table,{
-		init:function()
+	let SearchResult=µ.Class(Table,{
+		constructor:function()
 		{
 			this.mega(new SC.TableConfig([
 				"name",
 				{
 					name:"filesize",
+					styleClass:"filesize",
 					fn:function(cell,data)
 					{
 						cell.textContent=SC.XDCCdownload.formatFilesize(data.filesize);
@@ -31,6 +32,7 @@
 				},
 				{
 					name:"sources",
+					styleClass:"sources",
 					fn:function(cell,data)
 					{
 						cell.textContent=data.sources.map(s=>s.user+"@"+s.network).join(" ");
@@ -52,7 +54,7 @@
 				downloadList:(event,button)=>
 				{
 					button.disabled=true;
-					var added=this.downloadList({
+					let added=this.downloadList({
 						network:button.dataset.network,
 						channel:button.dataset.channel,
 						user:button.dataset.user,
@@ -75,25 +77,25 @@
 			/** @Type String */
 			this.textFilter=null;
 
-			var textFilterWrapper=document.createElement("span");
+			let textFilterWrapper=document.createElement("span");
 			this.actions.appendChild(textFilterWrapper);
-			var textFilter=document.createElement("input");
+			let textFilter=document.createElement("input");
 			textFilter.type="text";
 			textFilter.placeholder="filter text";
 			textFilterWrapper.appendChild(textFilter);
-			var textFilterButton=document.createElement("button");
+			let textFilterButton=document.createElement("button");
 			textFilterButton.dataset.action="filter";
 			textFilterButton.textContent="filter";
 			textFilterButton.type="button";
 			textFilterWrapper.appendChild(textFilterButton);
 			textFilter.addEventListener("keydown",e=>{if(e.key=="Enter")textFilterButton.focus()});
 
-			var showIcrCmdButton=document.createElement("button");
+			let showIcrCmdButton=document.createElement("button");
 			showIcrCmdButton.dataset.action="showIrcCmd";
 			showIcrCmdButton.textContent="show irc command";
 			this.actions.appendChild(showIcrCmdButton);
 
-			var downloadBtn=document.createElement("button");
+			let downloadBtn=document.createElement("button");
 			downloadBtn.dataset.action="download";
 			downloadBtn.textContent="download";
 			this.actions.appendChild(downloadBtn);
@@ -122,7 +124,7 @@
 
 			this.errors=[];
 			this.organizer=new SC.org();
-			for(var [name,fn] of Object.entries(SearchResult.filterGroups)) this.organizer.group(name,fn);
+			for(let [name,fn] of Object.entries(SearchResult.filterGroups)) this.organizer.group(name,fn);
 			this.sortKey=null;
 		},
 		setData:function(data)
@@ -139,7 +141,7 @@
 			this.errors=data.errors;
 			this._createErrorMenu();
 
-			this.organizer.add(data.results);
+			this.organizer.addAll(data.results);
 			this._createFilterGroups();
 
 		},
@@ -163,7 +165,7 @@
 
 			if(this.errors.length>0)
 			{
-				var errorNodes=this.errors.map(function(error)
+				let errorNodes=this.errors.map(function(error)
 				{
 					if(error.listParam)
 					{
@@ -188,12 +190,12 @@
 						]
 					};
 				});
-				var errorRoot=[{
+				let errorRoot=[{
 					html:errorNodes.length+" errors",
 					children:errorNodes
 				}];
 
-				var menu=SC.menu(errorRoot,function(dom,error)
+				let menu=SC.menu(errorRoot,function(dom,error)
 				{
 					if(error.text)dom.textContent=error.text;
 					else dom.innerHTML=error.html;
@@ -203,8 +205,8 @@
 		},
 		_createFilterGroups:function()
 		{
-			var filterConfig={};
-			for(var group in SearchResult.filterGroups)
+			let filterConfig={};
+			for(let group in SearchResult.filterGroups)
 			{
 				this.organizer.group(group,SearchResult.filterGroups[group]);
 
@@ -222,16 +224,16 @@
 		},
 		updateFilter:function()
 		{
-			var filterValues=this.filters.getConfig().get();
-			var filtered=this.organizer.combine(false,this.sortKey);
+			let filterValues=this.filters.getConfig().get();
+			let filtered=this.organizer.combine(false,this.sortKey);
 
 			if(this.textFilter) filtered.filter(this.textFilter);
 
-			for(var group in SearchResult.filterGroups)
+			for(let group in SearchResult.filterGroups)
 			{
 				if(filterValues[group].length>0)
 				{
-					var groupFiltered=this.organizer.combine(true);
+					let groupFiltered=this.organizer.combine(true);
 					filterValues[group].forEach(part=>groupFiltered.group(group,part));
 					filtered.combine(groupFiltered);
 				}
@@ -250,14 +252,14 @@
 			})
 			.then(()=>
 			{
-				SC.dlg('<div><span class="dialog-icon">&#10071;</span> added list to download queue</div><button data-action="close" autofocus>ok</button>',
+				new SC.dlg('<div><span class="dialog-icon">&#10071;</span> added list to download queue</div><button data-action="close" autofocus>ok</button>',
 					{modal:true,target:this.element}
 				);
 			},
 			(e)=>
 			{
 				µ.logger.error(e);
-				SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding list to download queue:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
+				new SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding list to download queue:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
 					{modal:true,target:this.element}
 				);
 			});
@@ -269,9 +271,9 @@
 			{
 				if(!this.organizer.hasFilter(text))
 				{
-					var scorer=SC.fuzzy.scoreFunction(text);
-					var helperMap=new Map();// caching
-					var getScore=function(d)
+					let scorer=SC.fuzzy.scoreFunction(text);
+					let helperMap=new Map();// caching
+					let getScore=function(d)
 					{
 						if(!helperMap.has(d)) helperMap.set(d,scorer(d.name));
 						return helperMap.get(d);
@@ -280,40 +282,40 @@
 					this.organizer.sort(text,(a,b)=>SC.fuzzy.sortScore(getScore(a),getScore(b)));
 				}
 				this.textFilter=this.sortKey=text;
-				for(var c of this.tableElement.querySelectorAll(".ASC")) c.classList.remove("ASC");
-				for(var c of this.tableElement.querySelectorAll(".DESC")) c.classList.remove("DESC");
+				for(let c of this.tableElement.querySelectorAll(".ASC")) c.classList.remove("ASC");
+				for(let c of this.tableElement.querySelectorAll(".DESC")) c.classList.remove("DESC");
 			}
 			else this.textFilter=null;
 			this.updateFilter();
 		},
 		showIrcCommands:function()
 		{
-			var networks=new SC.org(this.getSelected())
+			let networks=new SC.org(this.getSelected())
 			.group("network","network",child=>child.group("channel","channel",child=>child.group("bot","user"))).getGroup("network");
 
-			var content="<pre>";
-			for(var n in networks)
+			let content="<pre>";
+			for(let n in networks)
 			{
-				var channels=networks[n].getGroup("channel");
-				for(var c in channels)
+				let channels=networks[n].getGroup("channel");
+				for(let c in channels)
 				{
-					var channel=channels[c];
+					let channel=channels[c];
 					content+=n+"/"+c+"\n";
-					var bots=channel.getGroupValues("bot");
-					for(var b in bots)
+					let bots=channel.getGroupValues("bot");
+					for(let b in bots)
 					{
-						var bot=bots[b];
+						let bot=bots[b];
 						content+="/msg "+b+" XDCC BATCH "+bot.map(p=>p.packnumber).join(",")+"\n";
 					}
 					content+="\n";
 				}
 			}
 			content+='</pre><button data-action="close">ok</button>';
-			SC.dlg(content,{modal:true,target:this.element});
+			new SC.dlg(content,{modal:true,target:this.element});
 		},
 		download:function(event,button)
 		{
-			var selectedDownloads=this.getSelected();
+			let selectedDownloads=this.getSelected();
 			if(selectedDownloads.length==0) return;
 
 			return SC.rq.json("rest/config/download/create%20Package")
@@ -321,11 +323,11 @@
 			{
 				if(createPackage)
 				{
-					var match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]*\d+/i);
-					var packageName=match?match[1].replace(/_/g," "):selectedDownloads[0].name;
+					let match=selectedDownloads[0].name.match(/[\s_]?([^\[\]\(\)]*?)(?:[\s_]+(?:-|ep))?[\s_]*\d+/i);
+					let packageName=match?match[1].replace(/_/g," "):selectedDownloads[0].name;
 					return new Promise((resolve,reject)=>
 					{
-						SC.dlg(String.raw
+						new SC.dlg(String.raw
 `
 <label>
 	<span>Package name</span>
@@ -342,7 +344,7 @@
 							actions:{
 								ok:function()
 								{
-									var input=this.querySelector("input");
+									let input=this.content.querySelector("input");
 									if(input&&input.validity.valid)
 									{
 										this.close();
@@ -384,25 +386,25 @@
 			})
 			.then(()=>
 			{
-				SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close" autofocus>ok</button>',
+				new SC.dlg('<div><span class="dialog-icon">&#10071;</span> added downloads to queue</div><button data-action="close" autofocus>ok</button>',
 					{modal:true,target:this.element}
 				);
 			},
 			(e)=>
 			{
 				µ.logger.error(e);
-				SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding downloads:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
+				new SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding downloads:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
 					{modal:true,target:this.element}
 				);
 			});
 		},
 		_onHeaderClick:function(event)
 		{
-			var column=event.target;
-			var columnName=column.dataset.translation;
+			let column=event.target;
+			let columnName=column.dataset.translation;
 			if(columnName&&columnName!="sources");
 			{
-				var column=event.target;
+				let column=event.target;
 				if(column.classList.contains("ASC"))
 				{
 					column.classList.remove("ASC");
@@ -429,14 +431,14 @@
 	SearchResult.filterGroups={
 		subber:p=>
 		{
-			var m=p.name.match(/^\[([^\]]+)/);
+			let m=p.name.match(/^\[([^\]]+)/);
 			if(m)return m[1];
 			return "no subber found";
 		},
 		bot:p=>p.sources.map(s=>s.user),
 		resolution: p=>
 		{
-			var m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
+			let m=p.name.match(/(\d+x(\d+)|(\d+)p)/);
 			if (m==null) return "unknown";
 			return m.slice(-2).join("")+"p";
 		},
@@ -446,28 +448,28 @@
 /*
         	showIrcCmd:function()
         	{
-        		var networks=new SC.org(table.getSelected())
+        		let networks=new SC.org(table.getSelected())
         		.group("network","network",child=>child.group("channel","channel",child=>child.group("bot","user"))).getGroup("network");
 
-				var content="<pre>";
-				for(var n in networks)
+				let content="<pre>";
+				for(let n in networks)
 				{
-					var channels=networks[n].getGroup("channel");
-					for(var c in channels)
+					let channels=networks[n].getGroup("channel");
+					for(let c in channels)
 					{
-						var channel=channels[c];
+						let channel=channels[c];
 						content+=n+"/"+c+"\n";
-						var bots=channel.getGroupValues("bot");
-						for(var b in bots)
+						let bots=channel.getGroupValues("bot");
+						for(let b in bots)
 						{
-							var bot=bots[b];
+							let bot=bots[b];
 							content+="/msg "+b+" XDCC BATCH "+bot.map(p=>p.packnumber).join(",")+"\n";
 						}
 						content+="\n";
 					}
 				}
 				content+='</pre><button data-action="close">ok</button>';
-        		SC.dlg(content,{modal:true,target:container});
+        		new SC.dlg(content,{modal:true,target:container});
         	},
     */
 	SMOD("SearchResult",SearchResult);
