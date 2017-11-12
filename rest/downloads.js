@@ -182,7 +182,7 @@
 	SC.config.ready.then(function(config)
 	{
 		manager.setMaxDownloads(config.get(["download","maximum Downloads"]).get());
-		SC.config.addListener(["download","maximum Downloads"],function(newValue)
+		SC.config.addChangeListener(["download","maximum Downloads"],function(newValue)
 		{
 			manager.setMaxDownloads(newValue);
 		});
