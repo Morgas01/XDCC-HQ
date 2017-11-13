@@ -10,7 +10,8 @@
 		config:require.bind(null,"./config"),
 		File:"File",
 		util:"File.util",
-		adopt:"adopt"
+		adopt:"adopt",
+    	niwaWorkDir:"niwaWorkDir"
 	})
 
 	let getIrc=function()
@@ -172,7 +173,7 @@
 		}];
 		download.checkName=false;
 		download.appendCRC=false;
-		let targetFile=new SC.File(__dirname).changePath("../storage");
+		let targetFile=new SC.File(SC.niwaWorkDir).changePath("storage");
 		download.filepath=targetFile.getAbsolutePath();
 		download.filename=param.data.subOffice.slice(0,-3)+".txt";
 
