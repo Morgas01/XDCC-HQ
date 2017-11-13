@@ -65,15 +65,14 @@ module.exports.config=config;
 
 new SC.File("subOffices").listFiles().then(function(subOfficeList)
 {
-
-	let searchSources=config.get(["search","search sources"]);
-	for(let subOffice of subOfficeList)
-	{
-		searchSources.add(subOffice);
-	}
 	return module.exports.ready.then(function()
 	{
 		let searchSources=config.get(["search","search sources"]);
+		for(let subOffice of subOfficeList)
+		{
+			if(!searchSources.get(subOffice)) searchSources.add(subOffice);
+		}
+
 		for(let key of searchSources.keys())
 		{
 			if(subOfficeList.indexOf(key)==-1)
