@@ -11,7 +11,7 @@
 	});
 
 	let STORAGE_NAME="XDCC search history";
-	let searchHistory={};
+	let searchHistory=[];
 
 	let tabs=Tabs([]);
 	document.body.appendChild(tabs);
@@ -36,9 +36,12 @@
 			.then(function(data)
 			{
 				container.dataset.state="response";
-
-				searchHistory[event.data.query+""]=data;
-				try{sessionStorage.setItem(STORAGE_NAME,JSON.stringify(searchHistory))}catch(e){}
+				if(data.length>0)
+				{
+					searchHistory.unshift({query:event.data.query,data:data});
+					searchHistory.length=Math.min(searchHistory.length,10);
+					try{localStorage.setItem(STORAGE_NAME,JSON.stringify(searchHistory))}catch(e){}
+				}
 
 				let searchResult=new SC.SearchResult();
 				container.appendChild(searchResult.element)
@@ -59,20 +62,21 @@
 
 	try
 	{
-		if(STORAGE_NAME in sessionStorage)
-		searchHistory=JSON.parse(sessionStorage.getItem(STORAGE_NAME));
-		tabs.addTab(e=>e.innerHTML=String.raw`<span title="old queries">&#128465;</span>`,
+		if(STORAGE_NAME in localStorage)
+		searchHistory=JSON.parse(localStorage.getItem(STORAGE_NAME));
+		tabs.addTab(e=>e.innerHTML=String.raw`<span title="old queries">&#128340;</span>`,
 		function(oldQueriesContent)
 		{
 			oldQueriesContent.classList.add("oldQueries");
-			oldQueriesContent.innerHTML=Object.entries(searchHistory).map(([name,data])=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-name="${name}">${name}</span>`);
+			oldQueriesContent.innerHTML=searchHistory.map(({query,data},index)=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-index="${index}">${query}</span>`);
 			actionize({
 				reopen:function(event,target)
 				{
-					let name=target.dataset.name;
+					let index=target.dataset.index;
+					let search=searchHistory[index];
 					tabs.addTab(e=>e.innerHTML=String.raw
 `
-<span>${name}</span>
+<span>${search.query}</span>
 <botton data-action="closeTab">&#10060;</button>
 `
 					,
@@ -83,17 +87,17 @@
 						container.appendChild(searchResult.element);
 						requestAnimationFrame(()=>requestAnimationFrame(()=>//double requestAnimationFrame to wait for render
 						{
-								searchResult.setData(searchHistory[name]);
+								searchResult.setData(search.data);
 								container.dataset.state="done";
 						}));
 					},true);
 				}
-			},oldQueriesContent)
+			},oldQueriesContent);
 		});
 	}
 	catch (e)
 	{
-		console.error("sessionStorage not available",e)
+		console.error("localStorage not available",e)
 	}
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
