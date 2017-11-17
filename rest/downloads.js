@@ -173,7 +173,7 @@
 		}];
 		download.checkName=false;
 		download.appendCRC=false;
-		let targetFile=new SC.File(SC.niwaWorkDir).changePath("storage");
+		let targetFile=new SC.File(SC.niwaWorkDir).changePath("work/"+worker.context);
 		download.filepath=targetFile.getAbsolutePath();
 		download.filename=param.data.subOffice.slice(0,-3)+".txt";
 

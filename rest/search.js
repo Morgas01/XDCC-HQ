@@ -56,7 +56,8 @@ let doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 			subOffice:subOffice,
 			fileExpiration:SC.config.get(["search","file expiration"]).get(),
 			searchTimeout:searchTimeout,
-			niwaWorkDir:SC.niwaWorkDir
+			niwaWorkDir:SC.niwaWorkDir,
+			context:worker.context
 		}
 	})
 	.ready
