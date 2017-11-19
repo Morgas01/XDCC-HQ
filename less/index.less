@@ -51,33 +51,26 @@ body {
         left:2.25em;
     }
 }
-#searchSources {
+#sourcesWrapper {
 	order:2;
-	flex-direction:row;
-	flex-wrap:wrap;
-	white-space:nowrap;
-	legend {
+	summary {
 		cursor:pointer;
-		&::after {
-			content:"\2796";
-			display: inline-block;
-			border: 1px solid;
-			border-radius:.25em;
-			line-height:.8em;
-			margin:0 .1em;
-			padding:.1em;
-			font-weight:bold;
-		}
+		list-style:"\2796";
+		font-size:125%;
+		font-weight: bold;
+		margin-left:1em;
 	}
-	&.hidden {
-		padding-top:0;
-		padding-bottom:0;
-		legend::after {
-			content:"\2795";
-		}
-		 label {
-			display:none;
-		}
+	&[open] summary {
+		list-style:"\2795";
+	}
+			display: inline-block;
+	fieldset
+	{
+		border: 1px solid;
+		border-radius:.25em;
+		flex-direction:row;
+		flex-wrap:wrap;
+		white-space:nowrap;
 	}
 	label {
 		margin:.1em 1em;

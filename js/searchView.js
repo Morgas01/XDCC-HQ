@@ -36,7 +36,7 @@
 			.then(function(data)
 			{
 				container.dataset.state="response";
-				if(data.length>0)
+				if(data.results.length>0)
 				{
 					searchHistory.unshift({query:event.data.query,data:data});
 					searchHistory.length=Math.min(searchHistory.length,10);
@@ -50,8 +50,8 @@
 					searchResult.setData(data);
 					container.dataset.state="done";
 				}));
-			},
-			function(error)
+			})
+			.catch(function(error)
 			{
 				µ.logger.error(error);
 				new SC.dlg(JSON.stringify(error.response||error.error||error),{modal:true,target:container});
@@ -68,7 +68,7 @@
 		function(oldQueriesContent)
 		{
 			oldQueriesContent.classList.add("oldQueries");
-			oldQueriesContent.innerHTML=searchHistory.map(({query,data},index)=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-index="${index}">${query}</span>`);
+			oldQueriesContent.innerHTML=searchHistory.map(({query,data},index)=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-index="${index}">${query}</span>`).join("");
 			actionize({
 				reopen:function(event,target)
 				{

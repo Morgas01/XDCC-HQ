@@ -12,6 +12,7 @@
 	});
 
 	let searchWrapper=document.getElementById("searchWrapper");
+	let sourcesWrapper=document.getElementById("sourcesWrapper");
 
 	let searchForm=Form({
 	   type:"array",
@@ -28,7 +29,6 @@
 	firstInput.autofocus=true;
 	searchWrapper.appendChild(searchForm);
 
-	let searchSources;
 	request.json("rest/config").then(function(data)
 	{
 		let sourcesConfig={};
@@ -40,14 +40,7 @@
 				default:false
 			};
 		}
-		searchSources=Form(sourcesConfig,undefined,"Sources");
-		searchSources.id="searchSources";
-		searchSources.classList.add("hidden");
-		searchWrapper.appendChild(searchSources);
-		searchSources.firstElementChild.addEventListener("click",function()
-		{
-			searchSources.classList.toggle("hidden");
-		})
+		sourcesWrapper.appendChild(Form(sourcesConfig));
 	});
 
 	let searchBtn=document.getElementById("searchBtn");
@@ -90,9 +83,9 @@
 	    if(searchForm.isValid())
 	    {
 	        let data={query:searchForm.getConfig().get()};
-	        if(!searchSources.classList.contains("hidden"))
+	        if(sourcesWrapper.open)
 	        {
-	        	data.sources=Array.from(searchSources.querySelectorAll("input:checked")).map(e=>e.name);
+	        	data.sources=Array.from(sourcesWrapper.querySelectorAll("input:checked")).map(e=>e.name);
 	        }
 	        document.getElementById("searchFrame").contentWindow.postMessage(data,"*");
 	    }
