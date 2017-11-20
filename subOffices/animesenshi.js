@@ -1,5 +1,2 @@
-exports = module.exports = require("../mercenaries/xdccParser");
-
-exports.network="irc.rizon.net";
-exports.channel="#animesenshi";
-exports.url="http://asenshi.moe/xdcc";
+module.exports = require("../mercenaries/xdccParser")
+("irc.rizon.net","#animesenshi","http://asenshi.moe/xdcc");

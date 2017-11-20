@@ -1,0 +1,116 @@
+@import "theme/default";
+
+@import "structure/form";
+@import "style/form";
+@import "structure/dialog";
+@import "style/dialog";
+
+@import "NIWA-Download.checkDbErrors";
+
+@import "menu";
+
+html,body {
+	padding:0;
+	margin:0;
+	width:100%;
+	height:100%;
+}
+body {
+	display: flex;
+	flex-direction:column;
+	align-items:center;
+}
+#searchWrapper {
+	display:flex;
+	flex-direction:column;
+    align-self:center;
+}
+#searchForm {
+    order:1;
+
+    padding:1em;
+	display:flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+
+	label:nth-of-type(1) {
+        flex-basis:100%;
+        .removeField {
+            visibility:hidden;
+        }
+    }
+    .removeField {
+        margin:0;
+    }
+    label{
+        margin-left:1em;
+    }
+    .addField {
+        position:absolute;
+        top:1.5em;
+        left:2.25em;
+    }
+}
+#sourcesWrapper {
+	order:2;
+	summary {
+		cursor:pointer;
+		list-style:"\2796";
+		font-size:125%;
+		font-weight: bold;
+		margin-left:1em;
+	}
+	&[open] summary {
+		list-style:"\2795";
+	}
+			display: inline-block;
+	fieldset
+	{
+		border: 1px solid;
+		border-radius:.25em;
+		flex-direction:row;
+		flex-wrap:wrap;
+		white-space:nowrap;
+	}
+	label {
+		margin:.1em 1em;
+		flex-basis:~"calc(20% - 2em)";
+		@media screen and (max-width:60em) {
+			flex-basis:~"calc(25% - 2em)";
+		}
+		@media screen and (max-width:40em) {
+			flex-basis:~"calc(50% - 2em)";
+		}
+		@media screen and (max-width:20em) {
+			flex-basis:100%;
+		}
+		cursor:pointer;
+		&:hover {
+			font-weight:bold;
+
+			input {
+				transform:scale(1.1);
+			}
+		}
+	}
+	.label {
+		width:0;
+		margin-right:0;
+	}
+	input {
+		flex-grow:0;
+	}
+}
+#searchBtn {
+    order:3;
+    font-size:2em;
+}
+#searchFrame {
+	flex-grow:1;
+	align-self:stretch;
+	border:0;
+}
+
+.dbError [data-action="abort"] {
+	display:none;
+}

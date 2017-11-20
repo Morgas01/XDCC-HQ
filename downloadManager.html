@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>XDCC-HQ Downloads</title>
+
+		<link rel="icon" type="image/svg+xml" href="images/Logo.svg">
+
+		<link rel="stylesheet" href="css/downloadManager.less">
+		<script type="text/javascript" defer="defer" src="rest/dependencyManager/downloadManager.js"></script>
+	</head>
+	<body>
+		<div id="topmenu">
+			<div id="menu">
+				<button id="configBtn" data-title="Config
+Accesskey C" accesskey="c">&#128295;</button>
+				<a href="index.html"><button accesskey="f" data-title="Search
+Accesskey F"><div id="searchIcon">&#128269;</div></button></a>
+			</div>
+			<div id="actions">
+				<button id="autoTrigger" data-action="autoTrigger" accesskey="p" disabled>
+					<span data-state="true">&#9654;</span>
+					<span data-state="false">||</span>
+				</button>
+				<button data-action="enable" accesskey="e">enable</button>
+				<button data-action="disable" accesskey="d">disable</button>
+				<button data-action="reset" accesskey="r">reset</button>
+				<button data-action="remove" class="splitButton">remove</button>
+				<div>
+					<button class="menu">&#709;</button>
+					<ul class="menu">
+						<li><span data-action="removeDone" accesskey="x">finished downloads</span></li>
+						<li><span data-action="removeDisabled">disabled downloads</span></li>
+						<li><span data-action="removeError">failed downloads</span></li>
+					</ul>
+				</div>
+				<button data-action="addDownload" accesskey="a">add download</button>
+				<button data-action="listFilenames" accesskey="l">list filenames</button>
+				<button data-action="createPackage" accesskey="n">new Package</button>
+				<button data-action="moveTo" accesskey="m">➫<div class="actionHint">move</div></button>
+				<button data-action="sort" accesskey="s">⇄<div class="actionHint">sort</div></button>
+			</div>
+		</div>
+		<div id="stats">
+			<div>
+				<span>Downloads:</span>
+				<span id="downloadStat">&#8263;</span>
+			</div>
+			<div>
+				<span>Speed:</span>
+				<span id="speedStat">&#8263;</span>
+			</div>
+			<div>
+				<span>File size:</span>
+				<span id="sizeStat">&#8263;</span><span> / </span><span id="totalSizeStat">&#8263;</span>
+			</div>
+		</div>
+		<div id="downloads"></div>
+	</body>
+</html>

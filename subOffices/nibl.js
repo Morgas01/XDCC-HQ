@@ -15,10 +15,10 @@ exports.parse=function(data)
 		rtn.push({
 			network:"irc.rizon.net",
 			channel:"#nibl",
-			bot:match[1],
+			user:match[1],
 			name:match[4],
 			packnumber:match[2],
-			size:match[3]
+			filesize:match[3]
 		});
 	}
 	return rtn;

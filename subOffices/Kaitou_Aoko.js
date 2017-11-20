@@ -1,6 +1,2 @@
-exports = module.exports = require("../mercenaries/ircOffer");
-
-exports.network="irc.rizon.net";
-exports.channel="#Kaitou-Fansubs";
-exports.url="http://5.9.118.42:8001/";
-exports.bot="Kaitou|Aoko";
+exports = module.exports = require("../mercenaries/ircOffer")
+("irc.rizon.net","#Kaitou-Fansubs","http://5.9.118.42:8001/","Kaitou|Aoko");

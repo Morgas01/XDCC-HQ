@@ -1,5 +1,2 @@
-exports = module.exports = require("../mercenaries/xdccParser");
-
-exports.network="irc.rizon.net";
-exports.channel="#nibl";
-exports.url="http://koa-fansubs.com/global";
+exports = module.exports = require("../mercenaries/xdccParser")
+("irc.rizon.net","#nibl","http://koa-fansubs.com/global");

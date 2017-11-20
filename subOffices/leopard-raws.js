@@ -15,10 +15,10 @@ exports.parse=function(data)
 		rtn.push({
 			network:"irc.rizon.net",
 			channel:"#leopard-raws",
-			bot:"Leopard-xdcc",
+			user:"Leopard-xdcc",
 			name:match[2],
 			packnumber:match[1],
-			size:match[3]+"M"
+			filesize:match[3]
 		});
 	}
 	return rtn;

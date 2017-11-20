@@ -1,19 +1,21 @@
 {
-  "name": "XDCC_HQ",
-  "version": "0.0.1",
-  "main": "server.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Morgas01/XDCC-HQ.git"
-  },
-  "engine": {
-    "node": ">=4.0.0"
-  },
-  "dependencies": {
-    "bunyan": "^1.4.0",
-    "irc": "^0.4.1"
-  },
-  "scripts": {
-    "start": "node server.js | bunyan"
-  }
+	"name": "XDCC-HQ",
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Morgas01/XDCC-HQ.git"
+	},
+	"engine": {
+		"node": ">=4.0.0"
+	},
+	"dependencies": {
+		"NIWA-Download": "git+https://github.com/Morgas01/NIWA-Download.git"
+	},
+	"niwa": {
+		"setup":"niwaSetup",
+		"dependencies":[
+			"DownloadManager",
+			"NIWA-irc"
+		]
+	}
 }

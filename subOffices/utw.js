@@ -1,5 +1,2 @@
-exports = module.exports = require("../mercenaries/xdccParser");
-
-exports.network="irc.rizon.net";
-exports.channel="#utw";
-exports.url="http://xdcc.utw.me/";
+exports = module.exports = require("../mercenaries/xdccParser")
+("irc.rizon.net","#utw","https://xdcc.utw.me/");
