@@ -5,15 +5,12 @@
 		"type": "git",
 		"url": "https://github.com/Morgas01/XDCC-HQ.git"
 	},
-	"engine": {
-		"node": ">=4.0.0"
-	},
 	"dependencies": {
 		"NIWA-Download": "git+https://github.com/Morgas01/NIWA-Download.git"
 	},
 	"niwa": {
-		"setup":"niwaSetup",
-		"dependencies":[
+		"setup": "niwaSetup",
+		"dependencies": [
 			"DownloadManager",
 			"NIWA-irc"
 		]
