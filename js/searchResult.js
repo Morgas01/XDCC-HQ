@@ -271,15 +271,10 @@
 			{
 				if(!this.organizer.hasFilter(text))
 				{
-					let scorer=SC.fuzzy.scoreFunction(text);
-					let helperMap=new Map();// caching
-					let getScore=function(d)
-					{
-						if(!helperMap.has(d)) helperMap.set(d,scorer(d.name));
-						return helperMap.get(d);
-					}
-					this.organizer.filter(text,d=>getScore(d).reduce((a,b)=>a+b)>0);
-					this.organizer.sort(text,(a,b)=>SC.fuzzy.sortScore(getScore(a),getScore(b)));
+					let sf=SC.fuzzy.scoreFunctions;
+					let scorer=sf.misc.cache([sf.object.property("name",[sf.misc.query(text)])]);
+					this.organizer.filter(text,d=>scorer(d)>.1);
+					this.organizer.sort(text,SC.org.orderBy(scorer));
 				}
 				this.textFilter=this.sortKey=text;
 				for(let c of this.tableElement.querySelectorAll(".ASC")) c.classList.remove("ASC");
