@@ -28,7 +28,7 @@
 		DBClassDictionary:[XDCCdownload],
 		filter:function(running,download)
 		{
-			return getIrc()
+			return getIrc() // stop all downloads if no irc ia available
 			.then(()=>download.filterSources(running.map(r=>r.dataSource)));
 		},
 		download:function(signal,download)
