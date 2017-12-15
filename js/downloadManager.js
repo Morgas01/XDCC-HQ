@@ -206,7 +206,7 @@
 					actions:{
 						ok:function()
 						{
-							let input=this.querySelector("input");
+							let input=this.content.querySelector("input");
 							if(input&&input.validity.valid)
 							{
 								this.close();
