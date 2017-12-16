@@ -1,1 +1,1 @@
-require("NIWA-Download").register().registerLess();
+require("niwa-download").register().registerLess();

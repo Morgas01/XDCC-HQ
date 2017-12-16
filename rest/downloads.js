@@ -16,7 +16,7 @@
 
 	let getIrc=function()
 	{
-		return worker.getCommunicationList("NIWA-irc")
+		return worker.getCommunicationList("irc")
 		.then(results=>
 		{
 			if(results.length==0) return Promise.reject("no irc available");

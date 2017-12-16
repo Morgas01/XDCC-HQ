@@ -1,17 +1,18 @@
 {
 	"name": "XDCC-HQ",
 	"version": "0.0.1",
+	"keywords":["niwa-app","xdcc","niwa"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Morgas01/XDCC-HQ.git"
 	},
 	"dependencies": {
-		"NIWA-Download": "git+https://github.com/Morgas01/NIWA-Download.git"
+		"niwa-download": "^0.8.3"
 	},
 	"niwa": {
 		"setup": "niwaSetup",
 		"dependencies": [
-			"NIWA-irc"
+			"irc"
 		]
 	}
 }
