@@ -186,7 +186,12 @@
 			listFilenames:function()
 			{
 				let items=downloadTable.getSelected();
-				//TODO
+				let names=items.map(item=>item.filename||item.name);
+				let width=names.reduce((a,b)=>Math.max(a,b.length),10);
+				new SC.dialog(`
+					<textarea autofocus rows="${items.length}" style="width:${width*.75}em">${names.join("\n")}</textarea>
+					<button data-action="close">OK</button>
+				`);
 			},
 			createPackage:function()
 			{
