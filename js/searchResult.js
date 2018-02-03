@@ -372,7 +372,6 @@
 			},
 			function(error)
 			{
-				debugger;
 				if(error!=null) return Promise.reject(error);
 				return SC.rq({
 					url:"rest/downloads/add",

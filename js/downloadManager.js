@@ -8,7 +8,6 @@
 		rq:"request",
 		checkDB:"NIWA-Download.checkDbErrors",
 		dialog:"gui.Dialog",
-		stree:"gui.selectionTree",
 		form:"gui.form"
 	});
 
