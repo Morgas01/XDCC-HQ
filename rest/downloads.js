@@ -70,7 +70,12 @@
 					if(!delegate.filename)delegate.filename=config.get(["download","clean name"]).get()?download.getCleanName():download.name;
 					if(ircOffer)
 					{
-						delegate.dataSource=SC.adopt({},ircOffer.dataSource,true); //copy
+						({
+							ip:delegate.dataSource.ip,
+							port:delegate.dataSource.port,
+							network:delegate.dataSource.network,
+							user:delegate.dataSource.user,
+						}=ircOffer);
 					}
 					if(download.checkName!=null) delegate.dataSource.checkName=download.checkName;
 					else if (config.get(["download","check name"]).get()) delegate.dataSource.checkName=download.name;
