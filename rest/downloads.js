@@ -26,12 +26,14 @@
 
 	let manager=new Manager({
 		DBClassDictionary:[XDCCdownload],
-		filter:function(running,download)
+		filter:function(running,download,ircOffer)
 		{
+			if(ircOffer) return true; // allow to catch open offers
+
 			return getIrc() // stop all downloads if no irc ia available
 			.then(()=>download.filterSources(running.map(r=>r.dataSource)));
 		},
-		download:function(signal,download)
+		download:function(signal,download,ircOffer)
 		{
 			µ.logger.info("start to download "+download.name);
 			SC.config.ready.then(config=>
@@ -66,6 +68,10 @@
 					delegate.dataSource=SC.adopt({},download.dataSource,true); //copy
 					if(!delegate.filepath)delegate.filepath=downloadFolder.getAbsolutePath();
 					if(!delegate.filename)delegate.filename=config.get(["download","clean name"]).get()?download.getCleanName():download.name;
+					if(ircOffer)
+					{
+						delegate.dataSource=SC.adopt({},ircOffer.dataSource,true); //copy
+					}
 					if(download.checkName!=null) delegate.dataSource.checkName=download.checkName;
 					else if (config.get(["download","check name"]).get()) delegate.dataSource.checkName=download.name;
 
@@ -178,6 +184,31 @@
 		download.filename=param.data.subOffice.slice(0,-3)+".txt";
 
 		manager.add(download);
+	}
+
+	let ignoreRegex=/[\s\._'"`´]+/g;
+	worker.openIrcOffer=function({offer,originalDownloadName})
+	{
+		let matchFilename=offer.filename.replace(ignoreRegex,"");
+		let findPromise=manager.dbConnector.then(dbc=>dbc.load(XDCCdownload,{state:[XDCCdownload.states.PENDING,XDCCdownload.states.FAILED]}))
+		.then(downloads=>
+		{
+			downloads=downloads.filter(d=>d.name.replace(ignoreRegex,"")==matchFilename);
+			if(downloads.length===0)
+			{
+				µ.logger.info({offer:offer,originalDownloadName:originalDownloadName},"no matching download found");
+				return Promise.reject("no matching download found");
+			}
+			return downloads[0];
+		});
+		findPromise.then(download=>
+		{
+			download.state=XDCCdownload.states.PENDING;
+			download.addMessage("catch offer from "+originalDownloadName);
+			return manager.startDownload(download,offer);
+		})
+		.catch(e=>µ.logger.error({error:e}));
+		return findPromise.then(download=>download.name);
 	}
 
 	SC.config.ready.then(function(config)
