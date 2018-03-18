@@ -68,7 +68,7 @@
 		function(oldQueriesContent)
 		{
 			oldQueriesContent.classList.add("oldQueries");
-			oldQueriesContent.innerHTML=searchHistory.map(({query,data},index)=>String.raw`<button title="${data.results.length+"results"}" data-action="reopen" data-index="${index}">${query}</span>`).join("");
+			oldQueriesContent.innerHTML=searchHistory.map(({query,data},index)=>String.raw`<button title="${data.results.length+" results"}" data-action="reopen" data-index="${index}">${query.join("\n")}</span>`).join("");
 			actionize({
 				reopen:function(event,target)
 				{
