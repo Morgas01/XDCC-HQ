@@ -9,7 +9,7 @@
 		Download:"NIWA-Download.Download",
 		config:require.bind(null,"./config"),
 		File:"File",
-		util:"File.util",
+		util:"File/util",
 		adopt:"adopt",
     	niwaWorkDir:"niwaWorkDir"
 	})

@@ -7,7 +7,10 @@
 		"url": "https://github.com/Morgas01/XDCC-HQ.git"
 	},
 	"dependencies": {
-		"niwa-download": "^0.8.4"
+		"niwa-download": "^0.8.8"
+	},
+	"peerDependencies": {
+		"niwa": "^0.8.8"
 	},
 	"niwa": {
 		"setup": "niwaSetup",
