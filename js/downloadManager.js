@@ -29,7 +29,7 @@
 		{
 			content=(error.response||error)+`<button data-action="close">OK</button>`;
 		}
-		new SC.dialog(content,{modal:true}).classList.add("networkError");
+		new SC.dialog(content,{modal:true}).content.classList.add("networkError");
 	};
 
 	document.getElementById("configBtn").addEventListener("click",function()
