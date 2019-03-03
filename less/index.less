@@ -72,19 +72,12 @@ body {
 		flex-direction:row;
 		flex-wrap:wrap;
 		white-space:nowrap;
+		max-width:~'calc(100vw - 5em)'
 	}
 	label {
 		margin:.1em 1em;
-		flex-basis:~"calc(20% - 2em)";
-		@media screen and (max-width:60em) {
-			flex-basis:~"calc(25% - 2em)";
-		}
-		@media screen and (max-width:40em) {
-			flex-basis:~"calc(50% - 2em)";
-		}
-		@media screen and (max-width:20em) {
-			flex-basis:100%;
-		}
+		justify-content:flex-start;
+		flex-basis:11em;
 		cursor:pointer;
 		&:hover {
 			font-weight:bold;
@@ -95,11 +88,10 @@ body {
 		}
 	}
 	.label {
-		width:0;
-		margin-right:0;
+		order:1;
 	}
 	input {
-		flex-grow:0;
+		order:0;
 	}
 }
 #searchBtn {
