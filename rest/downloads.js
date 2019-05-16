@@ -11,7 +11,7 @@
 		File:"File",
 		util:"File/util",
 		adopt:"adopt",
-    	niwaWorkDir:"niwaWorkDir"
+    	niwaAppWorkDir:"niwaAppWorkDir"
 	})
 
 	let getIrc=function()
@@ -22,6 +22,19 @@
 			if(results.length==0) return Promise.reject("no irc available");
 			return results[0];
 		})
+	};
+
+	let createListDownload=function(data)
+	{
+		data.subOffices=[data.subOffice];
+		return new XDCCdownload({
+			name:`xdcc listing from ${data.user} for ${data.subOffice}`,
+			sources:[data],
+			checkName:false,
+			appendCRC:false,
+			filepath:SC.niwaAppWorkDir,
+			filename:data.subOffice.slice(0,-3)+".txt"
+		});
 	}
 
 	let manager=new Manager({
@@ -173,22 +186,19 @@
 	{
 		if(param.method!=="POST") return "http method must be POST";
 
-		let download=new XDCCdownload();
-		download.name="xdcc listing from "+param.data.user;
-		download.sources=[{
-			network: param.data.network,
-			user: param.data.user,
-			packnumber: param.data.packnumber,
-			channel: param.data.channel,
-			subOffices: [param.data.subOffice],
-		}];
-		download.checkName=false;
-		download.appendCRC=false;
-		let targetFile=new SC.File(SC.niwaWorkDir).changePath("work/"+worker.context);
-		download.filepath=targetFile.getAbsolutePath();
-		download.filename=param.data.subOffice.slice(0,-3)+".txt";
+		let download=createListDownload(param.data);
 
 		manager.add(download);
+	}
+
+	manager.serviceMethods.addAllListDownloads=function(param)
+	{
+		if(param.method!=="POST") return "http method must be POST";
+		if(!param.data||!Array.isArray(param.data)) return "Post data must be an array of listDownloads";
+
+		let downloads=param.data.map(createListDownload);
+
+		manager.addWithPackage(SC.Download.Package,"bot lists",downloads);
 	}
 
 	let ignoreRegex=/[\s\._'"`´]+/g;

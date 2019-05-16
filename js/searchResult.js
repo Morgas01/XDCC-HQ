@@ -54,13 +54,15 @@
 				downloadList:(event,button)=>
 				{
 					button.disabled=true;
-					let added=this.downloadList({
-						network:button.dataset.network,
-						channel:button.dataset.channel,
-						user:button.dataset.user,
-						packnumber:button.dataset.packnumber,
-						subOffice:button.dataset.subOffice
-					});
+					let added=this.downloadList(this.errors[button.dataset.index]);
+					//TODO added.then(()=>button.textContent=button.dataset.action="retry");
+					added.catch(()=>button.disabled=false);
+				},
+				downloadAllLists:(event,button)=>
+				{
+					button.disabled=true;
+					let lists=this.errors.filter(e=>e.listParam).map(e=>e.listParam);
+					let added=this.downloadAllLists(lists);
 					//TODO added.then(()=>button.textContent=button.dataset.action="retry");
 					added.catch(()=>button.disabled=false);
 				},
@@ -161,24 +163,45 @@
 		},
 		_createErrorMenu:function()
 		{
-			while(this.errorMenu.firstChild)this.errorMenu.firstChild.remove();
+			while(this.errorMenu.firstChild)this.errorMenu.firstChild.remove(); //clear dom
 
 			if(this.errors.length>0)
 			{
-				let errorNodes=this.errors.map(function(error)
+				let errorRoot={
+					html:this.errors.length+" errors",
+					children:[]
+				};
+
+				let missingLists=[];
+				let unexpectedErrors=this.errors.filter((error,index)=>
 				{
-					if(error.listParam)
-					{
-						return {
-							html:error.subOffice,
-							children:[
-								{
-									html:`<div>no list available</div><button data-action="downloadList" data-network="${error.listParam.network}" data-channel="${error.listParam.channel}" data-user="${error.listParam.user}" data-packnumber="${error.listParam.packnumber}" data-sub-office="${error.subOffice}" >download list</button>`,
-									text:error.text
-								}
-							]
-						}
+					error.index=index;
+					if(error.listParam) {
+						missingLists.push(error);
+						return false;
 					}
+					return true;
+				});
+
+				if(missingLists.length>0)
+				{
+					errorRoot.children.push({
+						text:`Missing Lists (${missingLists.length})`,
+						children:[
+							{
+								html:`<button data-action="downloadAllLists">download all</button>`
+							},
+							...missingLists.map(error=>
+							{
+								return {
+									html:`<span>${error.subOffice}</span> <button data-action="downloadList" data-index="${error.index}">download list</button>`
+								}
+							})
+						]
+					});
+				}
+				errorRoot.children.push(...unexpectedErrors.map(function(error)
+				{
 					return {
 						html:error.subOffice,
 						children:[
@@ -189,13 +212,9 @@
 							}
 						]
 					};
-				});
-				let errorRoot=[{
-					html:errorNodes.length+" errors",
-					children:errorNodes
-				}];
+				}));
 
-				let menu=SC.menu(errorRoot,function(dom,error)
+				let menu=SC.menu([errorRoot],function(dom,error)
 				{
 					if(error.text)dom.textContent=error.text;
 					else dom.innerHTML=error.html;
@@ -248,6 +267,26 @@
 		{
 			return SC.rq({
 				url:"rest/downloads/addListDownload",
+				data:JSON.stringify(data)
+			})
+			.then(()=>
+			{
+				new SC.dlg('<div><span class="dialog-icon">&#10071;</span> added list to download queue</div><button data-action="close" autofocus>ok</button>',
+					{modal:true,target:this.element}
+				);
+			},
+			(e)=>
+			{
+				µ.logger.error(e);
+				new SC.dlg('<div><span class="dialog-icon">&#10060;</span> error while adding list to download queue:\n'+(e.response||e.message)+'</div><button data-action="close">ok</button>',
+					{modal:true,target:this.element}
+				);
+			});
+		},
+		downloadAllLists:function(data)
+		{
+			return SC.rq({
+				url:"rest/downloads/addAllListDownloads",
 				data:JSON.stringify(data)
 			})
 			.then(()=>
