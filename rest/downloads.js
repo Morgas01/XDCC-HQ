@@ -4,6 +4,7 @@
 	let XDCCdownload=require("../js/XDCCdownload");
 	let extractCRC=/.*[\[\(]([0-9a-fA-F]{8})[\)\]]/;
 
+
 	SC=SC({
     	es:"errorSerializer",
 		Download:"NIWA-Download.Download",
@@ -11,8 +12,9 @@
 		File:"File",
 		util:"File/util",
 		adopt:"adopt",
-    	niwaAppWorkDir:"niwaAppWorkDir"
-	})
+    	niwaAppWorkDir:"niwaAppWorkDir",
+    	botListDownloadPath:()=>new SC.File(SC.niwaAppWorkDir).changePath("bot lists").getAbsolutePath()
+	});
 
 	let getIrc=function()
 	{
@@ -32,10 +34,26 @@
 			sources:[data],
 			checkName:false,
 			appendCRC:false,
-			filepath:SC.niwaAppWorkDir,
+			filepath:SC.botListDownloadPath,
 			filename:data.subOffice.slice(0,-3)+".txt"
 		});
-	}
+	};
+
+	let getAbsoluteDownloadFolder=async function(downloadPath,download)
+	{
+		if(!download.filepath)
+		{
+			await manager.fetchParentPackages(download);
+			let names=[];
+			let folder;
+			for(folder=download.getParent("package");folder&&!folder.absolutePath;folder=folder.getParent("package"))
+			{
+				names.unshift(folder.name);
+			}
+			return new SC.File(folder&&folder.absolutePath||downloadPath).changePath(...names);
+		}
+		return new SC.File(download.filepath)
+	};
 
 	let manager=new Manager({
 		DBClassDictionary:[XDCCdownload],
@@ -59,20 +77,7 @@
 					signal.resolve();
 					return;
 				}
-				return this.fetchParentPackages(download)
-				.then(()=>
-				{
-					let folders=[];
-					let parent=download;
-					while(parent=parent.getParent("package"))
-					{
-						folders.push(parent.name);
-					}
-					folders.reverse();
-					folders.unshift(downloadPath);
-					let folder=new SC.File(folders.join("/"));
-					return SC.util.enshureDir(folder).then(()=>folder)
-				})
+				return getAbsoluteDownloadFolder(downloadPath,download)
 				.then(downloadFolder=>
 				{
 					this.updateDownload(download);

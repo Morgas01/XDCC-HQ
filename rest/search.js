@@ -6,7 +6,7 @@ let SC=µ.shortcut({
 	Org:"Organizer",
 	es:"errorSerializer",
 	Download:"NIWA-Download.Download",
-	niwaWorkDir:"niwaWorkDir"
+	niwaAppWorkDir:"niwaAppWorkDir"
 });
 
 
@@ -17,6 +17,7 @@ module.exports=function(request)
 		return `post as json like this:
 	{String|String[]} query
 	{String|String[]} [sources=null]
+	{boolean} [noCache=false]
 `		;
 	}
 	return new SC.File("subOffices").listFiles().then(function(subOfficeList)
@@ -39,13 +40,13 @@ module.exports=function(request)
 		µ.logger.info(filteredList,"starting search");
 		let queries=[].concat(request.data.query);
 
-		let p=Promise.all(filteredList.map(s=>doSearch(s,queries)))
+		let p=Promise.all(filteredList.map(s=>doSearch(s,queries,request.data.noCache)))
 		.then(combineResults);
 		p.then(result=>µ.logger.info(`hunting for "${queries.join()}" complete with ${result.results.length} hits and ${result.errors.length} errors`));
 		return p;
 	});
 };
-let doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
+let doSearch=SC.Promise.pledge(function(signal,subOffice,queries,noCache=false)
 {
 	µ.logger.info({subOffice:subOffice,queries:queries},`start hunting in subOffice ${subOffice}`);
 	let searchTimeout=SC.config.get(["search","search timeout"]).get();
@@ -56,8 +57,8 @@ let doSearch=SC.Promise.pledge(function(signal,subOffice,queries)
 			subOffice:subOffice,
 			fileExpiration:SC.config.get(["search","file expiration"]).get(),
 			searchTimeout:searchTimeout,
-			niwaWorkDir:SC.niwaWorkDir,
-			context:worker.context
+			niwaAppWorkDir:SC.niwaAppWorkDir,
+			noCache:noCache
 		}
 	})
 	.ready
