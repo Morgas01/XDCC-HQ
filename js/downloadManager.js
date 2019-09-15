@@ -84,7 +84,7 @@
 				if(data instanceof SC.XDCCdownload)
 				{
 					cell.innerHTML='<span>'+data.sources.map(s=>s.user+"@"+s.network).join(" ")+'</span>';
-					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")").join("\n");
+					cell.dataset.title=data.sources.map(s=>s.network+"/"+s.channel+" - "+s.user+":"+s.packnumber+" ("+s.subOffices+")"+(s.failed?"\t❌":"")).join("\n");
 				}
 			}
 		]);
