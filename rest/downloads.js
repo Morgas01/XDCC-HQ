@@ -168,9 +168,13 @@
 						µ.logger.error({error:e},"failed");
 						e=SC.es(e);
 						download.addMessage("Error:\n"+JSON.stringify(e,null,"\t"));
-						download.dataSource.failed=true;
-						if(download.sources.find(s=>!s.failed)) download.state=SC.Download.states.PENDING;
-						else download.state=SC.Download.states.FAILED;
+						if(download.dataSource)
+						{
+							download.dataSource.failed=true;
+							if(download.sources.find(s=>!s.failed)) download.state=SC.Download.states.PENDING;
+							else download.state=SC.Download.states.FAILED;
+						}
+						//else was caught from other offer
 						signal.resolve();
 					}));
 				});
@@ -225,6 +229,7 @@
 		{
 			download.state=XDCCdownload.states.PENDING;
 			download.addMessage("catch offer from "+originalDownloadName);
+			µ.logger.info({download,offer},"cought download");
 			return manager.startDownload(download,offer);
 		})
 		.catch(e=>µ.logger.error({error:e}));
